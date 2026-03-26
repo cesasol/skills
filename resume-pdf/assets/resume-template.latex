@@ -1,0 +1,194 @@
+%% ============================================================
+%%  Apex Resume Template — Pandoc LaTeX
+%%  Usage: pandoc resume.md -o resume.pdf --template resume-template.latex
+%% ============================================================
+\documentclass[10pt, letterpaper]{article}
+
+%% ── Packages ─────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage{fontspec}
+\usepackage[margin=0.6in, top=0.55in, bottom=0.55in]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{calc}
+\usepackage{etoolbox}
+\usepackage{fancyhdr}
+
+%% ── Fonts ────────────────────────────────────────────────────
+\setmainfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}
+
+%% ── Color Palette ────────────────────────────────────────────
+\definecolor{accent}{HTML}{1A1A2E}        % Deep navy — headers
+\definecolor{accentlight}{HTML}{2D4A7A}   % Steel blue — role titles
+\definecolor{rule}{HTML}{2D4A7A}          % Rule lines
+\definecolor{subtle}{HTML}{555555}        % Secondary text
+\definecolor{tag}{HTML}{EEF2FF}           % Skill tag background
+\definecolor{tagborder}{HTML}{C7D2FE}     % Skill tag border
+\definecolor{linkcolor}{HTML}{2D4A7A}
+
+%% ── Hyperlinks ───────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  urlcolor=linkcolor,
+  hidelinks
+}
+
+%% ── Page Style ───────────────────────────────────────────────
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+%% ── Section Headings ─────────────────────────────────────────
+\titleformat{\section}
+  {\fontsize{8.5pt}{10pt}\selectfont\bfseries\color{accent}\addfontfeature{LetterSpace=2.5}}
+  {}{0pt}{\MakeUppercase}
+  [\vspace{1pt}\textcolor{rule}{\rule{\linewidth}{0.6pt}}\vspace{2pt}]
+
+\titlespacing{\section}{0pt}{8pt}{4pt}
+
+\titleformat{\subsection}[runin]
+  {\fontsize{10pt}{12pt}\selectfont\bfseries\color{accent}}
+  {}{0pt}{}
+
+\titlespacing{\subsection}{0pt}{4pt}{4pt}
+
+%% ── List Styles ──────────────────────────────────────────────
+\setlist[itemize]{
+  leftmargin=1.2em,
+  itemsep=1pt,
+  topsep=2pt,
+  parsep=0pt,
+  label={\textcolor{accentlight}{\small\textbullet}}
+}
+
+%% ── Custom Commands ──────────────────────────────────────────
+
+%% Job entry header: \jobentry{Company}{Title}{Date}
+\newcommand{\jobentry}[3]{%
+  \noindent%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    {\fontsize{10.5pt}{13pt}\selectfont\bfseries\color{accent}#1}
+      \enspace{\fontsize{10pt}{12pt}\selectfont\color{accentlight}—\enspace\textit{#2}} &
+    {\fontsize{9pt}{11pt}\selectfont\color{subtle}#3}
+  \end{tabularx}%
+  \vspace{1pt}%
+}
+
+%% Project entry: \projectentry{Title}{Tech Stack}
+\newcommand{\projectentry}[2]{%
+  \noindent%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    {\fontsize{10pt}{12pt}\selectfont\bfseries\color{accentlight}#1} &
+    {\fontsize{8.5pt}{10pt}\selectfont\color{subtle}\textit{#2}}
+  \end{tabularx}%
+  \vspace{1pt}%
+}
+
+%% Skill category: \skillrow{Category}{Skills...}
+\newcommand{\skillrow}[2]{%
+  \noindent{\fontsize{9pt}{11pt}\selectfont\textbf{\color{accent}#1:}}\enspace%
+  {\fontsize{9pt}{11pt}\selectfont\color{subtle}#2}\\[2pt]%
+}
+
+%% Metric callout: \metric{90\%}{reduction in review time}
+\newcommand{\metric}[2]{%
+  \textbf{\color{accentlight}#1}~#2%
+}
+
+%% ── Document Body ────────────────────────────────────────────
+\begin{document}
+
+%% ── HEADER ───────────────────────────────────────────────────
+{%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    % Left: Name + role
+    \begin{minipage}[t]{0.62\linewidth}
+      {\fontsize{22pt}{26pt}\selectfont\bfseries\color{accent}$name$}\\[3pt]
+      {\fontsize{12pt}{15pt}\selectfont\color{accentlight}\textit{$title$}}
+    \end{minipage}
+    &
+    % Right: Contact
+    \begin{minipage}[t]{0.36\linewidth}\raggedleft
+      {\fontsize{8.5pt}{12pt}\selectfont\color{subtle}
+        $if(location)$$location$\\$endif$
+        $if(email)$\href{mailto:$email$}{$email$}\\$endif$
+        $if(linkedin)$\href{$linkedin$}{$linkedin_label$}\\$endif$
+        $if(github)$\href{$github$}{$github_label$}\\$endif$
+        $if(website)$\href{$website$}{$website_label$}$endif$
+      }
+    \end{minipage}
+  \end{tabularx}
+}
+
+\vspace{6pt}
+\textcolor{rule}{\rule{\linewidth}{1.2pt}}
+\vspace{4pt}
+
+%% ── SUMMARY ──────────────────────────────────────────────────
+$if(summary)$
+{\fontsize{9.5pt}{13pt}\selectfont\color{subtle}$summary$}
+\vspace{6pt}
+$endif$
+
+%% ── CORE SKILLS ──────────────────────────────────────────────
+$if(skills)$
+\section{Core Skills}
+$for(skills)$
+\skillrow{$it.category$}{$it.items$}
+$endfor$
+\vspace{2pt}
+$endif$
+
+%% ── EXPERIENCE ───────────────────────────────────────────────
+$if(experience)$
+\section{Professional Experience}
+$for(experience)$
+\jobentry{$it.company$}{$it.title$}{$it.dates$}
+$if(it.context)$
+{\fontsize{8.5pt}{11pt}\selectfont\color{subtle}\textit{$it.context$}}
+\vspace{1pt}
+$endif$
+\begin{itemize}
+$for(it.bullets)$
+  \item {\fontsize{9pt}{11pt}\selectfont $it$}
+$endfor$
+\end{itemize}
+\vspace{4pt}
+$endfor$
+$endif$
+
+%% ── NOTABLE PROJECTS ─────────────────────────────────────────
+$if(projects)$
+\section{Notable Projects}
+$for(projects)$
+\projectentry{$it.name$}{$it.stack$}
+\begin{itemize}
+$for(it.bullets)$
+  \item {\fontsize{9pt}{11pt}\selectfont $it$}
+$endfor$
+\end{itemize}
+\vspace{3pt}
+$endfor$
+$endif$
+
+%% ── EDUCATION ────────────────────────────────────────────────
+$if(education)$
+\section{Education}
+$for(education)$
+\noindent{\fontsize{10pt}{12pt}\selectfont\bfseries\color{accent}$it.institution$}
+\hfill{\fontsize{9pt}{11pt}\selectfont\color{subtle}$it.dates$}\\
+{\fontsize{9pt}{11pt}\selectfont\color{subtle}\textit{$it.description$}}
+\vspace{3pt}
+$endfor$
+$endif$
+
+\end{document}
