@@ -1,0 +1,78 @@
+name: Publish Skills
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Discover and package skills
+        run: |
+          mkdir -p dist
+          SKILLS=$(find . -maxdepth 1 -mindepth 1 -type d \
+            ! -name '.*' \
+            -exec test -f '{}/SKILL.md' \; -print \
+            | sed 's|^\./||' | sort)
+
+          for skill in $SKILLS; do
+            echo "Packaging: $skill"
+            (cd "$skill" && zip -r "../dist/${skill}.skill" . -x '.*')
+            echo "  -> dist/${skill}.skill ($(du -h "dist/${skill}.skill" | cut -f1))"
+          done
+
+          echo "--- Packaged skills ---"
+          ls -lh dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skills
+          path: dist/*.skill
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: skills
+          path: dist
+
+      - name: Publish to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          SHA="${GITHUB_SHA::8}"
+          TAG="latest"
+
+          # If this is a tag push, use the tag as version
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG="$VERSION"
+          fi
+
+          # Delete existing "latest" release if updating (ignore errors)
+          if [[ "$TAG" == "latest" ]]; then
+            gh release delete latest --yes 2>/dev/null || true
+            git push origin :refs/tags/latest 2>/dev/null || true
+          fi
+
+          # Create release with all .skill files
+          gh release create "$TAG" dist/*.skill \
+            --title "Skills ($TAG)" \
+            --notes "Published from commit ${GITHUB_SHA}
+
+          ## Packaged skills
+          $(ls -1 dist/*.skill | sed 's|dist/|- |; s|\.skill||')" \
+            $( [[ "$TAG" == "latest" ]] && echo "--latest" || echo "" )
+
+          echo "Published release: $TAG"
+          ls -lh dist/
