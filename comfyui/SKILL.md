@@ -89,12 +89,20 @@ Generates images from text using the lightweight FLUX.2 Klein 4B model with Qwen
 | `86` | CFGGuider | `cfg` | `5` | CFG scale (classifier-free guidance strength) |
 | `85` | Flux2Scheduler | `steps` | `20` | Sampling steps |
 | `85` | Flux2Scheduler | `width` / `height` | `1024` / `1024` | Output dimensions (overridden by resolution node) |
-| `98` | FluxResolutionNode | `megapixel` | `"1.5"` | Target megapixels (`"0.5"`, `"1.0"`, `"1.5"`, `"2.0"`) |
-| `98` | FluxResolutionNode | `aspect_ratio` | `"3:4 (Golden Ratio)"` | Aspect ratio preset |
+| `98` | FluxResolutionNode | `megapixel` | `"1.5"` | Target megapixels — string in 0.1 increments from `"0.1"` to `"2.5"` |
+| `98` | FluxResolutionNode | `aspect_ratio` | `"3:4 (Golden Ratio)"` | Aspect ratio preset (must include the parenthetical label — see below) |
 
 #### Resolution presets (node `98`)
 
-Common `aspect_ratio` values: `"1:1"`, `"4:3"`, `"3:4 (Golden Ratio)"`, `"16:9"`, `"9:16"`, `"3:2"`, `"2:3"`, `"21:9"`. Set `custom_ratio: true` and `custom_aspect_ratio: "W:H"` for non-standard ratios.
+`aspect_ratio` MUST be one of these exact strings (the parenthetical label is required — passing `"16:9"` alone fails validation):
+
+**Square:** `"1:1 (Perfect Square)"`
+
+**Portrait:** `"2:3 (Classic Portrait)"`, `"3:4 (Golden Ratio)"`, `"3:5 (Elegant Vertical)"`, `"4:5 (Artistic Frame)"`, `"5:7 (Balanced Portrait)"`, `"5:8 (Tall Portrait)"`, `"7:9 (Modern Portrait)"`, `"9:16 (Slim Vertical)"`, `"9:19 (Tall Slim)"`, `"9:21 (Ultra Tall)"`, `"9:32 (Skyline)"`
+
+**Landscape:** `"3:2 (Golden Landscape)"`, `"4:3 (Classic Landscape)"`, `"5:3 (Wide Horizon)"`, `"5:4 (Balanced Frame)"`, `"7:5 (Elegant Landscape)"`, `"8:5 (Cinematic View)"`, `"9:7 (Artful Horizon)"`, `"16:9 (Panorama)"`, `"19:9 (Cinematic Ultrawide)"`, `"21:9 (Epic Ultrawide)"`, `"32:9 (Extreme Ultrawide)"`
+
+For non-standard ratios, set `custom_ratio: true` and `custom_aspect_ratio: "W:H"`.
 
 #### Models
 
@@ -115,7 +123,7 @@ WORKFLOW=$(cat workflow.json \
   | jq '.["93"].inputs.noise_seed = 98765' \
   | jq '.["86"].inputs.cfg = 5' \
   | jq '.["98"].inputs.megapixel = "1.5"' \
-  | jq '.["98"].inputs.aspect_ratio = "16:9"')
+  | jq '.["98"].inputs.aspect_ratio = "16:9 (Panorama)"')
 
 PROMPT_ID=$(curl -s -X POST http://localhost:8188/prompt \
   -H 'Content-Type: application/json' \
