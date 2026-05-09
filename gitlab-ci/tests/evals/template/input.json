@@ -1,0 +1,7 @@
+{
+  "stack": "nodejs",
+  "pkg_mgr": "pnpm",
+  "tests": ["unit", "playwright"],
+  "deploy": "none",
+  "description": "Template eval — replace with actual scenario"
+}
