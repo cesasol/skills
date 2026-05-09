@@ -1,0 +1,19 @@
+exclude = [
+  ".git",
+  ".claude",
+  "dist",
+]
+
+# Prose stays unwrapped: the primary readers are AI agents that consume tokens,
+# not visual columns, so hard-wrapping prose adds tokens without improving
+# comprehension. MD013 is therefore disabled. The other disabled rules match
+# stylistic choices already used across existing skill docs.
+disable = [
+  "MD013",
+  "MD031",
+  "MD032",
+  "MD040",
+]
+
+[MD033]
+allowed_elements = ["br", "details", "summary"]

@@ -18,10 +18,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate Agent Skills spec coverage
-        run: |
-          python scripts/validate_skills.py .
-          python -m unittest discover -s tests -v
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: extractions/setup-just@v3
+
+      - name: Run CI recipes
+        run: just ci
 
   package:
     needs: validate
@@ -29,22 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: extractions/setup-just@v3
+
       - name: Discover and package skills
-        run: |
-          mkdir -p dist
-          SKILLS=$(find . -maxdepth 1 -mindepth 1 -type d \
-            ! -name '.*' \
-            -exec test -f '{}/SKILL.md' \; -print \
-            | sed 's|^\./||' | sort)
-
-          for skill in $SKILLS; do
-            echo "Packaging: $skill"
-            (cd "$skill" && zip -r "../dist/${skill}.skill" . -x '.*')
-            echo "  -> dist/${skill}.skill ($(du -h "dist/${skill}.skill" | cut -f1))"
-          done
-
-          echo "--- Packaged skills ---"
-          ls -lh dist/
+        run: just package
 
       - uses: actions/upload-artifact@v4
         with:

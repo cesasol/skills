@@ -11,6 +11,9 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 | [docs-layout](docs-layout/SKILL.md) | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files. |
 | [flux-prompt-gen](flux-prompt-gen/SKILL.md) | Generate optimized text-to-image prompts for Black Forest Labs FLUX models (FLUX.1, FLUX.2 [pro], FLUX.2 [max], FLUX.2 [klein]). |
 | [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
+| [just](just/SKILL.md) | Command runner best practices for justfiles, shared recipes, and CI entrypoints. |
+| [prek](prek/SKILL.md) | Fast pre-commit-compatible hook runner setup, configuration, and CI usage. |
+| [rumdl](rumdl/SKILL.md) | Fast Markdown linting and formatting with rumdl configuration and CI guidance. |
 
 ## Agent Definitions
 
@@ -71,14 +74,13 @@ This repository validates every top-level skill directory against the public
 [Agent Skills specification](https://agentskills.io/specification.md) before packaging.
 
 ```bash
-python scripts/validate_skills.py .
-python -m unittest discover -s tests -v
+just ci
 ```
 
-The validator enforces hard requirements for `SKILL.md` frontmatter, skill naming,
-optional field shapes, directory/name consistency, and local Markdown references.
-Best-practice guidance such as body examples, edge-case notes, and progressive
-disclosure conventions is reported as warnings.
+The shared CI recipe runs rumdl Markdown linting, prek hooks, Agent Skills validation,
+unit tests, and skill package verification. The validator enforces hard requirements
+for `SKILL.md` frontmatter, skill naming, optional field shapes, directory/name
+consistency, and local Markdown references.
 
 ## Developer
 

@@ -1,0 +1,6 @@
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "lint-markdown", name = "Lint Markdown", language = "system", entry = "just lint-md", files = "\\.md$", pass_filenames = false },
+  { id = "validate-skills", name = "Validate Agent Skills", language = "system", entry = "just validate-skills", files = "(^|/)SKILL\\.md$|^scripts/validate_skills\\.py$|^tests/", pass_filenames = false },
+]
