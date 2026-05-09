@@ -1,0 +1,1 @@
+{"stack": "python", "pkg_mgr": "poetry", "tests": ["pytest"], "lint": "ruff"}

@@ -1,0 +1,1 @@
+{"stack": "go", "tests": ["unit"], "lint": "golangci-lint"}

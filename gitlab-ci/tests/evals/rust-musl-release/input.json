@@ -1,0 +1,1 @@
+{"stack": "rust", "build": "musl", "target": "x86_64-unknown-linux-musl"}

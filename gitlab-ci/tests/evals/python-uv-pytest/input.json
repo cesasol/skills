@@ -1,0 +1,1 @@
+{"stack": "python", "pkg_mgr": "uv", "tests": ["pytest"], "lint": "ruff"}

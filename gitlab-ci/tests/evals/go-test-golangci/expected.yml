@@ -1,0 +1,59 @@
+stages:
+  - install
+  - quality
+  - test
+
+variables:
+  GO_VERSION: '1.23'
+  GOPATH: '$CI_PROJECT_DIR/.go'
+  GOCACHE: '$CI_PROJECT_DIR/.go-build-cache'
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+.go-cache: &go-cache
+  key:
+    files: [go.sum]
+    prefix: ${CI_COMMIT_REF_SLUG}
+  paths: [.go/pkg/mod, .go-build-cache]
+  policy: pull
+
+download:
+  stage: install
+  image: golang:${GO_VERSION}-bookworm
+  cache:
+    <<: *go-cache
+    policy: pull-push
+  script:
+    - go mod download
+    - go mod verify
+
+lint:
+  stage: quality
+  image: golang:${GO_VERSION}-bookworm
+  needs: [download]
+  cache:
+    <<: *go-cache
+  script:
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - golangci-lint run ./...
+
+test:
+  stage: test
+  image: golang:${GO_VERSION}-bookworm
+  needs: [download]
+  cache:
+    <<: *go-cache
+  script:
+    - go test -race -coverprofile=coverage.out ./...
+    - go tool cover -func=coverage.out
+  coverage: '/total:\s+\(statements\)\s+([\d.]+)%/'
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths: [coverage.out]

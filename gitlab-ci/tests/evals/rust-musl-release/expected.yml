@@ -1,0 +1,60 @@
+stages:
+  - quality
+  - test
+  - build
+
+variables:
+  RUST_VERSION: '1.82'
+  CARGO_HOME: '$CI_PROJECT_DIR/.cargo'
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+.cargo-cache: &cargo-cache
+  key:
+    files: [Cargo.lock]
+    prefix: ${CI_COMMIT_REF_SLUG}
+  paths: [.cargo/registry, .cargo/git, target/]
+  policy: pull
+
+clippy:
+  stage: quality
+  image: rust:${RUST_VERSION}-bookworm
+  cache:
+    <<: *cargo-cache
+    policy: pull-push
+  script:
+    - cargo clippy --all-targets -- -D warnings
+
+test:
+  stage: test
+  image: rust:${RUST_VERSION}-bookworm
+  needs: [clippy]
+  cache:
+    <<: *cargo-cache
+  script:
+    - cargo test
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths: []
+
+build:musl:
+  stage: build
+  image: rust:${RUST_VERSION}-bookworm
+  needs: [clippy, test]
+  cache:
+    <<: *cargo-cache
+  before_script:
+    - rustup target add x86_64-unknown-linux-musl
+    - apt-get update -qq && apt-get install -y musl-tools
+  script:
+    - cargo build --release --target x86_64-unknown-linux-musl
+  artifacts:
+    expire_in: 1 day
+    paths: [target/x86_64-unknown-linux-musl/release/]

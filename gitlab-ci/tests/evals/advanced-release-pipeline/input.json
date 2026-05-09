@@ -1,0 +1,1 @@
+{"stack": "docker", "registry": "gitlab", "release": true, "environments": ["staging", "production"]}

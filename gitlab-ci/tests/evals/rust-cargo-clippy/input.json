@@ -1,0 +1,1 @@
+{"stack": "rust", "lint": "clippy", "format": true, "tests": ["unit"]}

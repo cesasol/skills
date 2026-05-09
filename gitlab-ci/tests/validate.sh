@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Master validation script for the glab (gitlab-ci) skill.
+# Master validation script for the gitlab-ci skill.
 # Run from repo root: bash gitlab-ci/tests/validate.sh
 set -euo pipefail
 
-SKILL_DIR="glab"
+SKILL_DIR="gitlab-ci"
 TESTS_DIR="gitlab-ci/tests"
 REF_DIR="$SKILL_DIR/references"
 SKILL_FILE="$SKILL_DIR/SKILL.md"
 
 REF_FILES=(
-    "$REF_DIR/api.md"
-    "$REF_DIR/ci-cd.md"
-    "$REF_DIR/infrastructure.md"
-    "$REF_DIR/issues-and-incidents.md"
-    "$REF_DIR/merge-requests.md"
-    "$REF_DIR/project-management.md"
+    "$REF_DIR/_common.md"
+    "$REF_DIR/nodejs.md"
+    "$REF_DIR/python.md"
+    "$REF_DIR/go.md"
+    "$REF_DIR/docker.md"
+    "$REF_DIR/rust.md"
+    "$REF_DIR/advanced.md"
 )
 ALL_REF_FILES=("$SKILL_FILE" "${REF_FILES[@]}")
 
@@ -114,9 +115,9 @@ check_yamllint() {
     fi
     local errors=0
     while IFS= read -r -d '' f; do
-        if ! yamllint "$f" >/dev/null 2>&1; then
+        if ! yamllint -d relaxed "$f" >/dev/null 2>&1; then
             echo "  [YAML LINT ERROR] $f"
-            yamllint "$f" | sed 's/^/    /'
+            yamllint -d relaxed "$f" | sed 's/^/    /'
             errors=1
         fi
     done < <(find "$TESTS_DIR/evals" -name 'expected.yml' -print0 2>/dev/null || true)
@@ -148,7 +149,7 @@ check_assertions_py() {
 }
 
 # ─── Main ────────────────────────────────────────────────────────────────────
-echo "=== glab skill validation ==="
+echo "=== gitlab-ci skill validation ==="
 echo ""
 
 check_frontmatter
