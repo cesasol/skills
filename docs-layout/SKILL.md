@@ -61,6 +61,12 @@ docs/
 - **Flat kebab-case** (`topic.md`) — `runbooks/`, `reference/`, `brand/`. Living references; revisions happen in-place with git history as the audit trail. Date or number prefixes here imply staleness or ordering that don't apply.
 - **Locale suffix** (`topic.LOCALE.md`) — `wireframes/` only. `en`, `es`, etc. Applied *after* the kebab slug, before the extension.
 
+## Examples
+
+- New architectural decision about queue technology → `docs/decisions/2026-05-08-queue-selection.md`
+- Multi-phase migration plan → `docs/roadmap/phase-1-schema-prep.md`, then `phase-2-cutover.md`
+- Frontend checkout wireframe in Spanish → `docs/wireframes/checkout.es.md`
+
 ## Common mistakes
 
 - **Naming the folder `adr/` with sequential `NNNN-` prefixes.** Use `decisions/` with ISO date prefix. Sequential numbering requires a registry to avoid collisions across concurrent branches; dates don't.

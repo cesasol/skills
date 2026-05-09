@@ -47,7 +47,7 @@ description: >
 | Auth | `glab auth` | [infrastructure.md](references/infrastructure.md) | login, logout, status |
 | Config | `glab config` | [infrastructure.md](references/infrastructure.md) | get, set |
 
-## Common Workflows
+## Common Workflow Examples
 
 ### Create MR from current branch
 

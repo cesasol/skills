@@ -1,9 +1,17 @@
 stages:
+  - validate
   - package
   - publish
 
 variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic"
+
+validate:
+  stage: validate
+  image: python:3.12-alpine
+  script:
+    - python scripts/validate_skills.py .
+    - python -m unittest discover -s tests -v
 
 # Discover skill directories (any dir containing SKILL.md)
 .skill_dirs: &skill_dirs
@@ -16,6 +24,8 @@ variables:
 package:
   stage: package
   image: alpine:latest
+  needs:
+    - validate
   before_script:
     - apk add --no-cache zip findutils
   script:

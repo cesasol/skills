@@ -48,9 +48,9 @@ Example: "Add dark mode toggle" → `add-dark-mode-toggle`
 
 ### Phase 2 — Infrastructure Setup (Orchestrator, sequential)
 
-All shell steps are handled by `setup-worktree.sh`. On first use in a project, write the script
-to `.claude/scripts/setup-worktree.sh` and make it executable — the full source is embedded at
-the bottom of this skill. Then call it once per workitem:
+All shell steps are handled by `scripts/setup-worktree.sh`. On first use in a project, copy the
+bundled script to `.claude/scripts/setup-worktree.sh` and make it executable — the full source is
+also embedded at the bottom of this skill. Then call it once per workitem:
 
 ```bash
 bash .claude/scripts/setup-worktree.sh <slug> "<title>" [label]

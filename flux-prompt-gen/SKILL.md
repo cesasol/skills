@@ -257,6 +257,19 @@ teal and orange color grading reminiscent of Blade Runner 2049,
 slight Dutch angle for psychological tension
 ```
 
+## Examples
+
+**User asks:** "Write a FLUX.2 [klein] prompt for a gold alchemy-themed landing page hero."
+
+**Deliver:** a natural-language prompt that front-loads the subject, includes precise lighting,
+composition, material, and brand color details, then adds a shorter and a more detailed variation.
+
+## Edge Cases
+
+- If the user does not name a FLUX variant, infer from context when obvious; otherwise ask once before finalizing model-specific syntax.
+- If the user requests text in the image, keep wording short and exact; FLUX can still distort long typography.
+- If the user gives a negative prompt, rewrite it into positive visual constraints rather than preserving negations.
+
 ### Comic Strip / Sequential Art
 
 For consistent characters across panels: repeat the full physical description in every panel prompt. Character continuity requires redundancy.

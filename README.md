@@ -12,6 +12,12 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 | [flux-prompt-gen](flux-prompt-gen/SKILL.md) | Generate optimized text-to-image prompts for Black Forest Labs FLUX models (FLUX.1, FLUX.2 [pro], FLUX.2 [max], FLUX.2 [klein]). |
 | [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
 
+## Agent Definitions
+
+Reusable agent and subagent prompts live in [`agents/`](agents/). They are not Agent Skills packages;
+they use a portable Markdown behavior contract plus optional harness-specific frontmatter for tools,
+model selection, and subagent mode.
+
 ## Installation
 
 ### Requirements
@@ -56,6 +62,23 @@ cp -r skills/SKILL_NAME .opencode/skills/SKILL_NAME
 Once installed, the agent should list the skill in its available skills. You can test by asking:
 
 > "Check the pipeline status for the current branch using glab."
+
+## Development
+
+### Agent Skills specification coverage
+
+This repository validates every top-level skill directory against the public
+[Agent Skills specification](https://agentskills.io/specification.md) before packaging.
+
+```bash
+python scripts/validate_skills.py .
+python -m unittest discover -s tests -v
+```
+
+The validator enforces hard requirements for `SKILL.md` frontmatter, skill naming,
+optional field shapes, directory/name consistency, and local Markdown references.
+Best-practice guidance such as body examples, edge-case notes, and progressive
+disclosure conventions is reported as warnings.
 
 ## Developer
 
