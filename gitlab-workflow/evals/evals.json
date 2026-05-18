@@ -1,0 +1,72 @@
+{
+  "skill_name": "gitlab-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm on the branch feat/oauth-login and I just finished the OAuth implementation. Can you create a merge request for this? The issue this relates to is #42.",
+      "expected_output": "An MR is created with a GLFM-formatted description that references #42, describes the OAuth changes, and follows any MR template if present. The description should include what was done, why, and testing instructions. The glab mr create command should use --related-issue 42.",
+      "files": [],
+      "assertions": [
+        {"id": "uses-glab-mr-create", "description": "Uses glab mr create command"},
+        {"id": "references-issue", "description": "References issue #42 via --related-issue or in description"},
+        {"id": "targets-main", "description": "Uses --target-branch main"},
+        {"id": "glfm-description", "description": "MR description uses GLFM formatting"},
+        {"id": "structured-description", "description": "Description includes what/why/how/testing sections"},
+        {"id": "checks-template", "description": "Checks for MR description templates"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Hey can you review MR !128 for me? I want to know if the code looks good, if tests pass, and whether it should be merged.",
+      "expected_output": "The agent retrieves MR details, diff, and pipeline status. It provides a structured review with code quality observations, test status, and a clear merge recommendation.",
+      "files": [],
+      "assertions": [
+        {"id": "views-mr-details", "description": "Uses glab mr view 128"},
+        {"id": "views-diff", "description": "Uses glab mr diff 128"},
+        {"id": "checks-pipeline", "description": "Checks pipeline/CI status"},
+        {"id": "structured-review", "description": "Provides structured review with code quality and test status"},
+        {"id": "clear-recommendation", "description": "Gives clear merge recommendation"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I need to break down issue #15 into smaller tasks. It's about adding a dark mode toggle to the settings page. Can you create a task list for this?",
+      "expected_output": "The agent reads issue #15 and produces a GLFM task list with - [ ] items breaking down the dark mode implementation.",
+      "files": [],
+      "assertions": [
+        {"id": "uses-task-list-syntax", "description": "Uses - [ ] task list syntax"},
+        {"id": "tasks-are-specific", "description": "Tasks are specific, actionable units"},
+        {"id": "covers-full-scope", "description": "Tasks cover CSS, toggle, persistence, testing"},
+        {"id": "reads-issue", "description": "Uses glab issue view to read issue"},
+        {"id": "provides-update-command", "description": "Provides glab issue update command"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Start working on issue #55 — it's about fixing the login rate limiting. Create a branch and an MR for it.",
+      "expected_output": "A branch is created following naming conventions. An MR is created with --related-issue 55 and --copy-issue-labels. MR description uses GLFM and links to the issue.",
+      "files": [],
+      "assertions": [
+        {"id": "follows-naming-convention", "description": "Branch follows type/issue-ref-desc convention"},
+        {"id": "creates-branch-from-main", "description": "Branch created from main"},
+        {"id": "reads-issue", "description": "Reads issue #55 with glab issue view"},
+        {"id": "links-to-issue", "description": "Uses --related-issue 55"},
+        {"id": "copies-labels", "description": "Uses --copy-issue-labels"},
+        {"id": "glfm-description", "description": "MR description uses GLFM"}
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The MR description for !200 is outdated — I've added a new caching layer since I opened it. Can you update the description to match what's actually in the diff now?",
+      "expected_output": "The agent reads the current MR, inspects the diff, checks for an MR template, and rewrites the description. Uses glab mr update --description with GLFM-formatted content.",
+      "files": [],
+      "assertions": [
+        {"id": "reads-current-mr", "description": "Uses glab mr view 200"},
+        {"id": "inspects-diff", "description": "Uses glab mr diff or git diff"},
+        {"id": "uses-update-command", "description": "Uses glab mr update --description"},
+        {"id": "mentions-caching", "description": "Updated description mentions caching layer"},
+        {"id": "glfm-formatting", "description": "Updated description uses GLFM formatting"}
+      ]
+    }
+  ]
+}

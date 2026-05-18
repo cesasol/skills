@@ -19,6 +19,46 @@ description: >
 3. **Repo context.** When inside a git repo linked to GitLab, glab auto-detects the project. Use `-R OWNER/REPO` or `-R GROUP/NAMESPACE/REPO` to target a different project.
 4. **Never expose tokens.** Do not log, print, or embed tokens in commands. Use `glab auth status` to check auth, never `glab config get token`.
 5. **Avoid TUI commands.** `glab ci view` launches a TUI — use `glab ci status -F json` or `glab ci list -F json` instead.
+6. **Never invent flags.** If the skill doesn't show a flag, verify with `--help` before using it.
+7. **Never pass multi-line strings inline.** Write markdown or JSON content to `/tmp/file.md` first, then reference it.
+
+## Agent Safety — Verified Flags
+
+These flags are confirmed via `--help`. Do not assume other flags exist.
+
+### `glab issue create`
+- `-t, --title` — issue title (required)
+- `-d, --description` — issue description (single-line safe only)
+- `-l, --label` — label(s)
+- `-a, --assignee` — assignee username(s)
+- `--no-editor` — skip editor, use prompts
+- `-y, --yes` — skip confirmation
+
+**No `--description-file` flag exists.** For multi-line descriptions, use `glab api` with `--field description=@file`.
+
+### `glab issue note`
+- `-m, --message` — note body (single-line safe only)
+
+**No `--body` flag exists.** For multi-line notes, use `glab api` with `--field body=@file`.
+
+### `glab api`
+- `--method GET|POST|PUT|DELETE` — HTTP method
+- `-f, --field key=value` — form field (repeatable)
+- `-F, --raw-field key=value` — raw field, no escaping
+- `--field key=@file` — read value from file (safe for markdown)
+- `--input file` — JSON body from file
+
+### Safe pattern for multi-line content
+
+```bash
+# Write content to file first (use the Write tool, not bash)
+# Then create issue via API:
+glab api "projects/:id/issues" \
+  --method POST \
+  --raw-field "title=Bug: something" \
+  --field "description=@/tmp/issue-desc.md" \
+  --output json
+```
 
 ## Command Domains
 
@@ -47,7 +87,7 @@ description: >
 | Auth | `glab auth` | [infrastructure.md](references/infrastructure.md) | login, logout, status |
 | Config | `glab config` | [infrastructure.md](references/infrastructure.md) | get, set |
 
-## Common Workflow Examples
+## Common Workflows
 
 ### Create MR from current branch
 
