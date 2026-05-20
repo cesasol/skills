@@ -1,0 +1,29 @@
+{
+  "skill_name": "image-prompt-crafter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to generate an image of a cyberpunk street market at night for FLUX.2 Klein. Can you write me a good prompt? I want neon signs, rain, and a food vendor as the main subject.",
+      "expected_output": "A detailed, natural-language prompt optimized for FLUX.2 Klein with no aspect ratio/resolution specs, strong lighting description, specific subject details, and the Style/Mood annotation at the end.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Upsample this short prompt for Z-Image Turbo: 'a wizard casting a spell in a library'",
+      "expected_output": "An expanded prompt of 80-250 words with specific subject details, environmental context, lighting, style, and composition. No negative prompts. No aspect ratio specs.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I have this prompt for FLUX.2 Dev but I want to adapt it for Ernie Image instead. The prompt is: 'A photorealistic portrait of a weathered fisherman in his 60s, salt-and-pepper beard, wearing a yellow rain slicker, standing on a wooden dock at dawn. Shot on Hasselblad X2D, 80mm lens, f/2.8. Soft morning light, mist rising from the water, seagulls in the background. Film grain, muted blue-grey color palette.'",
+      "expected_output": "A prompt adapted for Ernie Image that preserves the core subject and mood while using Ernie-specific techniques. Should maintain the fisherman subject, rain slicker, dock at dawn, and mood. May be slightly condensed since Ernie has a built-in enhancer.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Make me a prompt for a vintage travel poster that says 'VISIT KYOTO' for Ernie Image. I want it to look like a 1920s Japanese woodblock print with cherry blossoms and a pagoda.",
+      "expected_output": "A prompt with the text 'VISIT KYOTO' in quotation marks, described placement and font style, 1920s Japanese woodblock print style reference, cherry blossoms and pagoda elements. No aspect ratio or resolution specs.",
+      "files": []
+    }
+  ]
+}

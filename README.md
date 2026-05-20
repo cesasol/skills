@@ -11,6 +11,7 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 | [docs-layout](docs-layout/SKILL.md) | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files. |
 | [flux-prompt-gen](flux-prompt-gen/SKILL.md) | Generate optimized text-to-image prompts for Black Forest Labs FLUX models (FLUX.1, FLUX.2 [pro], FLUX.2 [max], FLUX.2 [klein]). |
 | [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
+| [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Craft, upsample, and refine text prompts for AI image generation models: FLUX.1/2 Dev, FLUX.2 Klein, Z-Image Turbo, and Ernie Image. Outputs 2–3 prompt variations in clean code blocks. |
 | [just](just/SKILL.md) | Command runner best practices for justfiles, shared recipes, and CI entrypoints. |
 | [prek](prek/SKILL.md) | Fast pre-commit-compatible hook runner setup, configuration, and CI usage. |
 | [rumdl](rumdl/SKILL.md) | Fast Markdown linting and formatting with rumdl configuration and CI guidance. |
