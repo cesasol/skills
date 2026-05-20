@@ -1,0 +1,72 @@
+{
+  "skill_name": "fastapi-api",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to build a REST API for a task management app. It should have users who can create projects and add tasks to them. Set up the FastAPI project structure, the database models with SQLModel, and the first endpoints for creating and listing projects. Use PostgreSQL. Use uv for package management, ruff for linting, and ty for type checking.",
+      "expected_output": "A properly structured FastAPI project with app/ root, domain-driven layout, SQLModel models for User/Project/Task, async database setup with psycopg 3, uv-managed dependencies, ruff and ty configuration, and working endpoints for creating and listing projects.",
+      "files": [],
+      "expectations": [
+        "Project root is app/ (not src/ or flat structure)",
+        "Project follows domain-driven structure with users/, projects/, tasks/ directories",
+        "Each domain has router.py, schemas.py, models.py, and service.py",
+        "SQLModel models defined for User, Project, and Task with proper fields",
+        "Async database engine uses psycopg 3 driver (not psycopg2)",
+        "pyproject.toml includes fastapi, sqlmodel, psycopg[binary], uvicorn, ruff, ty as dependencies",
+        "pyproject.toml configures ruff and ty with strict mode",
+        "Endpoints exist for creating (POST) and listing (GET) projects",
+        "Dependency injection uses Annotated[T, Depends(...)] form, not default-arg form",
+        "Cross-domain imports use explicit package names (from app.X import ...)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My FastAPI endpoint for uploading files is freezing the server under load. Here's the code:\n\n@router.post('/upload')\nasync def upload(file: UploadFile):\n    data = file.file.read()\n    result = some_sync_library.process(data)\n    return result\n\nHow should I fix this? Rewrite it properly.",
+      "expected_output": "The endpoint rewritten to avoid blocking the event loop: use await file.read() for the UploadFile, and either run_in_threadpool or asyncio.to_thread for the sync library call, or use a def route if appropriate.",
+      "files": [],
+      "expectations": [
+        "Identifies file.file.read() as a blocking call that freezes the event loop",
+        "Identifies some_sync_library.process() as a blocking call in async context",
+        "Replaces file.file.read() with await file.read() for async UploadFile access",
+        "Wraps sync library call in await asyncio.to_thread() or run_in_threadpool()",
+        "Does NOT suggest making the route synchronous (def) as the primary fix",
+        "Explains why blocking inside async def freezes the entire event loop",
+        "Final code contains no bare blocking calls inside async def"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a posts module in my FastAPI app but all errors are just returning 500s. I want proper error handling — 404 when a post isn't found, 403 when the user doesn't own the post, 409 for duplicate slugs. Also I need a custom exception handler so my service layer doesn't know about HTTP. Write me the exceptions.py, the handlers in main.py, and show how a router endpoint would use them.",
+      "expected_output": "Domain exception classes (NotFoundError, ForbiddenError, ConflictError) in exceptions.py, FastAPI exception handlers registered on the app, and a router endpoint that lets service-layer exceptions bubble up to the handlers. No HTTPException in service code.",
+      "files": [],
+      "expectations": [
+        "Defines a base exception class (e.g., AppError) that other exceptions inherit from",
+        "Defines NotFoundError for 404 (post not found)",
+        "Defines ForbiddenError or UserNotOwnerError for 403",
+        "Defines ConflictError for 409 (duplicate slug)",
+        "Registers FastAPI exception handlers for each error class in main.py",
+        "Service layer code raises domain exceptions, never HTTPException",
+        "Router endpoints let exceptions bubble up — no try/except in the route body",
+        "Exception handlers return JSON responses with proper status codes (404, 403, 409)",
+        "Exceptions live in exceptions.py, handlers in main.py (separate files)"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need a CLI to bulk-import users from a CSV file and another command to deactivate expired accounts. These should use the same service layer as the API — I don't want duplicated database logic. Set up app/cli/ with typer, register the entry point in pyproject.toml, and show how the CLI commands import from the app's service layer.",
+      "expected_output": "A typer-based CLI in app/cli/ with commands for importing users from CSV and deactivating expired accounts, sharing the same SessionFactory, config, and service layer as the API. Entry point registered in pyproject.toml under [project.scripts].",
+      "files": [],
+      "expectations": [
+        "CLI code lives in app/cli/ directory",
+        "Uses typer (not Click directly, not argparse)",
+        "CLI commands import from app.* service layer (not duplicated DB queries)",
+        "Entry point registered in pyproject.toml under [project.scripts]",
+        "Has a command to bulk-import users from CSV",
+        "Has a command to deactivate expired accounts",
+        "CLI shares the same SessionFactory as the API (no separate DB connection)",
+        "Does not duplicate database logic — calls service layer functions",
+        "app/cli/__init__.py defines a typer app with subcommands"
+      ]
+    }
+  ]
+}
