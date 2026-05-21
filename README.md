@@ -4,22 +4,26 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 
 ## Available Skills
 
-| Skill | Description |
-| ------- | ------------- |
-| [dispatch-gitlab-feature-workitems](dispatch-gitlab-feature-workitems/SKILL.md) | Parallel GitLab feature development workflow: expands requirements into workitem docs, dispatches one agent per item, each with its own worktree, branch, and GitLab draft MR. |
-| [docs-layout](docs-layout/SKILL.md) | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files. |
-| [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
-| [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Craft, upsample, and refine text prompts for AI image generation models: FLUX.1/2 Dev, FLUX.2 Klein, Z-Image Turbo, and Ernie Image. Outputs 2–3 prompt variations in clean code blocks. |
-| [just](just/SKILL.md) | Command runner best practices for justfiles, shared recipes, and CI entrypoints. |
-| [prek](prek/SKILL.md) | Fast pre-commit-compatible hook runner setup, configuration, and CI usage. |
-| [rumdl](rumdl/SKILL.md) | Fast Markdown linting and formatting with rumdl configuration and CI guidance. |
+| Skill                                                                           | Description                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [dispatch-gitlab-feature-workitems](dispatch-gitlab-feature-workitems/SKILL.md) | Parallel GitLab feature development workflow: expands requirements into workitem docs, dispatches one agent per item, each with its own worktree, branch, and GitLab draft MR.                        |
+| [docs-layout](docs-layout/SKILL.md)                                             | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files.      |
+| [fastapi-api](fastapi-api/SKILL.md)                                             | Production-grade FastAPI API conventions for project structure, routers, schemas, dependency injection, async database access, error handling, testing, migrations, and tooling.                      |
+| [gitlab-ci](gitlab-ci/SKILL.md)                                                 | GitLab CI pipeline generation and refactoring for Node.js, Python, Go, Docker, and Rust projects, including components, inputs, matrix jobs, validation, caching, artifacts, and deployment patterns. |
+| [gitlab-workflow](gitlab-workflow/SKILL.md)                                     | Single-branch GitLab Flow guidance for issues, feature branches, merge requests, reviews, pipeline checks, and GitLab Flavored Markdown using `glab`.                                                 |
+| [glab](glab/SKILL.md)                                                           | GitLab CLI (`glab`) usage for merge requests, issues, CI/CD pipelines, releases, API access, project management, infrastructure resources, and safe non-interactive automation.                       |
+| [image-prompt-crafter](image-prompt-crafter/SKILL.md)                           | Craft, upsample, and refine text prompts for AI image generation models: FLUX.1/2 Dev, FLUX.2 Klein, Z-Image Turbo, and Ernie Image. Outputs 2–3 prompt variations in clean code blocks.              |
+| [just](just/SKILL.md)                                                           | Command runner best practices for justfiles, shared recipes, reproducible developer workflows, and CI entrypoints.                                                                                    |
+| [prek](prek/SKILL.md)                                                           | Fast pre-commit-compatible hook runner setup, configuration, first-party hook selection, and CI usage.                                                                                                |
+| [resume-pdf](resume-pdf/SKILL.md)                                               | Tailored, ATS-optimized PDF resume generation using a Pandoc + XeLaTeX pipeline.                                                                                                                      |
+| [rumdl](rumdl/SKILL.md)                                                         | Fast Markdown linting and formatting with strict-but-agent-friendly rumdl configuration, first-party prek hooks, CI guidance, and documented exceptions.                                              |
 
 ## Deprecated Skills
 
-| Skill | Replacement | Notes |
-| ------- | ------------- | ------- |
-| [comfyui](comfyui/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) for prompt crafting; use project-specific ComfyUI tooling for execution. | Deprecated and retained for compatibility only. |
-| [flux-prompt-gen](flux-prompt-gen/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Deprecated; image-prompt-crafter covers FLUX plus additional image models. |
+| Skill                                       | Replacement                                                                                                                    | Notes                                                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| [comfyui](comfyui/SKILL.md)                 | [image-prompt-crafter](image-prompt-crafter/SKILL.md) for prompt crafting; use project-specific ComfyUI tooling for execution. | Deprecated and retained for compatibility only.                            |
+| [flux-prompt-gen](flux-prompt-gen/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md)                                                                          | Deprecated; image-prompt-crafter covers FLUX plus additional image models. |
 
 ## Agent Definitions
 
