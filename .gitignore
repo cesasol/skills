@@ -22,3 +22,4 @@ nupkg/
 
 # Rider
 .idea
+.claude/agents/
