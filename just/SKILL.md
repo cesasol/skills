@@ -10,7 +10,16 @@ compatibility: Requires the just CLI; install with cargo, Homebrew, npm, uv, con
 
 # just — Command Runner
 
-just is a command runner for project recipes. It is not a build system; recipes run when invoked and do not track file timestamps like Make.
+Use `just` to make project commands discoverable, reproducible, and easy for humans, agents, and CI to run. It is not a build system; recipes run when invoked and do not track file timestamps like
+Make.
+
+## Workflow
+
+1. Inspect existing project commands first: `justfile`, `package.json`, `pyproject.toml`, `Makefile`, CI config, scripts, and README snippets.
+2. Add or update recipes around commands the project already uses; avoid inventing a new toolchain.
+3. Keep public recipes documented and stable because CI and agents will depend on them.
+4. Run `just --fmt` when supported, then run `just --list` and the changed recipes or `just ci` when safe.
+5. Report the recipe names changed and which recipe CI should call.
 
 ## Critical Rules for Agents
 
@@ -22,17 +31,15 @@ just is a command runner for project recipes. It is not a build system; recipes 
 
 ## Install
 
+Use the project's existing install path when present. Otherwise prefer the official installer in CI and the user's package manager locally.
+
 ```bash
-# cargo
-cargo install just
-
-# Homebrew
-brew install just
-
 # official installer
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
-# uv / npm
+# cargo / Homebrew / uv / npm
+cargo install just
+brew install just
 uv tool install rust-just
 npm install -g rust-just
 ```
@@ -51,6 +58,8 @@ just <recipe> <args>         # run a recipe with arguments
 ```
 
 ## justfile Best Practices
+
+Start with a small spine and add project-specific commands as needed:
 
 ```make
 set shell := ["bash", "-uc"]
@@ -78,30 +87,14 @@ _ensure-clean:
   git diff --quiet
 ```
 
-## CI Examples
-
-### GitHub Actions
-
-```yaml
-- uses: extractions/setup-just@v3
-- run: just ci
-```
-
-### GitLab CI
-
-```yaml
-before_script:
-  - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-script:
-  - just ci
-```
-
-## Common Mistakes and Failure Handling
+## Gotchas and common mistakes
 
 - **Mistake: treating just like Make.** just recipes do not skip work because outputs are newer than inputs.
 - **Mistake: hiding required tools in undocumented shell snippets.** Put shared commands in named recipes.
 - **Failure: recipe works locally but not in CI.** Avoid shell aliases, local-only environment, and interactive commands.
 - **Failure: commands run from an unexpected directory.** just searches upward for a justfile; use explicit paths when recipes depend on location.
+- **Mistake: putting secrets in recipes.** Recipes are committed to the repo; read secrets from environment variables or secret managers.
+- **Mistake: making `ci` interactive or destructive.** `just ci` should be safe to run repeatedly in CI and by agents.
 
 ## Output Format for Agent Responses
 

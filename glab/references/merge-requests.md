@@ -53,7 +53,7 @@ glab mr create --fill --push --target-branch main --yes
 ### Key flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `-f, --fill` | Use commit info for title/description, auto-push. **Required for non-interactive.** |
 | `--fill-commit-body` | Include all commit bodies in description (with `--fill`) |
 | `-t, --title` | MR title |
@@ -130,7 +130,7 @@ glab mr list --page 2 --per-page 10 -F json
 ### Key flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `-A, --all` | All states |
 | `-a, --assignee` | Filter by assignee username(s) |
 | `-r, --reviewer` | Filter by reviewer username(s) |

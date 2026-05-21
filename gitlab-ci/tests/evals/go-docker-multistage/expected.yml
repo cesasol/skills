@@ -4,7 +4,7 @@ stages:
   - build
 
 variables:
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.26'
   GOPATH: '$CI_PROJECT_DIR/.go'
   GOCACHE: '$CI_PROJECT_DIR/.go-build-cache'
   DOCKER_DRIVER: overlay2
@@ -49,9 +49,9 @@ test:
 
 build:docker:
   stage: build
-  image: docker:27
+  image: docker:29
   services:
-    - docker:27-dind
+    - docker:29-dind
   needs: [test]
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"

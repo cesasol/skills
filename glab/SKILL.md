@@ -10,23 +10,25 @@ description: >
 
 # glab — GitLab CLI
 
-`glab` brings GitLab to the terminal. All commands assume glab is authenticated (`glab auth status` to verify).
+Use `glab` to operate GitLab from the terminal. All commands assume glab is authenticated; verify with `glab auth status` before making changes.
 
 ## Critical Rules for Agents
 
-1. **Never use interactive mode.** Always pass `--yes`/`-y` to skip prompts and `--no-editor` where available.
-2. **Prefer JSON output.** Use `-F json` or `--output json` for parseable data. Fall back to `text` only for human display.
-3. **Repo context.** When inside a git repo linked to GitLab, glab auto-detects the project. Use `-R OWNER/REPO` or `-R GROUP/NAMESPACE/REPO` to target a different project.
-4. **Never expose tokens.** Do not log, print, or embed tokens in commands. Use `glab auth status` to check auth, never `glab config get token`.
-5. **Avoid TUI commands.** `glab ci view` launches a TUI — use `glab ci status -F json` or `glab ci list -F json` instead.
-6. **Never invent flags.** If the skill doesn't show a flag, verify with `--help` before using it.
-7. **Never pass multi-line strings inline.** Write markdown or JSON content to `/tmp/file.md` first, then reference it.
+1. **Confirm repository context before mutating.** Use `glab repo view -F json` or pass `-R GROUP/PROJECT` when there is any ambiguity.
+2. **Never use interactive mode.** Always pass `--yes`/`-y` to skip prompts and `--no-editor` where available.
+3. **Prefer JSON output.** Use `-F json` or `--output json` for parseable data. Fall back to text only for human display.
+4. **Repo context.** When inside a git repo linked to GitLab, glab auto-detects the project. Use `-R OWNER/REPO` or `-R GROUP/NAMESPACE/REPO` to target a different project.
+5. **Never expose tokens.** Do not log, print, or embed tokens in commands. Use `glab auth status` to check auth, never `glab config get token`.
+6. **Avoid TUI/browser commands.** `glab ci view` launches a TUI and `--web` opens a browser. Use JSON/list/view commands instead.
+7. **Never invent flags.** If the skill or reference file doesn't show a flag, verify with `--help` before using it.
+8. **Never pass multi-line strings inline.** Write markdown or JSON content to `/tmp/file.md` first, then reference it.
 
 ## Agent Safety — Verified Flags
 
 These flags are confirmed via `--help`. Do not assume other flags exist.
 
 ### `glab issue create`
+
 - `-t, --title` — issue title (required)
 - `-d, --description` — issue description (single-line safe only)
 - `-l, --label` — label(s)
@@ -37,11 +39,13 @@ These flags are confirmed via `--help`. Do not assume other flags exist.
 **No `--description-file` flag exists.** For multi-line descriptions, use `glab api` with `--field description=@file`.
 
 ### `glab issue note`
+
 - `-m, --message` — note body (single-line safe only)
 
 **No `--body` flag exists.** For multi-line notes, use `glab api` with `--field body=@file`.
 
 ### `glab api`
+
 - `--method GET|POST|PUT|DELETE` — HTTP method
 - `-f, --field key=value` — form field (repeatable)
 - `-F, --raw-field key=value` — raw field, no escaping
@@ -62,8 +66,10 @@ glab api "projects/:id/issues" \
 
 ## Command Domains
 
+Read only the reference file for the command domain you need. This keeps context focused and avoids mixing similar flags across subcommands.
+
 | Domain | Command | Reference | Key Operations |
-|--------|---------|-----------|----------------|
+| -------- | --------- | ----------- | ---------------- |
 | Merge Requests | `glab mr` | [merge-requests.md](references/merge-requests.md) | create, view, list, merge, approve, note, diff, update, rebase |
 | Issues | `glab issue` | [issues-and-incidents.md](references/issues-and-incidents.md) | create, view, list, note, update, close |
 | Incidents | `glab incident` | [issues-and-incidents.md](references/issues-and-incidents.md) | list, view, note, close, reopen |
@@ -130,6 +136,8 @@ glab issue create --title "Bug: login fails on SSO" --description "Steps to repr
 
 ### Direct API call
 
+Read `references/api.md` before non-trivial API calls, pagination, GraphQL, or file-backed request bodies.
+
 ```bash
 # GET project details (auto-fills :id from current repo)
 glab api projects/:id -F json
@@ -143,6 +151,7 @@ glab api projects/:id/issues --method POST -f title="New issue" -f labels="bug"
 User: "Check the pipeline for this branch and show me the failing job log."
 
 Agent flow:
+
 1. Run `glab ci status -F json` to identify the current pipeline.
 2. Run `glab ci list -F json --per-page 5` if more context is needed.
 3. Find the failed job ID and run `glab ci trace <job-id>`.
@@ -151,17 +160,16 @@ Agent flow:
 ## Global Flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `-R, --repo OWNER/REPO` | Target a different project |
 | `-F, --output json\|text` | Output format (prefer `json`) |
 | `-h, --help` | Command help |
 | `-p, --page N` | Page number for list commands |
 | `-P, --per-page N` | Items per page (default varies: 20-30) |
 
-## Anti-Patterns
+## Gotchas and common mistakes
 
-- **Do not** use `glab ci view` — it's a TUI that requires keyboard interaction.
-- **Do not** omit `--yes` on create/merge commands — they block on interactive prompts.
-- **Do not** use `--web` flags — agents cannot interact with browsers.
-- **Do not** parse text output with regex — use `-F json` and parse structured data.
-- **Do not** use `glab mr create` without `--push` or `--fill` if the branch isn't pushed yet.
+- `-F` can mean output format for many `glab` commands but raw field for `glab api`; check the reference before mixing command families.
+- Multi-line issue/MR descriptions and notes are safest through `glab api --field key=@file` rather than inline shell quoting.
+- Mutating commands should identify the target project explicitly when running outside the intended repo.
+- Some `glab` commands use `--output json`; others use `-F json`. Verify with `--help` when unsure.

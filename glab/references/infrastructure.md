@@ -40,7 +40,7 @@ glab auth configure-docker
 ### Respected settings
 
 | Key | Description | Default |
-|-----|-------------|---------|
+| ----- | ------------- | --------- |
 | `host` | GitLab hostname | `https://gitlab.com` |
 | `token` | Access token | From environment variables |
 | `editor` | Editor command | `$EDITOR` |
@@ -143,7 +143,7 @@ glab repo members remove --username olduser
 #### Access levels
 
 | Level | Name |
-|-------|------|
+| ------- | ------ |
 | 10 | Guest |
 | 20 | Reporter |
 | 30 | Developer |

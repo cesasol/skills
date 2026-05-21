@@ -53,7 +53,7 @@ glab issue create --title "Sub-task" --epic 7 --yes
 ### Key flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `-t, --title` | Issue title (required) |
 | `-d, --description` | Description (use `-` for editor — avoid in agent context) |
 | `-l, --label` | Labels (comma-separated or repeat) |

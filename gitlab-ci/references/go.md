@@ -1,22 +1,22 @@
 # Go — GitLab CI Reference
 
 Patterns for Go projects using Go modules.
-Read `_common.md` for shared patterns.
+Read `_common.md` for shared patterns, including components, workflow rules, cache strategy, matrix execution, artifacts, and validation commands.
 
 Source: <https://docs.gitlab.com/ci/yaml/>
 
 ## Detection Signals
 
 | File | Stack |
-|------|-------|
+| ------ | ------- |
 | `go.mod` | Go modules |
 | `go.sum` | Go modules (with checksums) |
 | `.golangci.yaml` / `.golangci.yml` | golangci-lint configured |
 
 ## Docker Image
 
-`golang:1.23-bookworm` — Debian-based with full toolchain.
-`golang:1.23-alpine` — smaller, but may lack CGO deps.
+`golang:1.26-bookworm` — Debian-based with full toolchain.
+`golang:1.26-alpine` — smaller, but may lack CGO deps.
 
 ## Cache Strategy
 
@@ -41,7 +41,7 @@ Set `GOPATH: '$CI_PROJECT_DIR/.go'` and `GOCACHE: '$CI_PROJECT_DIR/.go-build-cac
 variables:
   GOPATH: '$CI_PROJECT_DIR/.go'
   GOCACHE: '$CI_PROJECT_DIR/.go-build-cache'
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.26'
 
 download:
   stage: install
@@ -67,6 +67,24 @@ lint:
     - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
     - golangci-lint run ./...
 ```
+
+## Matrix variant
+
+Use a matrix when a library or tool must support multiple Go versions or platforms:
+
+```yaml
+test:compat:
+  stage: test
+  parallel:
+    matrix:
+      - GO_VERSION: [1.25, 1.26]
+        GOOS: [linux]
+  image: golang:${GO_VERSION}-bookworm
+  script:
+    - go test ./...
+```
+
+For ordinary service CI, test only the deployed latest stable Go version.
 
 ## Test Job
 

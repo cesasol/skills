@@ -1,6 +1,7 @@
 # Agents
 
-This folder contains reusable agent and subagent definitions. There is no mature cross-harness standard for agents comparable to the Agent Skills specification, so definitions here use a portable Markdown contract plus thin frontmatter adapters for the current target harness.
+This folder contains reusable agent and subagent definitions. There is no mature cross-harness standard for agents comparable to the Agent Skills specification, so definitions here use a portable
+Markdown contract plus thin frontmatter adapters for the current target harness.
 
 ## Recommended shape
 
@@ -42,10 +43,13 @@ Portable behavior contract goes here.
 
 ## Harness notes
 
-- **Claude Code:** Custom subagents commonly use Markdown files with YAML frontmatter for description, model, and tool access. Keep prompts self-contained because subagents may not inherit the full orchestrator context.
+- **Claude Code:** Custom subagents commonly use Markdown files with YAML frontmatter for description, model, and tool access. Keep prompts self-contained because subagents may not inherit the full
+  orchestrator context.
 - **OpenCode:** Agents can be Markdown files or host configuration entries. The filename is commonly the identifier, while frontmatter/config carries description, mode, model, tools, and permissions.
-- **Codex:** There is no direct Markdown-frontmatter subagent equivalent to Claude Code/OpenCode. Preserve the Markdown behavior contract and translate it into the local Codex configuration, `AGENTS.md` guidance, profiles, sandbox settings, or developer instructions where supported.
-- **Pi:** Pi-style subagents use Markdown plus YAML frontmatter with fields for name/description, model, tools, thinking/context options, and isolation. Translate the adapter keys rather than assuming exact spelling compatibility.
+- **Codex:** There is no direct Markdown-frontmatter subagent equivalent to Claude Code/OpenCode. Preserve the Markdown behavior contract and translate it into the local Codex configuration,
+  `AGENTS.md` guidance, profiles, sandbox settings, or developer instructions where supported.
+- **Pi:** Pi-style subagents use Markdown plus YAML frontmatter with fields for name/description, model, tools, thinking/context options, and isolation. Translate the adapter keys rather than assuming
+  exact spelling compatibility.
 - **Other harnesses:** Treat support as implementation-defined unless the harness documents a formal agent schema. Use the Markdown body as the source of truth and write a small adapter when needed.
 
 ## Repository policy

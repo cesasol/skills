@@ -72,7 +72,7 @@ glab ci run-trig --token "$TRIGGER_TOKEN" --variables "ENV:prod"
 ### Pipeline input types
 
 | Type | Syntax | Example |
-|------|--------|---------|
+| ------ | -------- | --------- |
 | string | `key:string(value)` or `key:value` | `env:string(staging)` |
 | int | `key:int(N)` | `replicas:int(3)` |
 | float | `key:float(N)` | `threshold:float(0.95)` |
@@ -119,6 +119,7 @@ glab ci trace <job-id> --branch main
 ```
 
 > **Note:** `glab ci trace` streams log output to stdout. For agents, prefer `glab api` to fetch job logs as JSON if you need structured data:
+>
 > ```bash
 > glab api projects/:id/jobs/<job-id>/trace
 > ```
@@ -191,7 +192,7 @@ glab schedule delete <schedule-id>
 ### Schedule create flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `--description` | Schedule description |
 | `--ref` | Branch or tag to run on |
 | `--cron` | Cron expression (e.g., `0 2 * * *`) |

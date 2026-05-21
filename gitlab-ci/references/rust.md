@@ -1,22 +1,22 @@
 # Rust — GitLab CI Reference
 
 Patterns for Rust projects using Cargo.
-Read `_common.md` for shared patterns.
+Read `_common.md` for shared patterns, including components, workflow rules, cache strategy, matrix execution, artifacts, and validation commands.
 
 Source: <https://docs.gitlab.com/ci/yaml/>
 
 ## Detection Signals
 
 | File | Stack |
-|------|-------|
+| ------ | ------- |
 | `Cargo.toml` | Rust project |
 | `Cargo.lock` | Rust project (binary/app) |
 | `rust-toolchain.toml` | pinned Rust toolchain |
 
 ## Docker Image
 
-`rust:1.82-bookworm` — Debian-based with full toolchain.
-`rust:1.82-alpine` — smaller, but CGO/musl differences apply.
+`rust:1.95-bookworm` — Debian-based with full toolchain.
+`rust:1.95-alpine` — smaller, but CGO/musl differences apply.
 
 ## Cache Strategy
 
@@ -25,7 +25,7 @@ Source: <https://docs.gitlab.com/ci/caching/>
 ```yaml
 variables:
   CARGO_HOME: '$CI_PROJECT_DIR/.cargo'
-  RUST_VERSION: '1.82'
+  RUST_VERSION: '1.95'
 
 .cargo-cache: &cargo-cache
   key:
@@ -58,6 +58,23 @@ fmt:
   script:
     - cargo fmt --all -- --check
 ```
+
+## Matrix variant
+
+Use a matrix when a crate must support multiple Rust channels or targets:
+
+```yaml
+test:compat:
+  stage: test
+  parallel:
+    matrix:
+      - RUST_VERSION: [stable, '1.95']
+  image: rust:${RUST_VERSION}-bookworm
+  script:
+    - cargo test --all-features
+```
+
+For ordinary app CI, test only the pinned supported toolchain.
 
 ## Test Job
 

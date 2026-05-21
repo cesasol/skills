@@ -9,18 +9,25 @@ description: >
 
 # ComfyUI — Local Image Generation
 
-**Deprecated:** this skill is retained for compatibility with legacy local ComfyUI workflows. For new image prompt crafting, use `image-prompt-crafter` instead.
+**Deprecated:** this skill is retained only for compatibility with legacy local ComfyUI workflows. For new image prompt crafting, use `image-prompt-crafter` instead.
 
-Run FLUX.2 image-generation workflows on a local ComfyUI server via its REST API.
+Use this skill to run the bundled FLUX.2 workflow on a local ComfyUI server via its REST API.
 
 **Server:** `http://localhost:8188`
 
 ## Critical Rules for Agents
 
-1. **Always verify the server is running** before queuing work: `curl -s http://localhost:8188/system_stats | head -c 200`.
-2. **Randomize seeds** for each generation unless the user asks for reproducibility. Generate a random integer (up to 2^53 - 1).
-3. **Poll for completion** — the `/prompt` endpoint returns immediately with a `prompt_id`; you must poll `/history/{prompt_id}` until outputs appear.
-4. **Download results** to the current working directory so the user can see them.
+1. **Only proceed for explicit legacy ComfyUI execution requests.** If the user only wants an image prompt, switch to `image-prompt-crafter`.
+2. **Always verify the server is running** before queuing work: `curl -s http://localhost:8188/system_stats | head -c 200`.
+3. **Randomize seeds** for each generation unless the user asks for reproducibility. Generate a random integer (up to 2^53 - 1).
+4. **Poll for completion** — the `/prompt` endpoint returns immediately with a `prompt_id`; poll `/history/{prompt_id}` until outputs appear.
+5. **Download results** to the current working directory so the user can see them.
+
+## Gotchas
+
+- This skill assumes a local ComfyUI instance. Do not send prompts to remote hosts unless the user explicitly provides and approves that endpoint.
+- The workflow file path is relative to this skill directory: `workflows/flux2-klein-txt2img.json`.
+- ComfyUI validation is strict: aspect-ratio presets must match the exact strings listed below, including parenthetical labels.
 
 ---
 
@@ -76,14 +83,15 @@ curl -s -X POST http://localhost:8188/queue \
 
 **File:** [workflows/flux2-klein-txt2img.json](workflows/flux2-klein-txt2img.json)
 
-Generates images from text using the lightweight FLUX.2 Klein 4B model with Qwen 3 4B as the text encoder. Uses CFG guidance (positive + negative prompts) and a configurable resolution calculator. No input image needed.
+Generates images from text using the lightweight FLUX.2 Klein 4B model with Qwen 3 4B as the text encoder. Uses CFG guidance (positive + negative prompts) and a configurable resolution calculator. No
+input image needed.
 
 **Pipeline:** FluxResolutionNode → EmptyFlux2Latent → CLIPTextEncode (pos/neg) → CFGGuider → SamplerCustomAdvanced → VAEDecode → SaveImage
 
 #### Configurable nodes
 
 | Node ID | Class | Field | Default | Description |
-|---------|-------|-------|---------|-------------|
+| --------- | ------- | ------- | --------- | ------------- |
 | `97` | CLIPTextEncode | `text` | *(sample prompt)* | Positive prompt — describe what you want |
 | `90` | CLIPTextEncode | `text` | `""` | Negative prompt — describe what to avoid |
 | `93` | RandomNoise | `noise_seed` | `177265768842890` | Seed; randomize per run |
@@ -99,16 +107,18 @@ Generates images from text using the lightweight FLUX.2 Klein 4B model with Qwen
 
 **Square:** `"1:1 (Perfect Square)"`
 
-**Portrait:** `"2:3 (Classic Portrait)"`, `"3:4 (Golden Ratio)"`, `"3:5 (Elegant Vertical)"`, `"4:5 (Artistic Frame)"`, `"5:7 (Balanced Portrait)"`, `"5:8 (Tall Portrait)"`, `"7:9 (Modern Portrait)"`, `"9:16 (Slim Vertical)"`, `"9:19 (Tall Slim)"`, `"9:21 (Ultra Tall)"`, `"9:32 (Skyline)"`
+**Portrait:** `"2:3 (Classic Portrait)"`, `"3:4 (Golden Ratio)"`, `"3:5 (Elegant Vertical)"`, `"4:5 (Artistic Frame)"`, `"5:7 (Balanced Portrait)"`, `"5:8 (Tall Portrait)"`, `"7:9 (Modern Portrait)"`,
+`"9:16 (Slim Vertical)"`, `"9:19 (Tall Slim)"`, `"9:21 (Ultra Tall)"`, `"9:32 (Skyline)"`
 
-**Landscape:** `"3:2 (Golden Landscape)"`, `"4:3 (Classic Landscape)"`, `"5:3 (Wide Horizon)"`, `"5:4 (Balanced Frame)"`, `"7:5 (Elegant Landscape)"`, `"8:5 (Cinematic View)"`, `"9:7 (Artful Horizon)"`, `"16:9 (Panorama)"`, `"19:9 (Cinematic Ultrawide)"`, `"21:9 (Epic Ultrawide)"`, `"32:9 (Extreme Ultrawide)"`
+**Landscape:** `"3:2 (Golden Landscape)"`, `"4:3 (Classic Landscape)"`, `"5:3 (Wide Horizon)"`, `"5:4 (Balanced Frame)"`, `"7:5 (Elegant Landscape)"`, `"8:5 (Cinematic View)"`,
+`"9:7 (Artful Horizon)"`, `"16:9 (Panorama)"`, `"19:9 (Cinematic Ultrawide)"`, `"21:9 (Epic Ultrawide)"`, `"32:9 (Extreme Ultrawide)"`
 
 For non-standard ratios, set `custom_ratio: true` and `custom_aspect_ratio: "W:H"`.
 
 #### Models
 
 | Component | File | Directory |
-|-----------|------|-----------|
+| ----------- | ------ | ----------- |
 | Diffusion | `flux-2-klein-4b.safetensors` | `Flux2.Klein/` |
 | Text Encoder | `qwen_3_4b.safetensors` | `text_encoders/` |
 | VAE | `flux2-vae.safetensors` | `vae/` |
@@ -118,7 +128,7 @@ For non-standard ratios, set `custom_ratio: true` and `custom_aspect_ratio: "W:H
 
 ```bash
 # 1. Read the workflow template, patch it, and queue
-WORKFLOW=$(cat workflow.json \
+WORKFLOW=$(cat workflows/flux2-klein-txt2img.json \
   | jq '.["97"].inputs.text = "A futuristic city at sunset, cyberpunk aesthetic, neon lights"' \
   | jq '.["90"].inputs.text = "blurry, low quality, text, watermark"' \
   | jq '.["93"].inputs.noise_seed = 98765' \
@@ -148,7 +158,7 @@ curl -s -o result.png "http://localhost:8188/view?filename=$FILENAME&type=output
 When the user asks to generate an image with ComfyUI:
 
 1. **Check server:** `curl -s http://localhost:8188/system_stats`
-2. **Read the workflow JSON** from the `workflows/` directory (`flux2-klein-txt2img.json`)
+2. **Read the workflow JSON** from `workflows/flux2-klein-txt2img.json` relative to this skill directory
 3. **Patch the JSON** with user parameters (prompt, negative prompt, seed, cfg, resolution)
 4. **Queue:** `POST /prompt` with the patched workflow
 5. **Poll:** `GET /history/{prompt_id}` every 2-3 seconds until outputs appear

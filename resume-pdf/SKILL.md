@@ -12,10 +12,12 @@ description: >
 # Resume PDF Skill
 
 Generates a fully formatted, role-tailored PDF resume using:
+
 - `assets/resume-base.md` — Pandoc Markdown with YAML front matter (the only file edited per role)
 - `assets/resume-template.latex` — XeLaTeX template (layout/design, rarely changed)
 
 **Build command:**
+
 ```bash
 pandoc resume.md --template resume-template.latex --pdf-engine=xelatex -o resume.pdf
 ```
@@ -25,6 +27,7 @@ pandoc resume.md --template resume-template.latex --pdf-engine=xelatex -o resume
 ## Workflow
 
 ### Step 1 — Copy assets to a working directory
+
 ```bash
 WORK_DIR=$(mktemp -d /tmp/resume-XXXXXX)
 cp /path/to/skill/assets/resume-base.md "$WORK_DIR/resume.md"
@@ -38,7 +41,7 @@ If a job description was provided, extract the top 5-7 keywords and map them to 
 experience before editing. Then make these targeted changes:
 
 | Field | What to change |
-|---|---|
+| --- | --- |
 | `name`, `email`, links | Candidate's personal info |
 | `title` | Mirror the exact job title from the JD |
 | `summary` | 3-4 sentences; inject JD keywords; lead with strongest angle |
@@ -47,17 +50,20 @@ experience before editing. Then make these targeted changes:
 | `projects` | Select 2-3 most relevant to the target role |
 
 **Rules:**
+
 - Never fabricate metrics or technologies the candidate hasn't used
 - Keep bullets <= 5 per role; each must start with a strong verb + metric where possible
 - ATS safety: no tables, columns, or special characters in bullet text
 - The `summary` is the highest-leverage field — always rewrite it per role
 
 ### Step 3 — Build the PDF
+
 ```bash
 pandoc "$WORK_DIR/resume.md" --template "$WORK_DIR/resume-template.latex" --pdf-engine=xelatex -o "$WORK_DIR/resume.pdf"
 ```
 
 If build fails, check:
+
 - `xelatex` available: `which xelatex`
 - Liberation Sans font available: `fc-list | grep Liberation`
 - Syntax errors in YAML front matter (quotes around strings with colons or special chars)
@@ -65,6 +71,7 @@ If build fails, check:
 ### Step 4 — Output
 
 Present the files from `$WORK_DIR` to the user:
+
 - `$WORK_DIR/resume.pdf` — the generated PDF
 - `$WORK_DIR/resume.md` — the source Markdown (for inspection and iteration)
 
@@ -79,6 +86,7 @@ Copy to an outputs directory if one exists, or leave in place for the user to re
 Every bullet should follow: **Strong verb + what you did + measurable result**
 
 Examples:
+
 - "Architected [system] processing **N+ [units] daily**, reducing [metric] by X%"
 - "Led migration from [old] to [new], cutting [cost/time] by **X%**"
 - "Built [tool/feature] that automated [process], saving N+ hours weekly"

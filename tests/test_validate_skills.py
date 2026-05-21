@@ -19,10 +19,14 @@ Handle edge cases explicitly.
 """
 
 
-def write_skill(root: Path, name: str, frontmatter: str, body: str = VALID_BODY) -> Path:
+def write_skill(
+    root: Path, name: str, frontmatter: str, body: str = VALID_BODY
+) -> Path:
     skill_dir = root / name
     skill_dir.mkdir(parents=True)
-    (skill_dir / "SKILL.md").write_text(f"---\n{frontmatter}---\n\n{body}", encoding="utf-8")
+    (skill_dir / "SKILL.md").write_text(
+        f"---\n{frontmatter}---\n\n{body}", encoding="utf-8"
+    )
     return skill_dir
 
 
@@ -40,7 +44,9 @@ class ValidateSkillsTest(unittest.TestCase):
 
             self.assertEqual([], result.errors)
 
-    def test_accepts_folded_description_optional_fields_and_conventional_directories(self) -> None:
+    def test_accepts_folded_description_optional_fields_and_conventional_directories(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             skill_dir = write_skill(
@@ -68,8 +74,16 @@ metadata:
     def test_discovers_only_top_level_skill_directories_with_skill_md(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
-            first = write_skill(root, "first", "name: first\ndescription: Use this skill when testing discovery.\n")
-            write_skill(root / ".hidden", "ignored", "name: ignored\ndescription: Use this skill when hidden.\n")
+            first = write_skill(
+                root,
+                "first",
+                "name: first\ndescription: Use this skill when testing discovery.\n",
+            )
+            write_skill(
+                root / ".hidden",
+                "ignored",
+                "name: ignored\ndescription: Use this skill when hidden.\n",
+            )
             (root / "not-a-skill").mkdir()
 
             self.assertEqual([first], discover_skill_dirs(root))
@@ -104,7 +118,12 @@ metadata:
 
             result = validate_skill_dir(skill_dir)
 
-            self.assertTrue(any("unexpected indented line" in error.message for error in result.errors))
+            self.assertTrue(
+                any(
+                    "unexpected indented line" in error.message
+                    for error in result.errors
+                )
+            )
 
     def test_reports_missing_required_fields(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -119,7 +138,10 @@ metadata:
     def test_reports_invalid_name_forms(self) -> None:
         invalid_names = ["Upper", "-leading", "trailing-", "double--hyphen", "bad_name"]
         for invalid_name in invalid_names:
-            with self.subTest(invalid_name=invalid_name), tempfile.TemporaryDirectory() as temp_dir:
+            with (
+                self.subTest(invalid_name=invalid_name),
+                tempfile.TemporaryDirectory() as temp_dir,
+            ):
                 skill_dir = write_skill(
                     Path(temp_dir),
                     "skill-dir",
@@ -128,7 +150,9 @@ metadata:
 
                 result = validate_skill_dir(skill_dir)
 
-                self.assertTrue(any("single hyphens" in error.message for error in result.errors))
+                self.assertTrue(
+                    any("single hyphens" in error.message for error in result.errors)
+                )
 
     def test_reports_name_too_long(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -153,16 +177,27 @@ metadata:
 
             result = validate_skill_dir(skill_dir)
 
-            self.assertTrue(any("must match directory name" in error.message for error in result.errors))
+            self.assertTrue(
+                any(
+                    "must match directory name" in error.message
+                    for error in result.errors
+                )
+            )
 
     def test_reports_empty_too_long_and_non_triggering_descriptions(self) -> None:
         cases = [
             ("empty-description", ""),
             ("long-description", "Use this skill when " + ("x" * 1024)),
-            ("non-triggering-description", "Generate examples without saying when to use it."),
+            (
+                "non-triggering-description",
+                "Generate examples without saying when to use it.",
+            ),
         ]
         for directory, description in cases:
-            with self.subTest(directory=directory), tempfile.TemporaryDirectory() as temp_dir:
+            with (
+                self.subTest(directory=directory),
+                tempfile.TemporaryDirectory() as temp_dir,
+            ):
                 skill_dir = write_skill(
                     Path(temp_dir),
                     directory,
@@ -184,9 +219,13 @@ metadata:
 
             result = validate_skill_dir(skill_dir)
 
-            self.assertTrue(any("Markdown content" in error.message for error in result.errors))
+            self.assertTrue(
+                any("Markdown content" in error.message for error in result.errors)
+            )
 
-    def test_accepts_long_string_optional_fields_without_non_spec_length_limits(self) -> None:
+    def test_accepts_long_string_optional_fields_without_non_spec_length_limits(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = write_skill(
                 Path(temp_dir),
@@ -236,7 +275,9 @@ allowed-tools:
 
             self.assertEqual([], result.errors)
 
-    def test_validates_relative_markdown_links_stay_inside_skill_root_and_exist(self) -> None:
+    def test_validates_relative_markdown_links_stay_inside_skill_root_and_exist(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             skill_dir = write_skill(
                 Path(temp_dir),

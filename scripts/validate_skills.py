@@ -49,7 +49,9 @@ def discover_skill_dirs(root: Path) -> list[Path]:
     return sorted(
         child
         for child in root.iterdir()
-        if child.is_dir() and not child.name.startswith(".") and (child / "SKILL.md").is_file()
+        if child.is_dir()
+        and not child.name.startswith(".")
+        and (child / "SKILL.md").is_file()
     )
 
 
@@ -65,7 +67,14 @@ def parse_frontmatter(text: str, source: Path) -> tuple[dict[str, object], str]:
     if not lines or lines[0].strip() != "---":
         raise FrontmatterError("missing YAML frontmatter opening delimiter")
 
-    closing_index = next((index for index, line in enumerate(lines[1:], start=1) if line.strip() == "---"), None)
+    closing_index = next(
+        (
+            index
+            for index, line in enumerate(lines[1:], start=1)
+            if line.strip() == "---"
+        ),
+        None,
+    )
     if closing_index is None:
         raise FrontmatterError("missing YAML frontmatter closing delimiter")
 
@@ -113,7 +122,9 @@ def parse_frontmatter(text: str, source: Path) -> tuple[dict[str, object], str]:
                     continue
                 if not continuation.startswith((" ", "\t")):
                     break
-                nested_key, nested_value = _parse_nested_mapping_line(continuation, source)
+                nested_key, nested_value = _parse_nested_mapping_line(
+                    continuation, source
+                )
                 if nested_key in nested:
                     raise FrontmatterError(f"duplicate metadata key: {nested_key}")
                 nested[nested_key] = nested_value
@@ -129,7 +140,9 @@ def parse_frontmatter(text: str, source: Path) -> tuple[dict[str, object], str]:
 def _parse_nested_mapping_line(line: str, source: Path) -> tuple[str, str]:
     stripped = line.strip()
     if ":" not in stripped:
-        raise FrontmatterError(f"expected nested key/value pair in {source}: {stripped!r}")
+        raise FrontmatterError(
+            f"expected nested key/value pair in {source}: {stripped!r}"
+        )
     key, raw_value = stripped.split(":", 1)
     key = key.strip()
     raw_value = raw_value.strip()
@@ -152,12 +165,16 @@ def validate_skill_dir(skill_dir: Path) -> ValidationResult:
     warnings: list[Finding] = []
 
     if not skill_file.is_file():
-        return ValidationResult([Finding(skill_dir, "missing required SKILL.md")], warnings)
+        return ValidationResult(
+            [Finding(skill_dir, "missing required SKILL.md")], warnings
+        )
 
     try:
         text = skill_file.read_text(encoding="utf-8")
     except UnicodeDecodeError as exc:
-        return ValidationResult([Finding(skill_file, f"must be UTF-8 text: {exc}")], warnings)
+        return ValidationResult(
+            [Finding(skill_file, f"must be UTF-8 text: {exc}")], warnings
+        )
 
     try:
         frontmatter, body = parse_frontmatter(text, skill_file)
@@ -182,10 +199,16 @@ def _validate_required_frontmatter(
     description = frontmatter.get("description")
 
     if not isinstance(name, str):
-        errors.append(Finding(skill_file, "frontmatter field 'name' is required and must be a string"))
+        errors.append(
+            Finding(
+                skill_file, "frontmatter field 'name' is required and must be a string"
+            )
+        )
     else:
         if not (1 <= len(name) <= 64):
-            errors.append(Finding(skill_file, "frontmatter field 'name' must be 1-64 characters"))
+            errors.append(
+                Finding(skill_file, "frontmatter field 'name' must be 1-64 characters")
+            )
         if not NAME_PATTERN.fullmatch(name) or "--" in name:
             errors.append(
                 Finding(
@@ -195,35 +218,82 @@ def _validate_required_frontmatter(
                 )
             )
         if name != skill_dir.name:
-            errors.append(Finding(skill_file, f"frontmatter field 'name' must match directory name '{skill_dir.name}'"))
+            errors.append(
+                Finding(
+                    skill_file,
+                    f"frontmatter field 'name' must match directory name '{skill_dir.name}'",
+                )
+            )
 
     if not isinstance(description, str):
-        errors.append(Finding(skill_file, "frontmatter field 'description' is required and must be a string"))
+        errors.append(
+            Finding(
+                skill_file,
+                "frontmatter field 'description' is required and must be a string",
+            )
+        )
     else:
         normalized = description.strip()
         if not (1 <= len(normalized) <= 1024):
-            errors.append(Finding(skill_file, "frontmatter field 'description' must be 1-1024 characters"))
-        if "use this skill" not in normalized.lower() and "use when" not in normalized.lower():
-            errors.append(Finding(skill_file, "description must describe when to use the skill"))
+            errors.append(
+                Finding(
+                    skill_file,
+                    "frontmatter field 'description' must be 1-1024 characters",
+                )
+            )
+        if (
+            "use this skill" not in normalized.lower()
+            and "use when" not in normalized.lower()
+        ):
+            errors.append(
+                Finding(skill_file, "description must describe when to use the skill")
+            )
 
 
-def _validate_optional_frontmatter(skill_file: Path, frontmatter: dict[str, object], errors: list[Finding]) -> None:
+def _validate_optional_frontmatter(
+    skill_file: Path, frontmatter: dict[str, object], errors: list[Finding]
+) -> None:
     license_value = frontmatter.get("license")
     if license_value is not None and not _is_non_empty_string(license_value):
-        errors.append(Finding(skill_file, "optional field 'license' must be a non-empty string when present"))
+        errors.append(
+            Finding(
+                skill_file,
+                "optional field 'license' must be a non-empty string when present",
+            )
+        )
 
     compatibility = frontmatter.get("compatibility")
-    if compatibility is not None and not _is_bounded_string(compatibility, minimum=1, maximum=500):
-        errors.append(Finding(skill_file, "optional field 'compatibility' must be a 1-500 character string"))
+    if compatibility is not None and not _is_bounded_string(
+        compatibility, minimum=1, maximum=500
+    ):
+        errors.append(
+            Finding(
+                skill_file,
+                "optional field 'compatibility' must be a 1-500 character string",
+            )
+        )
 
     metadata = frontmatter.get("metadata")
     if metadata is not None:
-        if not isinstance(metadata, dict) or not all(isinstance(key, str) and isinstance(value, str) for key, value in metadata.items()):
-            errors.append(Finding(skill_file, "optional field 'metadata' must be a string-to-string mapping"))
+        if not isinstance(metadata, dict) or not all(
+            isinstance(key, str) and isinstance(value, str)
+            for key, value in metadata.items()
+        ):
+            errors.append(
+                Finding(
+                    skill_file,
+                    "optional field 'metadata' must be a string-to-string mapping",
+                )
+            )
 
     allowed_tools = frontmatter.get("allowed-tools")
     if allowed_tools is not None and not _is_non_empty_string(allowed_tools):
-        errors.append(Finding(skill_file, "optional field 'allowed-tools' must be a non-empty space-separated string"))
+        errors.append(
+            Finding(
+                skill_file,
+                "optional field 'allowed-tools' must be a non-empty space-separated string",
+            )
+        )
 
 
 def _is_bounded_string(value: object, *, minimum: int, maximum: int) -> bool:
@@ -234,48 +304,97 @@ def _is_non_empty_string(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def _validate_markdown_body(skill_file: Path, body: str, errors: list[Finding], warnings: list[Finding]) -> None:
+def _validate_markdown_body(
+    skill_file: Path, body: str, errors: list[Finding], warnings: list[Finding]
+) -> None:
     if not body.strip():
-        errors.append(Finding(skill_file, "SKILL.md must contain Markdown content after frontmatter"))
+        errors.append(
+            Finding(
+                skill_file, "SKILL.md must contain Markdown content after frontmatter"
+            )
+        )
         return
     if len(body.splitlines()) > SKILL_BODY_RECOMMENDED_MAX_LINES:
-        warnings.append(Finding(skill_file, "body should stay under 500 lines; move long material to references/ or assets/"))
+        warnings.append(
+            Finding(
+                skill_file,
+                "body should stay under 500 lines; move long material to references/ or assets/",
+            )
+        )
     lowered = body.lower()
     if "example" not in lowered:
-        warnings.append(Finding(skill_file, "body should include input/output or usage examples where practical"))
+        warnings.append(
+            Finding(
+                skill_file,
+                "body should include input/output or usage examples where practical",
+            )
+        )
     if "edge" not in lowered and "mistake" not in lowered and "fail" not in lowered:
-        warnings.append(Finding(skill_file, "body should mention common edge cases, mistakes, or failure handling"))
+        warnings.append(
+            Finding(
+                skill_file,
+                "body should mention common edge cases, mistakes, or failure handling",
+            )
+        )
 
 
-def _validate_markdown_links(skill_dir: Path, skill_file: Path, body: str, errors: list[Finding]) -> None:
+def _validate_markdown_links(
+    skill_dir: Path, skill_file: Path, body: str, errors: list[Finding]
+) -> None:
     for raw_target in MARKDOWN_LINK_PATTERN.findall(body):
         target = raw_target.split("#", 1)[0].strip()
         if not target or _is_external_or_absolute_target(target):
             continue
         if target.startswith("../"):
-            errors.append(Finding(skill_file, f"relative link must not leave the skill root: {raw_target}"))
+            errors.append(
+                Finding(
+                    skill_file,
+                    f"relative link must not leave the skill root: {raw_target}",
+                )
+            )
             continue
         if not (skill_dir / target).exists():
-            errors.append(Finding(skill_file, f"relative link target does not exist: {raw_target}"))
+            errors.append(
+                Finding(
+                    skill_file, f"relative link target does not exist: {raw_target}"
+                )
+            )
 
 
 def _is_external_or_absolute_target(target: str) -> bool:
-    return bool(re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target)) or target.startswith("/")
+    return bool(re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", target)) or target.startswith(
+        "/"
+    )
 
 
-def _validate_conventional_directories(skill_dir: Path, warnings: list[Finding]) -> None:
+def _validate_conventional_directories(
+    skill_dir: Path, warnings: list[Finding]
+) -> None:
     for directory_name in ("scripts", "references", "assets"):
         directory = skill_dir / directory_name
         if directory.exists() and not directory.is_dir():
-            warnings.append(Finding(directory, f"'{directory_name}' is conventionally a directory"))
+            warnings.append(
+                Finding(directory, f"'{directory_name}' is conventionally a directory")
+            )
 
-    root_scripts = [path for path in skill_dir.iterdir() if path.is_file() and path.suffix in {".sh", ".py", ".js"}]
+    root_scripts = [
+        path
+        for path in skill_dir.iterdir()
+        if path.is_file() and path.suffix in {".sh", ".py", ".js"}
+    ]
     if root_scripts and not (skill_dir / "scripts").exists():
-        warnings.append(Finding(skill_dir, "scripts are conventionally kept in scripts/ for progressive disclosure"))
+        warnings.append(
+            Finding(
+                skill_dir,
+                "scripts are conventionally kept in scripts/ for progressive disclosure",
+            )
+        )
 
 
 def validate(root: Path, skill_dirs: Sequence[Path] | None = None) -> ValidationResult:
-    selected_skill_dirs = list(skill_dirs) if skill_dirs is not None else discover_skill_dirs(root)
+    selected_skill_dirs = (
+        list(skill_dirs) if skill_dirs is not None else discover_skill_dirs(root)
+    )
     errors: list[Finding] = []
     warnings: list[Finding] = []
 
@@ -301,9 +420,19 @@ def _print_findings(label: str, findings: Iterable[Finding]) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Validate Agent Skills packages against the public specification.")
-    parser.add_argument("root", nargs="?", default=".", type=Path, help="repository root or a single skill directory")
-    parser.add_argument("--strict", action="store_true", help="treat best-practice warnings as failures")
+    parser = argparse.ArgumentParser(
+        description="Validate Agent Skills packages against the public specification."
+    )
+    parser.add_argument(
+        "root",
+        nargs="?",
+        default=".",
+        type=Path,
+        help="repository root or a single skill directory",
+    )
+    parser.add_argument(
+        "--strict", action="store_true", help="treat best-practice warnings as failures"
+    )
     args = parser.parse_args(argv)
 
     root = args.root.resolve()
@@ -316,7 +445,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if result.errors or (args.strict and result.warnings):
         return 1
 
-    skill_count = len(skill_dirs) if skill_dirs is not None else len(discover_skill_dirs(root))
+    skill_count = (
+        len(skill_dirs) if skill_dirs is not None else len(discover_skill_dirs(root))
+    )
     print(f"Validated {skill_count} skill(s) successfully.")
     return 0
 

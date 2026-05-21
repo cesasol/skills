@@ -11,7 +11,7 @@ These create links that connect issues, MRs, epics, users, labels, and more.
 ### Core References
 
 | Reference | Description | Cross-project | Shortcut (same namespace) |
-|-----------|------------|---------------|---------------------------|
+| ----------- | ------------ | --------------- | --------------------------- |
 | `#123` | Issue / Epic | `group/project#123` | `project#123` |
 | `!456` | Merge request | `group/project!456` | `project!456` |
 | `&789` or `[epic:789]` | Epic | `group/subgroup&789` | — |
@@ -39,20 +39,22 @@ These create links that connect issues, MRs, epics, users, labels, and more.
 ### Issue/MR Linking with Auto-Close
 
 ```markdown
-Closes #123              # closes issue when MR merges
-Fixes #456               # same as Closes
+Closes #123 # closes issue when MR merges
+Fixes #456 # same as Closes
 Resolves #789            # same as Closes
-Implements #123          # same as Closes
-Related to #456          # link without closing
-Addresses #789           # link without closing
+Implements #123 # same as Closes
+Related to #456 # link without closing
+Addresses #789 # link without closing
 ```
 
 ### Show Title and Summary
 
 ```markdown
-#123+      # renders as: "Issue title (#123)"
-!456+      # renders as: "MR title (!456)"
-#123+s     # renders with assignee, milestone, health status
+# 123+ # renders as: "Issue title (#123)"
+
+!456+ # renders as: "MR title (!456)"
+
+## 123+s # renders with assignee, milestone, health status
 ```
 
 URL references like `https://gitlab.com/group/project/-/issues/123+` also work.
@@ -60,11 +62,13 @@ URL references like `https://gitlab.com/group/project/-/issues/123+` also work.
 ### Comment Linking
 
 ```markdown
-https://gitlab.com/group/project/-/issues/123#note_101075757
+<https://gitlab.com/group/project/-/issues/123#note_101075757>
+
 # Renders as: #123 (comment 101075757)
 
-https://gitlab.com/group/project/-/issues/123/designs
-# Renders as: #123 (designs)
+<https://gitlab.com/group/project/-/issues/123/designs>
+
+## Renders as: #123 (designs)
 ```
 
 ## Task Lists
@@ -80,17 +84,19 @@ Interactive checkboxes in issues, MRs, and comments:
 ```
 
 Numbered task lists also work:
+
 ```markdown
 1. [x] First
 1. [ ] Second
 ```
 
 Task lists in tables (single checkbox per cell):
+
 ```markdown
 | Status | Task |
-|--------|------|
+| ------ | ---- |
 | [x]    | Done |
-| [ ]     | Todo |
+| [ ]    | Todo |
 ```
 
 ## Alerts (Callouts)
@@ -132,8 +138,10 @@ Each term can have multiple definitions. A blank line between term and definitio
 Hex, RGB, and HSL values render as small color chips:
 
 ```markdown
-#FF0000
-#00FF00
+# FF0000
+
+## 00FF00
+
 rgb(0,0,255)
 hsl(120,100%,50%)
 ```
@@ -166,7 +174,7 @@ graph TD
 ````
 
 Supports: flowchart, sequence diagram, class diagram, state diagram, ER diagram, Gantt
-chart, pie chart, mind map, and more. See https://mermaid.js.org/ for syntax.
+chart, pie chart, mind map, and more. See <https://mermaid.js.org/> for syntax.
 
 ### PlantUML
 
@@ -190,6 +198,7 @@ Requires admin to enable. Supports many diagram types (BlockDiag, Ditaa, GraphVi
 Inline: `` $`a^2 + b^2 = c^2`$ ``
 
 Block:
+
 ````markdown
 ```math
 a^2 + b^2 = c^2
@@ -197,6 +206,7 @@ a^2 + b^2 = c^2
 ````
 
 Also works with `$$...$$`:
+
 ```markdown
 $$
 a^2 + b^2 = c^2
@@ -215,6 +225,7 @@ Add to issue, MR, epic, or wiki descriptions (not comments):
 ```
 
 Or:
+
 ```markdown
 [TOC]
 ```
@@ -224,7 +235,7 @@ Auto-generates an unordered list of links to every heading in the document.
 ## Emoji
 
 ```markdown
-:smile:  :thumbsup:  :rocket:  :warning:  :tada:
+:smile: :thumbsup: :rocket: :warning: :tada:
 ```
 
 Standard shortcodes. Custom emoji are also supported on GitLab.com.
@@ -306,11 +317,13 @@ Options: `fields` (with optional `label`, `sortable`), `items`, `filter` (boolea
 ## Embedded Video and Audio
 
 Video (`.mp4`, `.m4v`, `.mov`, `.webm`, `.ogv`):
+
 ```markdown
 ![Demo](demo.mp4)
 ```
 
 Audio (`.mp3`, `.oga`, `.ogg`, `.spx`, `.wav`):
+
 ```markdown
 ![Podcast](episode.mp3)
 ```

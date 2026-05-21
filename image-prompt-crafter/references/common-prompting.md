@@ -6,7 +6,7 @@ These principles apply across all supported image generation models.
 
 A well-structured prompt generally follows this flow:
 
-```
+```text
 [SUBJECT], [LOCATION/ACTION],
 [STYLE], [CAMERA/FRAMING], [LIGHTING], [COLORS], [EFFECTS],
 [ADDITIONAL ELEMENTS]
@@ -17,6 +17,7 @@ This is a guide, not a rigid formula. Use only the parts that improve the image.
 ## Core Principles
 
 ### 1. Start with the Subject
+
 Begin with what the image is *about*. Be specific:
 
 - **Vague**: "a person in a garden"
@@ -25,12 +26,14 @@ Begin with what the image is *about*. Be specific:
 Details that matter: age, appearance, clothing, materials, what they are doing, how they feel.
 
 ### 2. Add Environmental Context
+
 Set the scene with location, time of day, weather, and atmosphere:
 
 - "Victorian greenhouse at dawn, condensation on glass panes"
 - "neon-lit Tokyo alley at midnight after rain"
 
 ### 3. Specify Style and Medium
+
 Tell the model what *kind* of image to make:
 
 - **Photography**: "documentary photography", "fashion editorial", "macro photography"
@@ -41,6 +44,7 @@ Tell the model what *kind* of image to make:
 Reference specific artists, movements, or camera gear for stronger direction.
 
 ### 4. Describe Lighting
+
 Lighting is the single most important factor for image quality. Describe:
 
 - **Source**: natural window light, studio softbox, neon signs, candlelight
@@ -50,6 +54,7 @@ Lighting is the single most important factor for image quality. Describe:
 - **Effect**: lens flare, volumetric light shafts, dramatic shadows
 
 ### 5. Control Composition
+
 Guide framing and arrangement:
 
 - **Shot type**: close-up, medium shot, wide shot, bird's-eye view, low angle
@@ -58,6 +63,7 @@ Guide framing and arrangement:
 - **Depth**: foreground/mid-ground/background layering
 
 ### 6. Add Color and Effects
+
 Define palette and finishing touches:
 
 - **Palette**: "muted earth tones", "deep teal and coral", "monochrome"
@@ -66,6 +72,7 @@ Define palette and finishing touches:
 Use one or two strong effects. Too many make the image unfocused.
 
 ### 7. Enrich with Details
+
 Add supporting elements that make the scene feel lived-in:
 
 - "floating dust particles catching light"
@@ -76,10 +83,11 @@ Add supporting elements that make the scene feel lived-in:
 ## What to Avoid
 
 ### Negative Prompts
+
 None of the supported models reliably handle negation. Instead of saying what you *don't* want, describe what you *do* want:
 
 | Instead of... | Write... |
-|--------------|----------|
+| -------------- | ---------- |
 | "no people" | "empty", "deserted", "solitary" |
 | "without glasses" | "clear, unobstructed eyes" |
 | "no modern elements" | "traditional", "historical", "period-accurate" |
@@ -88,18 +96,21 @@ None of the supported models reliably handle negation. Instead of saying what yo
 | "no text" | "clean surfaces", "unmarked", "blank" |
 
 ### Vague Quality Words
+
 Words like "beautiful", "nice", "good", "amazing" provide no actionable guidance. Replace with specifics:
 
 - "beautiful sunset" → "vivid orange and magenta sunset with dramatic cloud formations"
 - "good lighting" → "soft Rembrandt lighting from a 45-degree key light"
 
 ### Conflicting Styles
+
 Do not combine contradictory directives:
 
 - ❌ "photorealistic cartoon watercolor 8-bit pixel art"
 - ✅ "anime-style illustration with soft watercolor texture, pastel colors, clean linework"
 
 ### Keyword Soup
+
 Write in natural language, not comma-separated tag lists. Models understand prose:
 
 - ❌ "woman, red hair, city, night, neon, cyberpunk, 4K, detailed"
@@ -129,7 +140,7 @@ This isolates cause and effect. Changing everything at once makes it impossible 
 ## Prompt Length Guidelines
 
 | Length | Words | Best For |
-|--------|-------|----------|
+| -------- | ------- | ---------- |
 | Short | 10-30 | Quick concepts, style exploration |
 | Medium | 30-80 | Most scenes, everyday prompting |
 | Long | 80-300+ | Complex multi-subject scenes, very directed outputs |
@@ -141,7 +152,7 @@ More words do not automatically mean better results. Every word should earn its 
 ### Camera & Lens Terms
 
 | Term | Effect |
-|------|--------|
+| ------ | -------- |
 | f/1.4 – f/2.8 | Blurry background (shallow depth of field) |
 | f/8 – f/16 | Everything sharp (deep depth of field) |
 | 24mm | Wide angle — shows more scene |
@@ -155,7 +166,7 @@ More words do not automatically mean better results. Every word should earn its 
 ### Lighting Terms
 
 | Term | Effect |
-|------|--------|
+| ------ | -------- |
 | Golden hour | Warm, soft, flattering light |
 | Blue hour | Cool, moody twilight |
 | Overcast | Flat, even, shadow-free |
@@ -169,7 +180,7 @@ More words do not automatically mean better results. Every word should earn its 
 ### Composition Terms
 
 | Technique | Example Phrase |
-|-----------|----------------|
+| ----------- | ---------------- |
 | Rule of thirds | "composed using rule of thirds" |
 | Leading lines | "diagonal lines leading to main entrance" |
 | Foreground/background | "strong foreground boulder, background mountains" |
@@ -182,7 +193,7 @@ More words do not automatically mean better results. Every word should earn its 
 ## Style Keywords Reference
 
 | Category | Keywords |
-|----------|----------|
+| ---------- | ---------- |
 | Photographic | "shot on Kodak Portra 400", "35mm film", "Sony A7IV", "Hasselblad X2D" |
 | Cinematic | "cinematic", "anamorphic lens flare", "teal and orange color grading", "film noir" |
 | Artistic | "oil painting", "watercolor", "pencil sketch", "impasto", "Art Nouveau", "Bauhaus" |

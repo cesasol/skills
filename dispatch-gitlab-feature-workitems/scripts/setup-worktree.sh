@@ -1,13 +1,49 @@
 #!/usr/bin/env bash
 # Scaffolds one feature worktree: branch, workitem commit, push, MR, and dep install.
-# Usage: setup-worktree.sh <slug> <title> [label]
+# Usage: setup-worktree.sh <slug> <title> [label] [assignee]
 set -euo pipefail
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: setup-worktree.sh <slug> <title> [label] [assignee]" >&2
+  exit 2
+fi
 
 SLUG="$1"
 TITLE="$2"
 LABEL="${3:-vibes}"
+ASSIGNEE="${4:-${GITLAB_WORKITEM_ASSIGNEE:-}}"
 WORKITEM_DOC="docs/workitems/${SLUG}.md"
 WORKTREE_DIR=".worktrees/${SLUG}"
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Error: run this script from inside the target git repository." >&2
+  exit 1
+fi
+
+if [ ! -f "$WORKITEM_DOC" ]; then
+  echo "Error: workitem document not found: $WORKITEM_DOC" >&2
+  exit 1
+fi
+
+if ! command -v glab >/dev/null 2>&1; then
+  echo "Error: glab is required for GitLab repository validation and MR creation." >&2
+  exit 1
+fi
+
+if ! glab repo view -F json >/dev/null; then
+  echo "Error: this repository is not accessible as a GitLab project via 'glab repo view -F json'." >&2
+  echo "Use this workflow only for GitLab-hosted repositories." >&2
+  exit 1
+fi
+
+GIT_DIR=$(git rev-parse --git-common-dir)
+INFO_EXCLUDE="${GIT_DIR}/info/exclude"
+mkdir -p "$(dirname "$INFO_EXCLUDE")"
+touch "$INFO_EXCLUDE"
+if ! grep -qxF '.worktrees/' "$INFO_EXCLUDE"; then
+  printf '\n.worktrees/\n' >> "$INFO_EXCLUDE"
+  echo "Added .worktrees/ to ${INFO_EXCLUDE}"
+fi
 
 # 1. Create worktree and branch
 git worktree add "$WORKTREE_DIR" -b "feature/${SLUG}"
@@ -25,12 +61,23 @@ git -C "$WORKTREE_DIR" push -u origin "feature/${SLUG}"
 SUMMARY=$(awk '/^## Summary/{found=1; next} found && /^## /{exit} found{print}' "$WORKITEM_DOC" | sed '/^[[:space:]]*$/d' | head -5)
 
 # 5. Create draft MR
-glab mr create --draft \
-  --label "$LABEL" \
-  -a cesasol \
-  --source-branch "feature/${SLUG}" \
-  -t "Draft: ${TITLE}" \
+MR_ARGS=(
+  --draft
+  --label "$LABEL"
+  --source-branch "feature/${SLUG}"
+  -t "Draft: ${TITLE}"
   -d "${SUMMARY}"
+)
+
+if [ -z "$ASSIGNEE" ]; then
+  ASSIGNEE="$(glab auth status 2>&1 | awk '/Logged in to .* as /{print $NF; exit}' || true)"
+fi
+
+if [ -n "$ASSIGNEE" ]; then
+  MR_ARGS+=(-a "$ASSIGNEE")
+fi
+
+glab mr create "${MR_ARGS[@]}"
 
 # 6. Auto-detect package manager and install dependencies
 install_deps() {

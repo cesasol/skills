@@ -16,6 +16,7 @@ REF_FILES=(
     "$REF_DIR/docker.md"
     "$REF_DIR/rust.md"
     "$REF_DIR/advanced.md"
+    "$REF_DIR/inputs.md"
 )
 ALL_REF_FILES=("$SKILL_FILE" "${REF_FILES[@]}")
 

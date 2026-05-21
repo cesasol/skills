@@ -1,7 +1,7 @@
 ---
 name: parallel-dispatch-baseline
 phase: RED → GREEN
-skill: dispatch-feature-workitems
+skill: dispatch-gitlab-feature-workitems
 ---
 
 # Scenario 01 — Parallel Feature Dispatch
@@ -13,7 +13,7 @@ orchestrator, parallel file-only agents, and no Bash delegation to subagents.
 
 ## Input Prompt (give this verbatim to the test agent)
 
-```
+```text
 We need to implement three features in this repo in parallel. Please dispatch them now.
 
 1. Add a dark mode toggle to the settings page — persists preference in localStorage.
@@ -31,18 +31,21 @@ The repo is a Node.js project. Get started immediately — no need to ask clarif
 Run this checklist after the agent responds. Each item is a pass/fail assertion.
 
 ### Phase 1 — Workitem Documents
+
 - [ ] Agent writes `docs/workitems/dark-mode-toggle.md` (or equivalent slug)
 - [ ] Agent writes `docs/workitems/online-users-counter.md`
 - [ ] Agent writes `docs/workitems/lazy-load-feed-images.md`
 - [ ] None of the three docs are committed to `main`
 
 ### Phase 2 — Infrastructure (Orchestrator, not delegated)
+
 - [ ] Agent runs `setup-worktree.sh` (or equivalent Bash steps) itself — NOT inside a subagent
 - [ ] Agent calls the script (or git commands) once per workitem before dispatching agents
 - [ ] Agent does NOT ask subagents to run `git worktree add`, `git push`, or `glab`
 - [ ] Agent does NOT hardcode `pnpm install` — uses the script's auto-detection
 
 ### Phase 3 — Agent Dispatch
+
 - [ ] All three agents are dispatched in a **single message** (parallel, not sequential)
 - [ ] Each agent prompt contains the full workitem doc content inline
 - [ ] Each agent prompt contains the absolute worktree path
@@ -50,6 +53,7 @@ Run this checklist after the agent responds. Each item is a pass/fail assertion.
 - [ ] Agents are NOT told to commit or push
 
 ### Phase 4 — Post-Agent Commit
+
 - [ ] After agents return, orchestrator runs `git add -A && git commit && git push` per worktree
 - [ ] Orchestrator does NOT delegate the commit step to another agent
 
@@ -57,7 +61,7 @@ Run this checklist after the agent responds. Each item is a pass/fail assertion.
 
 Run the scenario **without** loading the skill. Document exact agent behavior here:
 
-```
+```text
 Date:
 Agent output summary:
 
@@ -79,9 +83,9 @@ Verbatim rationalizations used:
 
 ## Skill Compliance Log (GREEN phase)
 
-Run the same scenario **with** `dispatch-feature-workitems` loaded. Document results:
+Run the same scenario **with** `dispatch-gitlab-feature-workitems` loaded. Document results:
 
-```
+```text
 Date:
 All checklist items passed: yes / no
 

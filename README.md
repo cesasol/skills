@@ -5,8 +5,8 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 ## Available Skills
 
 | Skill | Description |
-|-------|-------------|
-| [dispatch-feature-workitems](dispatch-feature-workitems/SKILL.md) | Parallel feature development workflow: expands requirements into workitem docs, dispatches one agent per item, each with its own worktree, branch, and GitLab draft MR. |
+| ------- | ------------- |
+| [dispatch-gitlab-feature-workitems](dispatch-gitlab-feature-workitems/SKILL.md) | Parallel GitLab feature development workflow: expands requirements into workitem docs, dispatches one agent per item, each with its own worktree, branch, and GitLab draft MR. |
 | [docs-layout](docs-layout/SKILL.md) | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files. |
 | [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
 | [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Craft, upsample, and refine text prompts for AI image generation models: FLUX.1/2 Dev, FLUX.2 Klein, Z-Image Turbo, and Ernie Image. Outputs 2–3 prompt variations in clean code blocks. |
@@ -17,7 +17,7 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 ## Deprecated Skills
 
 | Skill | Replacement | Notes |
-|-------|-------------|-------|
+| ------- | ------------- | ------- |
 | [comfyui](comfyui/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) for prompt crafting; use project-specific ComfyUI tooling for execution. | Deprecated and retained for compatibility only. |
 | [flux-prompt-gen](flux-prompt-gen/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Deprecated; image-prompt-crafter covers FLUX plus additional image models. |
 

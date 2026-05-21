@@ -1,7 +1,7 @@
 # Docker — GitLab CI Reference
 
 Patterns for building and pushing Docker images to GitLab Container Registry.
-Read `_common.md` for shared patterns.
+Read `_common.md` for shared patterns, including components, workflow rules, cache strategy, matrix execution, artifacts, and validation commands.
 
 Source: <https://docs.gitlab.com/ci/yaml/>
 Source: <https://docs.gitlab.com/ci/docker/using_docker_images/>
@@ -9,7 +9,7 @@ Source: <https://docs.gitlab.com/ci/docker/using_docker_images/>
 ## Detection Signals
 
 | File | Stack |
-|------|-------|
+| ------ | ------- |
 | `Dockerfile` | Docker build |
 | `.dockerignore` | Docker build (optimized) |
 | `docker-compose.yml` | multi-service setup |
@@ -24,9 +24,9 @@ variables:
   DOCKER_TLS_CERTDIR: '/certs'
 
 .docker-base: &docker-base
-  image: docker:27
+  image: docker:29
   services:
-    - docker:27-dind
+    - docker:29-dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
 ```
@@ -34,6 +34,7 @@ variables:
 ## Image Tagging Strategy
 
 Use predefined CI variables — never hardcode hostnames:
+
 - `$CI_REGISTRY_IMAGE` — full image path (e.g. `registry.gitlab.com/group/project`)
 - `$CI_COMMIT_SHORT_SHA` — 8-char commit SHA
 - `$CI_COMMIT_REF_SLUG` — branch/tag name, URL-safe
@@ -71,7 +72,7 @@ build:docker:
 build:kaniko:
   stage: build
   image:
-    name: gcr.io/kaniko-project/executor:v1.23.0-debug
+    name: gcr.io/kaniko-project/executor:v1.24.0-debug
     entrypoint: ['']
   script:
     - /kaniko/executor
@@ -83,13 +84,32 @@ build:kaniko:
         --cache-repo "$CI_REGISTRY_IMAGE/cache"
 ```
 
+## Matrix variant
+
+Use a matrix when publishing multiple Docker targets or platforms:
+
+```yaml
+build:docker:
+  stage: build
+  parallel:
+    matrix:
+      - DOCKERFILE: [Dockerfile, Dockerfile.worker]
+        IMAGE_SUFFIX: [app, worker]
+  <<: *docker-base
+  script:
+    - docker build -f "$DOCKERFILE" -t "$CI_REGISTRY_IMAGE/$IMAGE_SUFFIX:$CI_COMMIT_SHORT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE/$IMAGE_SUFFIX:$CI_COMMIT_SHORT_SHA"
+```
+
+Do not add a matrix for a single image.
+
 ## Multi-Stage Build Pattern
 
 Keep build tools out of the final image:
 
 ```dockerfile
 # Build stage
-FROM golang:1.23 AS builder
+FROM golang:1.26 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o /app/bin/server ./cmd/server

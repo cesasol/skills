@@ -4,7 +4,8 @@ Applies to: **FLUX.1 Dev**, **FLUX.2 Dev**, **FLUX.2 Klein**
 
 ## Overview
 
-The Flux family from Black Forest Labs uses flow matching and natural language understanding. All variants excel at prompt adherence, visual quality, and text rendering. They share core prompting behavior with key differences noted below.
+The Flux family from Black Forest Labs uses flow matching and natural language understanding. All variants excel at prompt adherence, visual quality, and text rendering. They share core prompting
+behavior with key differences noted below.
 
 ## Shared Principles (All Flux Models)
 
@@ -13,6 +14,7 @@ The Flux family from Black Forest Labs uses flow matching and natural language u
 Flux models understand prose. Write prompts that read like clear image descriptions rather than keyword lists. The model interprets relationships, context, and mood from natural language.
 
 Example:
+
 - ❌ "woman, red hair, city, night, neon, cyberpunk"
 - ✅ "A young woman with bright red hair stands on a rain-slicked rooftop at night, surrounded by holographic neon advertisements"
 
@@ -20,7 +22,7 @@ Example:
 
 Flux responds well to this flow:
 
-```
+```text
 [SUBJECT], [LOCATION],
 [STYLE], [CAMERA SETTINGS], [LIGHTING], [COLORS], [EFFECT],
 [ADDITIONAL ELEMENTS]
@@ -31,7 +33,7 @@ Front-load the most important information. Word order signals priority.
 ### Prompt Length
 
 | Length | Words | Best For |
-|--------|-------|----------|
+| -------- | ------- | ---------- |
 | Short | 10-30 | Quick concepts, fast iteration, style exploration |
 | Medium | 30-80 | Most scenes and everyday prompting |
 | Long | 80-300+ | Complex multi-subject scenes or very directed outputs |
@@ -47,6 +49,7 @@ Flux has excellent text rendering. Use this three-step approach:
 3. **Specify font style**: `"elegant serif typography"` or `"bold industrial sans-serif lettering"`
 
 **Tips for best text accuracy:**
+
 - Front-load text descriptions
 - Use quotation marks around exact text
 - Describe color and effects: "red neon letters", "gold serif lettering"
@@ -57,7 +60,7 @@ Flux has excellent text rendering. Use this three-step approach:
 ### Typography Styles
 
 | Style | Description |
-|-------|-------------|
+| ------- | ------------- |
 | 3D text | "raised chrome letters with realistic metal reflections" |
 | Neon effects | "glowing neon text with electric blue light" |
 | Vintage signs | "weathered painted text with chipped paint and rust" |
@@ -66,12 +69,13 @@ Flux has excellent text rendering. Use this three-step approach:
 
 ### No Negative Prompts
 
-Flux models do not support negative prompts effectively. AI models generally struggle with negation — writing "a person without glasses" causes the model to focus on "glasses" and often generates exactly what you were trying to avoid.
+Flux models do not support negative prompts effectively. AI models generally struggle with negation — writing "a person without glasses" causes the model to focus on "glasses" and often generates
+exactly what you were trying to avoid.
 
 **Use the replacement strategy:**
 
 | Instead of... | Write... |
-|--------------|----------|
+| -------------- | ---------- |
 | "no crowds" | "peaceful solitude", "empty pathways" |
 | "not dark" | "brightly lit", "sun-drenched" |
 | "no text" | "clean surfaces", "unmarked" |
@@ -79,6 +83,7 @@ Flux models do not support negative prompts effectively. AI models generally str
 | "not sad" | "joyful", "content" |
 
 If unwanted elements persist:
+
 1. Be more specific about what you DO want in that space
 2. Front-load the positive description
 3. Add more descriptive detail to strengthen the positive alternative
@@ -93,10 +98,12 @@ Lighting has the greatest single impact on output quality. Describe it like a ph
 - **Temperature**: warm, cool, golden, blue
 
 **Portrait lighting:**
+
 - **Rembrandt lighting** (45° key light): "Portrait with Rembrandt lighting, key light at 45 degrees, dramatic chiaroscuro effect"
 - **Split lighting** (90° side light): "Artistic portrait, split lighting, strong side illumination"
 
 **Environmental light:**
+
 - Window light = soft, even
 - Golden hour = warm and soft
 - Blue hour = cool and moody
@@ -110,7 +117,7 @@ Combine two styles with a unifying palette:
 
 Add explicit style/mood annotations at the end for consistent aesthetics:
 
-```
+```text
 [Scene description]. Style: Country chic meets luxury lifestyle editorial.
 Mood: Serene, romantic, grounded.
 ```
@@ -141,6 +148,7 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 - No negative prompts
 
 **Best practices:**
+
 - Write clear, descriptive natural language
 - Short prompts work well due to upsampling
 - Reference specific cameras, lenses, film stocks for photorealism
@@ -155,6 +163,7 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 - No negative prompts
 
 **Best practices:**
+
 - Same as FLUX.1 Dev but with much longer prompt capacity
 - Use HEX codes for brand-precise colors
 - Can use JSON format for complex production workflows
@@ -169,6 +178,7 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 - Add `Style: [style]. Mood: [mood].` at the end for consistent aesthetics
 
 **Best practices:**
+
 - **Write detailed prose** — short prompts will produce generic results
 - Use natural language emphasis instead of weight syntax: "prominently featuring", "with particular attention to", "especially detailed"
 - Lighting descriptions have the highest single impact
@@ -187,7 +197,7 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 ## Photorealistic Style Reference
 
 | Style | Key Descriptors |
-|-------|----------------|
+| ------- | ---------------- |
 | Modern Digital | "shot on Sony A7IV, clean sharp, high dynamic range" |
 | 2000s Digicam | "early digital camera, slight noise, flash photography, candid, 2000s digicam style" |
 | 80s Vintage | "film grain, warm color cast, soft focus, 80s vintage photo" |

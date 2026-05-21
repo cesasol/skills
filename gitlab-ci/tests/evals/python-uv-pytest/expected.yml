@@ -3,7 +3,11 @@ stages:
   - test
 
 variables:
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.14'
+  UV_VERSION: '0.11.15'
+  BASE_LAYER: trixie-slim
+  UV_CACHE_DIR: '$CI_PROJECT_DIR/.uv-cache'
+  UV_LINK_MODE: copy
 
 workflow:
   rules:
@@ -14,16 +18,17 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 default:
-  image: python:${PYTHON_VERSION}-slim
+  image: ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_VERSION}-${BASE_LAYER}
   cache:
     key:
       files: [uv.lock]
       prefix: ${CI_COMMIT_REF_SLUG}
-    paths: [.venv, .uv-cache]
+    paths: [.uv-cache]
     policy: pull-push
   before_script:
-    - pip install uv --quiet
     - uv sync --frozen
+  after_script:
+    - uv cache prune --ci
 
 lint:
   stage: quality

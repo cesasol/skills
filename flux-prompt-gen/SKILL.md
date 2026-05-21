@@ -16,7 +16,7 @@ All FLUX models share a core structure but have **model-specific behaviors** —
 ## Model Selection Guide
 
 | Model | Prompt Style | Key Differentiator |
-|-------|-------------|-------------------|
+| ------- | ------------- | ------------------- |
 | **FLUX.1 [dev/schnell/pro]** | Structured, medium length | Responds to keyword-forward structured prose |
 | **FLUX.2 [pro] / [max]** | Natural language + JSON support | Handles hex colors, JSON schemas, multi-reference |
 | **FLUX.2 [klein]** | Novelist prose, lighting-heavy | NO prompt upsampling — must be fully descriptive |
@@ -36,7 +36,7 @@ Priority order: Main subject → Key action → Critical style → Essential con
 ## Prompt Length Guidelines
 
 | Length | Words | Best For |
-|--------|-------|----------|
+| -------- | ------- | ---------- |
 | Short | 10–30 | Quick concepts, style exploration |
 | Medium | 30–80 | Most production work (sweet spot) |
 | Long | 80–300+ | Complex scenes, multi-subject, technical specs |
@@ -49,13 +49,13 @@ Start short. Add only what materially changes the image.
 
 ### Base Structure
 
-```
+```text
 [Subject description], [action/pose], [style/medium], [lighting/context], [atmosphere]
 ```
 
 ### Enhancement Layers (add progressively)
 
-```
+```text
 Foundation:    Subject + Action + Style + Context
 + Visual:      Specific lighting, color palette, composition
 + Technical:   Camera settings, lens specs, quality markers
@@ -97,12 +97,14 @@ All FLUX.1 techniques apply, plus these exclusive capabilities:
 ### HEX Color Control
 
 Associate hex codes directly with objects:
-```
+
+```text
 a vintage illustration of an apple in color #0047AB on a white background
 ```
 
 For gradients:
-```
+
+```text
 vase with color gradient starting #02eb3c to #edfa3c, flowers in #ff0088
 ```
 
@@ -141,7 +143,7 @@ Use natural language when: quick iteration, single-subject, creative exploration
 ### Style Reference Table
 
 | Style | Prompt Keywords |
-|-------|----------------|
+| ------- | ---------------- |
 | Modern digital | `shot on Sony A7IV, clean sharp, high dynamic range` |
 | 2000s digicam | `early digital camera, slight noise, flash photography, 2000s digicam style` |
 | 80s vintage | `film grain, warm color cast, soft focus, 80s vintage photo` |
@@ -150,7 +152,7 @@ Use natural language when: quick iteration, single-subject, creative exploration
 ### Aspect Ratios
 
 | Ratio | Use Case |
-|-------|----------|
+| ------- | ---------- |
 | 1:1 | Social media, product shots |
 | 16:9 | Landscapes, cinematic |
 | 9:16 | Mobile, portraits |
@@ -179,7 +181,7 @@ Prompting in the language matching the cultural context produces more authentic 
 
 ### Structure
 
-```
+```text
 Subject → Setting → Details → Lighting → Atmosphere
 ```
 
@@ -187,7 +189,7 @@ Subject → Setting → Details → Lighting → Atmosphere
 
 Describe: source + quality + direction + temperature + surface interaction
 
-```
+```text
 soft, diffused natural light filtering through sheer curtains, casting warm shadows across worn wooden surfaces
 ```
 
@@ -195,13 +197,14 @@ vs `"good lighting"` (weak)
 
 ### Prose Style
 
-✅ Strong: *"A weathered fisherman in his late sixties stands at the bow of a small wooden boat, wearing a salt-stained wool sweater, hands gripping frayed rope. Golden hour sunlight filters through morning mist, creating a sense of quiet determination."*
+✅ Strong: *"A weathered fisherman in his late sixties stands at the bow of a small wooden boat, wearing a salt-stained wool sweater, hands gripping frayed rope. Golden hour sunlight filters through
+morning mist, creating a sense of quiet determination."*
 
 ❌ Weak: *"old fisherman, boat, wool sweater, rope, golden hour, mist, documentary style"*
 
 ### Style/Mood Annotations (append to prose)
 
-```
+```text
 [Scene description]. Style: Country chic meets luxury lifestyle editorial. Mood: Serene, romantic, grounded.
 ```
 
@@ -210,7 +213,7 @@ vs `"good lighting"` (weak)
 Focus on the transformation, not the full scene:
 
 | Edit Type | Pattern |
-|-----------|---------|
+| ----------- | --------- |
 | Style transfer | `"Turn into [style]"` |
 | Object swap | `"Replace [element] with [new element]"` |
 | Add elements | `"Add [element] to [location]"` |
@@ -227,6 +230,7 @@ FLUX models do **not** support negative prompts. Always describe what you want t
 **Mental model**: Ask "If this thing wasn't there, what would I see instead?"
 
 Common conversions:
+
 - `no people` → `empty`, `deserted`, `solitary`
 - `no background distractions` → `smooth gradient background from deep blue to black`
 - `not dark` → `brightly lit`, `sun-drenched`
@@ -239,7 +243,7 @@ Common conversions:
 
 ### Layered Compositions
 
-```
+```text
 Foreground (sharp focus): [closest element]
 Middle Ground: [main subject]
 Background (blurred): [setting]
@@ -247,7 +251,7 @@ Background (blurred): [setting]
 
 ### Style Fusion
 
-```
+```text
 Primary style: [dominant approach]
 + Secondary style: [complementary approach]
 + Unifying element: [cohesive color palette or technique]
@@ -255,9 +259,9 @@ Primary style: [dominant approach]
 
 ### Cinematic References
 
-```
-Dramatic chiaroscuro lighting in the style of Roger Deakins cinematography, 
-teal and orange color grading reminiscent of Blade Runner 2049, 
+```text
+Dramatic chiaroscuro lighting in the style of Roger Deakins cinematography,
+teal and orange color grading reminiscent of Blade Runner 2049,
 slight Dutch angle for psychological tension
 ```
 
@@ -283,6 +287,7 @@ For consistent characters across panels: repeat the full physical description in
 ## Quality Control Checklist
 
 Before delivering a prompt, verify:
+
 - [ ] Most important elements are front-loaded
 - [ ] Specific descriptors used (not vague terms like "artistic" or "nice lighting")
 - [ ] Positive framing throughout — no negations

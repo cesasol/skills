@@ -25,19 +25,6 @@ push:latest:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
-### Cleanup old images
-
-```yaml
-cleanup:registry:
-  stage: .post
-  image: registry.gitlab.com/gitlab-org/cli:latest
-  script:
-    - glab api "projects/$CI_PROJECT_ID/registry/repositories" | jq '.[].id' | xargs -I{} glab api "projects/$CI_PROJECT_ID/registry/repositories/{}/tags" --method DELETE --field name_regex_delete='.*' --field keep_n=10
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
-```
-
 ## Release Pipelines
 
 Source: <https://docs.gitlab.com/ci/yaml/#release>
@@ -48,7 +35,7 @@ Source: <https://docs.gitlab.com/ci/resource_groups/>
 ```yaml
 release:
   stage: deploy
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  image: ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/release-cli:latest
   needs: [build]
   script:
     - echo "Creating release $CI_COMMIT_TAG"

@@ -34,7 +34,7 @@ glab api projects/123 --hostname gitlab.example.com
 When inside a git repo linked to GitLab, these placeholders are auto-resolved:
 
 | Placeholder | Resolves to |
-|-------------|-------------|
+| ------------- | ------------- |
 | `:id` | Project ID |
 | `:fullpath` | URL-encoded full project path |
 | `:group` | Group/namespace |
@@ -80,6 +80,7 @@ glab api projects/:id/issues/42 --method DELETE
 ### `--field` / `-f` (typed)
 
 Auto-converts values based on format:
+
 - `true`, `false`, `null` → JSON boolean/null
 - Integers → JSON numbers
 - Placeholders (`:namespace`, `:repo`, etc.) → resolved values
@@ -147,7 +148,7 @@ glab api projects/:id/merge_requests --paginate | jq '.[].title'
 ```
 
 | Flag | Format | Best For |
-|------|--------|----------|
+| ------ | -------- | ---------- |
 | (default) | Pretty JSON | Single objects, small lists |
 | `--output ndjson` | Newline-delimited JSON | Large datasets, streaming, piping to `jq` |
 
@@ -205,6 +206,7 @@ glab api graphql --paginate -f query='
 ### GraphQL pagination requirements
 
 For `--paginate` to work with GraphQL:
+
 1. Query must accept `$endCursor: String` variable
 2. Query must fetch `pageInfo { hasNextPage, endCursor }` from the collection
 

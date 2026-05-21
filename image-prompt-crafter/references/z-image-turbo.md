@@ -2,7 +2,8 @@
 
 ## Overview
 
-Z-Image Turbo is a 6 billion parameter model built on the Scalable Single-Stream DiT (S3-DiT) architecture. It generates high-quality images in under a second. It is a few-step distilled model that does **not** use classifier-free guidance at inference, which means **negative prompts are not supported**. All constraints must be placed in the positive prompt.
+Z-Image Turbo is a 6 billion parameter model built on the Scalable Single-Stream DiT (S3-DiT) architecture. It generates high-quality images in under a second. It is a few-step distilled model that
+does **not** use classifier-free guidance at inference, which means **negative prompts are not supported**. All constraints must be placed in the positive prompt.
 
 ## Key Characteristics
 
@@ -17,7 +18,7 @@ Z-Image Turbo is a 6 billion parameter model built on the Scalable Single-Stream
 Effective prompts follow a hierarchical structure with six key categories:
 
 | Component | Purpose | Example |
-|-----------|---------|---------|
+| ----------- | --------- | --------- |
 | Subject Specification | Defines primary content | "An elderly gardener with weathered hands" |
 | Environmental Context | Establishes setting | "Victorian garden at morning, dappled sunlight" |
 | Visual Style | Guides aesthetic treatment | "Shot on Leica M6 with Kodak Portra 400 film grain" |
@@ -84,10 +85,12 @@ Since Z-Image Turbo doesn't support negative prompts, include all constraints in
 
 ### Photorealistic Portraits
 
-> "A [age/ethnicity] [gender] with [distinctive features] wearing [clothing/accessories], [expression/emotion], [pose/action]. The lighting is [lighting description]. Shot on [camera] with [lens] in [setting/environment], [time of day]."
+> "A [age/ethnicity] [gender] with [distinctive features] wearing [clothing/accessories], [expression/emotion], [pose/action]. The lighting is [lighting description]. Shot on [camera] with [lens] in
+> [setting/environment], [time of day]."
 
 Filled example:
-> "A 65-year-old Asian woman with silver hair and gentle wrinkles wearing a hand-knitted cardigan, contemplative expression, reading by a window. The lighting is soft natural afternoon light. Shot on Canon 5D with 85mm lens in a cozy library, golden hour."
+> "A 65-year-old Asian woman with silver hair and gentle wrinkles wearing a hand-knitted cardigan, contemplative expression, reading by a window. The lighting is soft natural afternoon light. Shot on
+> Canon 5D with 85mm lens in a cozy library, golden hour."
 
 ### Conceptual Art
 
@@ -100,7 +103,7 @@ Filled example:
 ## Parameter Optimization (API)
 
 | Parameter | Type | Range/Options | Default | When to Use |
-|-----------|------|---------------|---------|-------------|
+| ----------- | ------ | --------------- | --------- | ------------- |
 | `num_inference_steps` | integer | 1-30 | 8 | 4 for speed, 8 balanced, 12+ for maximum quality |
 | `num_images` | integer | 1-4 | 1 | Generate multiple variants per request |
 | `seed` | integer | Any integer | random | Set specific value for reproducible results |

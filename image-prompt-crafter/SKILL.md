@@ -66,7 +66,6 @@ When the user asks you to craft, upsample, refine, or convert a prompt:
    - `9:16` for mobile wallpapers, story/reel covers, tall architecture, and vertical scenes
    - `3:2` or `4:3` for natural photography, documentary scenes, and balanced editorial images
 
-
 ## Output Format
 
 Output the prompt variations with a single line description that explains the difference and a recommended aspect ratio.
@@ -76,23 +75,26 @@ For each target model, provide 2-3 variations of the prompt. Each variation goes
 ```[TARGET MODEL]
 [First prompt variation]
 ```
+
 Recommended aspect ratio: [ratio]
 [First prompt description]
 
 ```[TARGET MODEL]
 [Second prompt variation]
 ```
+
 Recommended aspect ratio: [ratio]
 [Second prompt description]
-
 
 ```[TARGET MODEL]
 [Third prompt variation - if appropriate]
 ```
+
 Recommended aspect ratio: [ratio]
 [Third prompt description]
 
 Rules for the output:
+
 - No markdown headers (no `#`, no `##`)
 - No bold labels like "**Optimized prompt:**"
 - No introductory or concluding text
@@ -137,7 +139,7 @@ Rules for the output:
 ## Quick Model Differentiators
 
 | Model | Prompt Length | Upsampling | Text in Image | Special Notes |
-|-------|--------------|------------|---------------|---------------|
+| ------- | -------------- | ------------ | --------------- | --------------- |
 | FLUX.1 Dev | Medium-Long | Built-in | Excellent | 12B params, natural language |
 | FLUX.2 Dev | Medium-Long | Built-in | Excellent | Up to 32K tokens, HEX colors |
 | FLUX.2 Klein | Must be detailed | None | Excellent | 4B params, what-you-write-is-what-you-get |

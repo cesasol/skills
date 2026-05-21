@@ -4,7 +4,7 @@ stages:
   - build
 
 variables:
-  RUST_VERSION: '1.82'
+  RUST_VERSION: '1.95'
   CARGO_HOME: '$CI_PROJECT_DIR/.cargo'
 
 workflow:

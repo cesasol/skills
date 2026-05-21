@@ -1,19 +1,50 @@
+#:schema https://raw.githubusercontent.com/rvben/rumdl/refs/heads/main/rumdl.schema.json
+#
+[global]
+# Respect .gitignore so generated artifacts, dependency directories, and local
+# build outputs stay out of Markdown checks without duplicating ignore patterns.
+respect-gitignore = true
+
+# Exclude agent-owned working directories. These paths may contain transient
+# prompts, downloaded references, generated scratch files, or third-party content
+# that should not define the repository's Markdown style. Add new agent runtime
+# directories here when they appear.
 exclude = [
-  ".git",
   ".claude",
-  "dist",
+  ".pi",
+  ".opencode",
+  ".commandcode",
+  ".sisyphus",
 ]
 
-# Prose stays unwrapped: the primary readers are AI agents that consume tokens,
-# not visual columns, so hard-wrapping prose adds tokens without improving
-# comprehension. MD013 is therefore disabled. The other disabled rules match
-# stylistic choices already used across existing skill docs.
-disable = [
-  "MD013",
-  "MD031",
-  "MD032",
-  "MD040",
+# Enable useful opt-in consistency checks. MD060 keeps tables predictable,
+# which matters because skills such as docs-layout generate Markdown tables.
+extend-enable = [
+  "MD060",
 ]
 
+# Agent-facing prose should stay mostly unwrapped, but very long prose lines are
+# still hard to review. Let rumdl reflow normal paragraphs at a generous width,
+# while leaving tables alone because MD060 owns table formatting.
+[MD013]
+line-length = 200
+code-blocks = true
+tables = false
+headings = true
+reflow = true
+
+# Ordered lists should count up explicitly. This makes generated plans,
+# procedures, and docs-layout outputs easier to review because skipped or
+# duplicated steps are visible in diffs instead of hidden by lazy numbering.
+[MD029]
+style = "ordered"
+
+# Allow only the small set of inline HTML elements used intentionally in skill
+# docs. Broader HTML should be justified locally rather than allowed globally.
 [MD033]
 allowed_elements = ["br", "details", "summary"]
+
+# Project documentation may use MkDocs-style Markdown features. Skill files stay
+# on the standard flavor unless they opt into a local config later.
+[per-file-flavor]
+"docs/**/*.md" = "mkdocs"

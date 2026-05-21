@@ -5,7 +5,7 @@ stages:
   - build
 
 variables:
-  NODE_VERSION: '24'
+  NODE_VERSION: '26'
   PNPM_VERSION: '10.32.1'
   PNPM_STORE_DIR: '$CI_PROJECT_DIR/.pnpm-store'
 
@@ -87,7 +87,7 @@ test:unit:
 
 test:e2e:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.50.0-jammy
+  image: mcr.microsoft.com/playwright:v1.56.0-noble
   needs: [install]
   cache:
     <<: *pnpm-cache

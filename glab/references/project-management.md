@@ -250,7 +250,7 @@ echo "Hello World" | glab snippet create -t "Quick note" -f "note.txt"
 ### Key flags
 
 | Flag | Description |
-|------|-------------|
+| ------ | ------------- |
 | `-t, --title` | Snippet title (required) |
 | `-f, --filename` | Filename when reading from stdin |
 | `-d, --description` | Snippet description |

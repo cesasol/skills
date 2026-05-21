@@ -19,7 +19,7 @@ def check_valid_yaml(data, raw, path):
     if data is None:
         print(f"[FAIL] Valid YAML — file is empty or null: {path}")
         return False
-    print(f"[PASS] Valid YAML")
+    print("[PASS] Valid YAML")
     return True
 
 
@@ -30,12 +30,14 @@ def check_stages(data):
         print("[FAIL] Has stages — 'stages' key not found at top level")
         return False
     if not isinstance(stages, list):
-        print(f"[FAIL] Has stages — 'stages' is not a list (got {type(stages).__name__})")
+        print(
+            f"[FAIL] Has stages — 'stages' is not a list (got {type(stages).__name__})"
+        )
         return False
     if len(stages) == 0:
         print("[FAIL] Has stages — 'stages' list is empty")
         return False
-    print(f"[PASS] Has stages")
+    print("[PASS] Has stages")
     return True
 
 
@@ -60,7 +62,7 @@ def check_jobs(data):
     """Check 3: At least one top-level key is a job with script/extends/stage."""
     for key, value in data.items():
         if _is_job(key, value):
-            print(f"[PASS] Has at least one job with script")
+            print("[PASS] Has at least one job with script")
             return True
     print("[FAIL] Has at least one job with script — no job definitions found")
     return False
@@ -74,7 +76,7 @@ def check_deprecated_keywords(raw):
         if re.match(r"^(only|except):", stripped):
             print(f"[FAIL] No deprecated keywords — found '{stripped}' at line {i}")
             return False
-    print(f"[PASS] No deprecated keywords (only/except)")
+    print("[PASS] No deprecated keywords (only/except)")
     return True
 
 
@@ -85,9 +87,11 @@ def check_global_deprecated(data):
     """Check 5: No deprecated keys at top level (should be under 'default:')."""
     for key in DEPRECATED_GLOBAL_KEYS:
         if key in data:
-            print(f"[FAIL] No global deprecated keys — found top-level '{key}:' (should be under 'default:')")
+            print(
+                f"[FAIL] No global deprecated keys — found top-level '{key}:' (should be under 'default:')"
+            )
             return False
-    print(f"[PASS] No global deprecated keys")
+    print("[PASS] No global deprecated keys")
     return True
 
 
@@ -103,10 +107,12 @@ def check_artifacts_expire_in(data):
         if not isinstance(artifacts, dict):
             continue
         if "expire_in" not in artifacts:
-            print(f"[FAIL] Artifacts have expire_in — job '{key}' has artifacts but no expire_in")
+            print(
+                f"[FAIL] Artifacts have expire_in — job '{key}' has artifacts but no expire_in"
+            )
             ok = False
     if ok:
-        print(f"[PASS] All artifacts have expire_in")
+        print("[PASS] All artifacts have expire_in")
     return ok
 
 
@@ -128,14 +134,18 @@ def check_cache_key_files(data):
             continue
         if isinstance(cache_key, dict):
             if "files" not in cache_key:
-                print(f"[WARN] Cache key.files not used in: {key} (consider lockfile-based invalidation)")
+                print(
+                    f"[WARN] Cache key.files not used in: {key} (consider lockfile-based invalidation)"
+                )
                 all_ok = False
         elif isinstance(cache_key, str):
             # Simple string key — not using key.files
-            print(f"[WARN] Cache key.files not used in: {key} (consider lockfile-based invalidation)")
+            print(
+                f"[WARN] Cache key.files not used in: {key} (consider lockfile-based invalidation)"
+            )
             all_ok = False
     if all_ok:
-        print(f"[PASS] Cache key.files used where applicable")
+        print("[PASS] Cache key.files used where applicable")
     return True  # Warnings don't fail
 
 

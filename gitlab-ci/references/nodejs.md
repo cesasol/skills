@@ -1,14 +1,14 @@
 # Node.js — GitLab CI Reference
 
 Patterns for Node.js projects using pnpm, npm, or yarn.
-Read `_common.md` for shared patterns (workflow rules, cache strategy, extends, artifacts, deprecated keywords).
+Read `_common.md` for shared patterns, including components, workflow rules, cache strategy, matrix execution, artifacts, and validation commands.
 
 Source: <https://docs.gitlab.com/ci/yaml/>
 
 ## Detection Signals
 
 | File | Stack |
-|------|-------|
+| ------ | ------- |
 | `pnpm-lock.yaml` | Node.js + pnpm |
 | `yarn.lock` | Node.js + yarn |
 | `package-lock.json` | Node.js + npm |
@@ -25,13 +25,13 @@ Use corepack to activate the exact pnpm version from `package.json`:
 
 ```yaml
 variables:
-  NODE_VERSION: '24'
-  PNPM_VERSION: '10.32.1'
+  NODE_VERSION: '26'
+  PNPM_VERSION: '11'
   PNPM_STORE_DIR: '$CI_PROJECT_DIR/.pnpm-store'
 
 .setup-pnpm: &setup-pnpm
   - corepack enable
-  - corepack prepare pnpm@${PNPM_VERSION} --activate
+  - corepack prepare pnpm@latest-${PNPM_VERSION} --activate
   - pnpm config set store-dir "$PNPM_STORE_DIR"
 ```
 
@@ -132,7 +132,7 @@ Pin the image version to match `@playwright/test` in your lockfile.
 ```yaml
 test:e2e:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.50.0-jammy  # pin to version in lockfile
+  image: mcr.microsoft.com/playwright:v1.56.0-noble  # pin to version in lockfile
   needs: [install]
   cache:
     <<: *pnpm-cache
@@ -149,6 +149,24 @@ test:e2e:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
+
+## Matrix variant
+
+Use a matrix only when compatibility across Node versions or package managers is a requirement:
+
+```yaml
+test:compat:
+  stage: test
+  parallel:
+    matrix:
+      - NODE_VERSION: [24, 26]
+  image: node:${NODE_VERSION}-bookworm-slim
+  script:
+    - *setup-pnpm
+    - pnpm test
+```
+
+For ordinary app CI, test only the project’s supported latest stable version.
 
 ## Build Job
 
