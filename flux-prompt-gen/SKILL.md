@@ -1,9 +1,13 @@
 ---
 name: flux-prompt-gen
-description: Generate optimized text-to-image prompts for Black Forest Labs FLUX models (FLUX.1, FLUX.2 [pro], FLUX.2 [max], FLUX.2 [klein]). Use this skill whenever the user wants to create, improve, or refine a Flux image prompt — including when they describe an image they want to generate, ask to "write a Flux prompt", say "help me prompt Flux/BFL/FLUX.2", want to improve an existing prompt, or are building an image generation pipeline using any FLUX model. Also trigger when users ask about Flux prompting techniques, best practices, or how to get specific visual results from FLUX.
+description: Deprecated FLUX prompt generation skill retained for compatibility. Do not use this skill for new work; use image-prompt-crafter whenever the user wants to create, improve, refine, or convert a Flux image prompt or asks about Flux prompting techniques.
 ---
 
 # FLUX Prompt Generation Skill
+
+**Deprecated:** use `image-prompt-crafter` for new image prompt work. It covers FLUX models plus additional image-generation models and current output conventions.
+
+This skill is retained for compatibility only.
 
 All FLUX models share a core structure but have **model-specific behaviors** — always ask or infer which model is being used before finalizing a prompt.
 

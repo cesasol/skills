@@ -20,8 +20,23 @@ Flux family models (FLUX.1 Dev, FLUX.2 Dev, FLUX.2 Klein), Z-Image Turbo, and Er
 
 When the user asks you to craft, upsample, refine, or convert a prompt:
 
-1. **Identify the target model(s)**. Ask if unclear. Default to the model they mention.
-   If they want output for multiple models, produce one optimized prompt per model.
+1. **Identify the target model(s)**. Default to the model they mention. If no specific
+   model is provided, infer the best supported model for the user's prompt and use it
+   without asking a follow-up question. If they want output for multiple models, produce
+   one optimized prompt per model.
+
+   Model inference guidelines:
+   - Choose **Ernie Image** for prompts with readable text, posters, graphic layouts,
+     multi-panel layouts, diagrams, typography, or bilingual/Chinese-language needs.
+   - Choose **FLUX.2 Dev** for complex, highly detailed scenes, precise color direction,
+     long natural-language prompts, product/editorial work, or when maximum prompt
+     control is useful.
+   - Choose **FLUX.2 Klein** for local/lightweight workflows only when the user implies
+     speed, smaller model use, or very literal prompt following; make the prompt detailed.
+   - Choose **FLUX.1 Dev** for general high-quality photographic or cinematic images when
+     no FLUX.2-specific benefit is needed.
+   - Choose **Z-Image Turbo** for fast iteration, stylized/conceptual images, bilingual
+     English/Chinese prompts, or concise 80-250 word prompts with 3-5 core concepts.
 
 2. **Read the relevant reference file(s)** from `references/`:
    - `common-prompting.md` — always read this first
@@ -39,41 +54,56 @@ When the user asks you to craft, upsample, refine, or convert a prompt:
    - Each variation should explore a different angle: different framing, lighting, mood, or detail emphasis
    - All variations must preserve the user's core subject and intent
    - Keep one variation closest to the user's original vision, and branch the others in interesting directions
+   - Recommend an aspect ratio for each variation outside the prompt text, based on the
+     composition and intended use
 
-5. **Output ONLY the prompt variations** in fenced code blocks. No additional text.
+5. **Choose recommended aspect ratios** using the visual goal, not arbitrary defaults:
+   - `1:1` for icons, album covers, product hero images, centered subjects, and social posts
+   - `4:5` or `3:4` for portraits, fashion/editorial shots, posters, and vertical character art
+   - `2:3` for print posters, book covers, full-body portraits, and travel-poster formats
+   - `16:9` for cinematic landscapes, widescreen scenes, environment concept art, and banners
+   - `21:9` for panoramic cinematic vistas and very wide compositions
+   - `9:16` for mobile wallpapers, story/reel covers, tall architecture, and vertical scenes
+   - `3:2` or `4:3` for natural photography, documentary scenes, and balanced editorial images
+
 
 ## Output Format
 
-Output ONLY the prompt variations. No titles, no headers, no "Key choices", no explanations.
+Output the prompt variations with a single line description that explains the difference and a recommended aspect ratio.
 
 For each target model, provide 2-3 variations of the prompt. Each variation goes in its own fenced code block using triple backticks.
 
-```
+```[TARGET MODEL]
 [First prompt variation]
 ```
+Recommended aspect ratio: [ratio]
+[First prompt description]
 
-```
+```[TARGET MODEL]
 [Second prompt variation]
 ```
+Recommended aspect ratio: [ratio]
+[Second prompt description]
 
-```
+
+```[TARGET MODEL]
 [Third prompt variation - if appropriate]
 ```
+Recommended aspect ratio: [ratio]
+[Third prompt description]
 
 Rules for the output:
 - No markdown headers (no `#`, no `##`)
 - No bold labels like "**Optimized prompt:**"
-- No bullet lists of "Key choices"
 - No introductory or concluding text
-- Just the code blocks containing the prompt text, one per variation
 
 ## Important Rules
 
-- **Never include explicit aspect ratio or resolution instructions** like "4:3 aspect ratio",
-  "1024x1024", "16:9", or specific pixel dimensions in the prompt text. The user controls
-  image size separately. Compositional terms like "panoramic view", "portrait orientation",
-  "wide shot", or "vertical composition" are fine because they describe framing, not technical
-  output dimensions.
+- **Never include explicit aspect ratio or resolution instructions inside the prompt text**
+  like "4:3 aspect ratio", "1024x1024", "16:9", or specific pixel dimensions. The
+  recommended aspect ratio must be listed separately after each prompt block. Compositional
+  terms like "panoramic view", "portrait orientation", "wide shot", or "vertical composition"
+  are fine because they describe framing, not technical output dimensions.
 
 - **Never use negative prompts**. None of the supported models benefit from them. Instead,
   frame constraints positively (e.g., instead of "no people", use "empty landscape").
@@ -92,6 +122,17 @@ Rules for the output:
 
 - **Iterate incrementally**. If the user is refining, suggest changing one element at a
   time rather than rewriting everything.
+
+## Common Mistakes and Edge Cases
+
+- If the user asks for an aspect ratio, include it only in the separate recommendation
+  line, not inside the prompt block.
+- If the prompt contains conflicting styles, pick the dominant style or ask one brief
+  clarification question when the conflict changes the core intent.
+- If the user provides unsafe, copyrighted-character, or brand-heavy wording, preserve
+  the visual intent using generic descriptive language.
+- If the requested image includes text, keep the quoted text short and choose Ernie Image
+  when no model was specified.
 
 ## Quick Model Differentiators
 

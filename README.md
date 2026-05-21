@@ -6,15 +6,20 @@ A collection of skills for AI coding agents like [OpenCode](https://github.com/o
 
 | Skill | Description |
 |-------|-------------|
-| [comfyui](comfyui/SKILL.md) | Run FLUX.2 image generation/editing workflows on a local ComfyUI instance (`localhost:8188`). |
 | [dispatch-feature-workitems](dispatch-feature-workitems/SKILL.md) | Parallel feature development workflow: expands requirements into workitem docs, dispatches one agent per item, each with its own worktree, branch, and GitLab draft MR. |
 | [docs-layout](docs-layout/SKILL.md) | Normalized `docs/` folder layout with a shared spine (decisions, roadmap, reports, runbooks, reference) plus backend/frontend extras, with naming conventions for phased, dated, and flat files. |
-| [flux-prompt-gen](flux-prompt-gen/SKILL.md) | Generate optimized text-to-image prompts for Black Forest Labs FLUX models (FLUX.1, FLUX.2 [pro], FLUX.2 [max], FLUX.2 [klein]). |
 | [glab](glab/SKILL.md) | GitLab CLI (`glab`) — merge requests, issues, CI/CD pipelines, releases, API access, and full project management from the terminal. |
 | [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Craft, upsample, and refine text prompts for AI image generation models: FLUX.1/2 Dev, FLUX.2 Klein, Z-Image Turbo, and Ernie Image. Outputs 2–3 prompt variations in clean code blocks. |
 | [just](just/SKILL.md) | Command runner best practices for justfiles, shared recipes, and CI entrypoints. |
 | [prek](prek/SKILL.md) | Fast pre-commit-compatible hook runner setup, configuration, and CI usage. |
 | [rumdl](rumdl/SKILL.md) | Fast Markdown linting and formatting with rumdl configuration and CI guidance. |
+
+## Deprecated Skills
+
+| Skill | Replacement | Notes |
+|-------|-------------|-------|
+| [comfyui](comfyui/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) for prompt crafting; use project-specific ComfyUI tooling for execution. | Deprecated and retained for compatibility only. |
+| [flux-prompt-gen](flux-prompt-gen/SKILL.md) | [image-prompt-crafter](image-prompt-crafter/SKILL.md) | Deprecated; image-prompt-crafter covers FLUX plus additional image models. |
 
 ## Agent Definitions
 
@@ -31,8 +36,8 @@ model selection, and subagent mode.
 ### Install via Skills CLI
 
 ```bash
-# Replace SKILL_NAME with: comfyui, docs-layout, flux-prompt-gen, glab, or resume-pdf
-npx skills add cesasol/skills@SKILL_NAME
+# Replace SKILL_NAME with one of the available skill directory names, for example:
+npx skills add cesasol/skills@image-prompt-crafter
 ```
 
 ### Download `.skill` package

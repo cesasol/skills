@@ -97,3 +97,20 @@ glab ci lint --path .gitlab-ci.yml
 ```
 
 See the `glab` skill for details.
+
+## Example output
+
+For a detected Node.js project with `pnpm-lock.yaml`, generate a pipeline with install,
+quality, test, build, and optional deploy stages. Use pnpm cache keys based on the lockfile,
+MR/branch deduplication in `workflow:rules`, and artifacts with explicit expiration.
+
+For an existing project that already has `.gitlab-ci.yml`, write `.gitlab-ci.new.yml` and
+explain that the user should review the diff before replacing the current pipeline.
+
+## Edge cases and mistakes to avoid
+
+- If multiple stacks are present, ask which one to target instead of guessing.
+- If deploy details are missing, generate lint/test/build only and leave deployment out.
+- If security scanning is requested, include GitLab templates only when compatible with the stack.
+- Avoid hardcoded registry paths, environment URLs, and secret values; use CI variables instead.
+- Never overwrite an existing `.gitlab-ci.yml` without explicit user approval.

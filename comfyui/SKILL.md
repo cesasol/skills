@@ -1,14 +1,15 @@
 ---
 name: comfyui
 description: >
-  Run image generation workflows on a local ComfyUI instance (localhost:8188).
-  Use this skill when the user wants to generate images using ComfyUI — including
-  FLUX.2 text-to-image generation or any workflow that requires queuing a prompt
-  to the ComfyUI API. Trigger when users mention ComfyUI, "generate an image",
-  or want to run a diffusion workflow locally.
+  Deprecated ComfyUI execution skill retained for compatibility. Do not use this
+  skill for new prompt-crafting work; use image-prompt-crafter when the user wants
+  AI image prompts. Only use this skill when explicitly maintaining legacy local
+  ComfyUI workflows that queue prompts to localhost:8188.
 ---
 
 # ComfyUI — Local Image Generation
+
+**Deprecated:** this skill is retained for compatibility with legacy local ComfyUI workflows. For new image prompt crafting, use `image-prompt-crafter` instead.
 
 Run FLUX.2 image-generation workflows on a local ComfyUI server via its REST API.
 
