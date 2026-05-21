@@ -138,6 +138,16 @@ glab api projects/:id -F json
 glab api projects/:id/issues --method POST -f title="New issue" -f labels="bug"
 ```
 
+## Example Interaction
+
+User: "Check the pipeline for this branch and show me the failing job log."
+
+Agent flow:
+1. Run `glab ci status -F json` to identify the current pipeline.
+2. Run `glab ci list -F json --per-page 5` if more context is needed.
+3. Find the failed job ID and run `glab ci trace <job-id>`.
+4. Summarize the failure and suggest the smallest next fix.
+
 ## Global Flags
 
 | Flag | Description |

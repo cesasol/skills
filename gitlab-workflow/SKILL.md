@@ -245,6 +245,17 @@ glab ci status --branch main -F json # specific branch
 glab ci list -F json --per-page 5    # recent pipelines
 ```
 
+## Example Interaction
+
+User: "Start work on issue #42 and open a draft MR."
+
+Agent flow:
+1. Read the issue with `glab issue view 42 -F json`.
+2. Create `feat/42-short-slug` from `main`.
+3. Make or guide the initial changes, commit with a Conventional Commit message, and push.
+4. Create a draft MR with `glab mr create --draft --fill --related-issue 42 --yes`.
+5. Return the MR URL and current pipeline status.
+
 ## GLFM Quick Reference
 
 When writing issue/MR descriptions and comments, always use GitLab Flavored Markdown.
