@@ -20,12 +20,7 @@ Skill(skill="docs-layout")
 If the skill is not found, stop immediately and tell the user:
 
 > `docs-layout` is required but not installed. Run:
->
-> `text ``
-> npx skills add -g cesasol/skills/docs-layout
->
-> `text ``
->
+> `npx skills add -g cesasol/skills/docs-layout`
 > Then retry.
 
 Do not proceed without it.
