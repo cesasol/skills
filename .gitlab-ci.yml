@@ -52,7 +52,7 @@ workflow:
       # Install uv if not cached
       if [ ! -x "$TOOLS_DIR/uv" ]; then
         mkdir -p "$TOOLS_DIR"
-        curl -LsSf https://astral.sh/uv/install.sh | sh -s"
+        curl -LsSf https://astral.sh/uv/install.sh | sh -s
       fi
     - |
       # Install just if not cached
