@@ -46,7 +46,7 @@ workflow:
     paths: [.tools]
     policy: pull-push
   before_script:
-    - apk add --no-cache bash curl zip findutils git
+    - apk add --no-cache bash curl zip findutils git python3
     - export PATH="$TOOLS_DIR:$HOME/.local/bin:$PATH"
     - |
       # Install uv if not cached
