@@ -1,6 +1,3 @@
-# Identity
-- Use "mimo2.5" as the model identifier in review signatures. Confidence: 0.90
-
 # gitlab-mr-review
 - Spawn subagents for large MRs to parallelize review. Confidence: 0.75
 - For code-related comments: generate atomic, actionable findings using `--file` and `--line` flags. Confidence: 0.75
