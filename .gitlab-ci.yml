@@ -18,6 +18,8 @@ variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic"
   # Cache downloaded tools under $CI_PROJECT_DIR so they're cacheable.
   TOOLS_DIR: '$CI_PROJECT_DIR/.tools'
+  UV_TOOL_BIN_DIR: "$TOOLS_DIR"
+
 
 # ─── Workflow rules ──────────────────────────────────────────────────────────
 # Run pipelines for: merge requests, default branch (main), and tags.
@@ -44,13 +46,13 @@ workflow:
     paths: [.tools]
     policy: pull-push
   before_script:
-    - apk add --no-cache bash curl zip findutils
+    - apk add --no-cache bash curl zip findutils git python3
     - export PATH="$TOOLS_DIR:$HOME/.local/bin:$PATH"
     - |
       # Install uv if not cached
       if [ ! -x "$TOOLS_DIR/uv" ]; then
         mkdir -p "$TOOLS_DIR"
-        curl -LsSf https://astral.sh/uv/install.sh | sh -s -- -b "$TOOLS_DIR"
+        curl -LsSf https://astral.sh/uv/install.sh | sh -s
       fi
     - |
       # Install just if not cached

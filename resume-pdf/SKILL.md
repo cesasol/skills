@@ -2,7 +2,7 @@
 name: resume-pdf
 description: >
   Generates a tailored, ATS-optimized PDF resume using Typst.
-  Use this whenever the user asks to create, tailor, update, or rebuild a resume — including
+  Use this skill when the user asks to create, tailor, update, or rebuild a resume — including
   when a job description is pasted, when targeting a specific role or company, or when the user says
   anything like "update my resume", "tailor my resume for this job", "generate a resume PDF",
   or "apply to this role". Also use it when the user pastes a job description and implies they need
