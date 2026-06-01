@@ -1,0 +1,45 @@
+{
+  "skill_name": "gitlab-mr-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can you review MR !42 in my project? I want to make sure there aren't any bugs before I merge it.",
+      "expected_output": "The skill should fetch MR !42's diff and metadata, analyze the changes for bugs and issues, and post a signed review comment to the MR.",
+      "files": [],
+      "expectations": [
+        "Uses glab mr view to fetch MR metadata",
+        "Uses glab mr diff to get the changes",
+        "Posts review comments using glab api with body=@file pattern",
+        "Every comment ends with a signature block containing tool and model name",
+        "Provides a summary note at the end"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Check the test coverage on MR !17 — I added a new auth module and want to know if the tests are thorough enough.",
+      "expected_output": "The skill should focus on test coverage analysis for the auth module changes, identifying gaps and rating their importance.",
+      "files": [],
+      "expectations": [
+        "Uses glab mr diff to get the changes",
+        "Focuses review on test-related aspects (tests aspect)",
+        "Identifies critical test gaps and rates them",
+        "Posts signed review comments",
+        "Does not review non-test code unless it affects testability"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Do a comprehensive review of MR !8 — check code quality, error handling, and suggest any simplifications. I want this to be thorough.",
+      "expected_output": "The skill should perform a multi-aspect review covering code, errors, and simplification, posting individual findings and a comprehensive summary.",
+      "files": [],
+      "expectations": [
+        "Reviews multiple aspects: code, errors, simplify",
+        "Posts individual findings for each issue found",
+        "Posts a comprehensive summary note categorizing issues by severity",
+        "Uses confidence scoring for code issues",
+        "Signature block present on all comments",
+        "Summary categorizes into Critical/Important/Suggestions/Positive"
+      ]
+    }
+  ]
+}
