@@ -1,0 +1,159 @@
+# Example: deploy a small webapp stack as Podman Quadlets via containers.podman modules.
+#
+# Demonstrates Pattern A across the full Quadlet surface:
+#   - podman_network (a named bridge network)
+#   - podman_volume  (a named persistent volume)
+#   - podman_pod     (a pod the two containers join)
+#   - podman_container x2  (the webapp + a worker that depends on it)
+#   - podman_secret  (a DB password injected as an env var)
+#
+# All four Quadlet types are generated with `state: quadlet`, then systemd is reloaded
+# and units enabled in dependency order. Restart-on-change uses the registered results.
+# Generic names — adapt to your inventory. Copy freely.
+---
+- name: Deploy webapp stack as Podman Quadlets
+  hosts: webhosts
+  become: true
+  vars:
+    webapp_image: registry.example.com/webapp/app:latest
+    webapp_port: 8080
+  tasks:
+
+    # ── Secrets ────────────────────────────────────────────────────────────
+    - name: Create Podman secret for the DB password
+      containers.podman.podman_secret:
+        name: webapp-db-password
+        data: "{{ webapp_db_password }}"     # come from a vault/lookup in real use
+        state: present
+        skip_existing: true
+      no_log: true
+      register: db_secret
+
+    # ── Network ─────────────────────────────────────────────────────────────
+    - name: Generate the application network Quadlet
+      containers.podman.podman_network:
+        name: webappnet
+        state: quadlet
+        quadlet_dir: /etc/containers/systemd
+        quadlet_file_mode: "0644"
+        subnet: 10.90.0.0/24
+        # unit becomes webappnet-network.service
+      register: net_quadlet
+
+    # ── Volume ──────────────────────────────────────────────────────────────
+    - name: Generate the data volume Quadlet
+      containers.podman.podman_volume:
+        name: webapp-data
+        state: quadlet
+        quadlet_dir: /etc/containers/systemd
+        quadlet_file_mode: "0644"
+        # unit becomes webapp-data-volume.service
+      register: vol_quadlet
+
+    # ── Pod ─────────────────────────────────────────────────────────────────
+    # The pod joins the network; both containers join the pod.
+    - name: Generate the webapp pod Quadlet
+      containers.podman.podman_pod:
+        name: webapppod
+        state: quadlet
+        quadlet_dir: /etc/containers/systemd
+        quadlet_file_mode: "0644"
+        network: webappnet
+        publish: ["{{ webapp_port }}:{{ webapp_port }}"]
+        # unit becomes webapppod-pod.service
+      register: pod_quadlet
+
+    # ── Containers ──────────────────────────────────────────────────────────
+    - name: Generate the webapp container Quadlet
+      containers.podman.podman_container:
+        name: webapp
+        image: "{{ webapp_image }}"
+        state: quadlet
+        quadlet_dir: /etc/containers/systemd
+        quadlet_file_mode: "0644"
+        pod: webapppod                      # join the pod above
+        env:
+          PORT: "{{ webapp_port }}"
+        secrets:
+          - "webapp-db-password,type=env,target=DB_PASSWORD"
+        volumes:
+          - "webapp-data:/var/lib/webapp:Z"
+        healthcheck: "curl -f http://localhost:{{ webapp_port }}/healthz || exit 1"
+        healthcheck_interval: 30s
+        healthcheck_timeout: 5s
+        healthcheck_retries: 3
+        healthcheck_start_period: 120s
+        quadlet_options:
+          - "AutoUpdate=registry"
+          - "[Service]"
+          - "Restart=always"
+          - "TimeoutStartSec=300"
+          - "Environment=REGISTRY_AUTH_FILE=/etc/containers/auth.json"
+          - "[Install]"
+          - "WantedBy=multi-user.target"
+      register: app_quadlet
+
+    - name: Generate the worker container Quadlet
+      containers.podman.podman_container:
+        name: webapp-worker
+        image: "{{ webapp_image }}"
+        state: quadlet
+        quadlet_dir: /etc/containers/systemd
+        quadlet_file_mode: "0644"
+        pod: webapppod
+        command: worker                    # Exec=worker
+        secrets:
+          - "webapp-db-password,type=env,target=DB_PASSWORD"
+        quadlet_options:
+          # Ordering: the worker only starts after the webapp is up.
+          - "[Unit]"
+          - "After=webapp.service"
+          - "Requires=webapp.service"
+          - "AutoUpdate=registry"
+          - "[Service]"
+          - "Restart=always"
+          - "Environment=REGISTRY_AUTH_FILE=/etc/containers/auth.json"
+          - "[Install]"
+          - "WantedBy=multi-user.target"
+      register: worker_quadlet
+
+    # ── systemd reload once ─────────────────────────────────────────────────
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    # ── Enable in dependency order, (re)start on change ─────────────────────
+    - name: Enable and start the network and volume units
+      ansible.builtin.systemd:
+        name: "{{ item.name }}.service"
+        enabled: true
+        state: started
+      loop:
+        - { name: webappnet-network }   # <- that's the unit name for the .network file
+        - { name: webapp-data-volume }
+      # Podman maps: webappnet.network -> webappnet-network.service
+      #              webapp-data.volume -> webapp-data-volume.service
+
+    - name: Enable and start the pod unit
+      ansible.builtin.systemd:
+        name: webapppod-pod.service
+        enabled: true
+        state: "{{ 'restarted' if pod_quadlet.changed else 'started' }}"
+
+    - name: Enable and start the webapp unit
+      ansible.builtin.systemd:
+        name: webapp.service
+        enabled: true
+        state: >-
+          {{ 'restarted'
+             if (app_quadlet.changed or db_secret.changed)
+             else 'started' }}
+
+    - name: Enable and start the worker unit
+      ansible.builtin.systemd:
+        name: webapp-worker.service
+        enabled: true
+        state: >-
+          {{ 'restarted'
+             if (worker_quadlet.changed or app_quadlet.changed or db_secret.changed)
+             else 'started' }}

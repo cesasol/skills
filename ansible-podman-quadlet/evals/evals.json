@@ -1,0 +1,51 @@
+{
+  "skill_name": "ansible-podman-quadlet",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have two Podman containers to run on a host as systemd services: an API on its own and a background worker that should only start after the API is healthy. I want to manage them with Ansible using the containers.podman collection so the unit files are generated idempotently (real --check --diff), with hashed DB passwords injected as Podman secrets, a private-registry auth file, health checks, and restart-on-change. Show me the tasks.",
+      "expected_output": "Tasks using containers.podman.podman_container state: quadlet (quadlet_dir + quadlet_file_mode) for the API and the worker, podman_secret with no_log for the passwords then referenced via secrets: as 'name,type=env,target=ENV' strings, quadlet_options carrying the [Service] Restart=/TimeoutStartSec= and Environment=REGISTRY_AUTH_FILE= lines, the worker's [Unit] After=/Requires= webapp.service for ordering, healthcheck* params on the API, daemon_reload, then enable + (re)started based on registered .changed.",
+      "assertions": [
+        {"text": "Uses containers.podman.podman_container with state: quadlet"},
+        {"text": "Sets quadlet_dir (e.g. /etc/containers/systemd)"},
+        {"text": "Uses containers.podman.podman_secret with no_log: true"},
+        {"text": "References secrets via secrets: as '<name>,type=env,target=<ENV>' strings"},
+        {"text": "Worker has quadlet_options with [Unit] After= pointing at the API .service unit"},
+        {"text": "API uses first-class healthcheck: plus healthcheck_interval/timeout/retries (and start_period)"},
+        {"text": "Has a daemon_reload: true task"},
+        {"text": "Enable/start tasks use registered .changed to decide restarted vs started"},
+        {"text": "quadlet_options contains [Service] Restart= and Environment=REGISTRY_AUTH_FILE="}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I want to run a Podman app inside a pod (not network=host) with its own named bridge network and a named persistent volume. Show me the ansible tasks using containers.podman to generate the .pod, .network, .volume and .container quadlets so they chain correctly and start in dependency order.",
+      "expected_output": "Tasks emitting podman_network state:quadlet, podman_volume state:quadlet, podman_pod state:quadlet, then podman_container state:quadlet with pod: <podname> joining the pod, plus unit ordering via quadlet_options [Unit] Requires=/After= on the generated .pod unit, then daemon_reload + enable in dependency order.",
+      "assertions": [
+        {"text": "Uses podman_network with state: quadlet"},
+        {"text": "Uses podman_volume with state: quadlet"},
+        {"text": "Uses podman_pod with state: quadlet"},
+        {"text": "Uses podman_container with state: quadlet AND pod: <podname>"},
+        {"text": "Has a daemon_reload: true task"},
+        {"text": "Enables units in dependency order: network/volume before pod before container"},
+        {"text": "Container quadlet_options has [Unit] After=/Requires= the pod unit (e.g. <name>-pod.service)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I have a vendor-provided quadlet bundle myapp.quadlets with three sections and three # FileName= comments. Install it onto a target LXC with Ansible and make sure systemd picks it up, with idempotent reruns. Don't generate the file, just install it.",
+      "expected_output": "Uses containers.podman.podman_quadlet state: present src: <path/to/myapp.quadlets> quadlet_dir: /etc/containers/systemd, relies on reload_systemd default true, notes Podman 6+ requirement for .quadlets and the # FileName= marker rule, and that local-file installs are idempotent via manifest comparison while URL src always reports changed.",
+      "assertions": [
+        {"text": "Uses containers.podman.podman_quadlet (not a generator module like podman_container)"},
+        {"text": "state: present"},
+        {"text": "src: points to a .quadlets file"},
+        {"text": "Notes Podman 6+ requirement for .quadlets bundles (in comments or task name)"},
+        {"text": "Notes the # FileName= marker requirement for each section"},
+        {"text": "Relies on reload_systemd default true OR explicitly sets it (does NOT require a separate daemon_reload task)"}
+      ],
+      "files": []
+    }
+  ]
+}
