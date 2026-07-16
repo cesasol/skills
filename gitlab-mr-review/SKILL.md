@@ -67,11 +67,21 @@ glab mr view <mr-number> -F json > /tmp/mr-meta.json
 
 Read the diff file rather than piping — large diffs need careful analysis.
 
-### 3. Analyze the Changes
+### 3. Load Review References
+
+Before analyzing, load the review references (see **House Rules** below):
+
+1. **Always load** `references/house-rules.md` — language-agnostic enforced opinions.
+2. **Load each matching stack reference** for every language present in the diff: `references/python.md` (pydantic), `references/typescript.md` (zod). One MR can touch multiple stacks — load all that
+   match.
+
+Enforce the house rules on every review regardless of the requested aspect.
+
+### 4. Analyze the Changes
 
 Review the diff against the requested review focus (see below). Focus on changed code, not untouched files.
 
-### 4. Post Review Comments
+### 5. Post Review Comments
 
 **Rule: Comment format depends on whether the finding targets specific code or spans across files.**
 
@@ -123,7 +133,7 @@ glab api "projects/:id/merge_requests/<mr-number>/notes" \
 
 **Use `glab api` for multi-line comments** — inline `-m` doesn't support markdown well for longer content. Only use `-m` for short inline diff comments that fit on one or two lines.
 
-### 5. Summary Note
+### 6. Summary Note
 
 After posting individual findings, add a summary note to the MR:
 
@@ -153,6 +163,21 @@ glab api "projects/:id/merge_requests/<mr-number>/notes" \
   --field "body=@/tmp/review-summary.md" \
   --output json
 ```
+
+## House Rules (always enforced)
+
+These opinions apply to every review, regardless of which aspect is requested. They live in `references/house-rules.md` (principles + rationale) plus per-stack files (concrete directives and code
+patterns).
+
+- **Always load** `references/house-rules.md` before analyzing the diff.
+- **Load each matching stack reference** for every language present in the diff: `references/python.md` (pydantic patterns), `references/typescript.md` (zod patterns). One MR can touch multiple stacks
+  — load all that match.
+- Apply house rules at the same confidence scoring as the `code` aspect (80-90 important, 91-100 critical).
+- Include the rule's one-line rationale in any comment posted for a house-rule violation.
+- Do not apply house rules to generated/vendored code, test fixtures, or mock data (already excluded from review).
+
+Adding a new enforced opinion: add the principle to `references/house-rules.md` and the concrete patterns to the relevant stack file under `references/`. Adding a new stack: create
+`references/<lang>.md` with the concrete form of each existing house rule.
 
 ## Review Aspects
 

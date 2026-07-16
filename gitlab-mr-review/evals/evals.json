@@ -40,6 +40,32 @@
         "Signature block present on all comments",
         "Summary categorizes into Critical/Important/Suggestions/Positive"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Review MR !31 — it's a Python service, just check the code quality.",
+      "expected_output": "The skill should load house-rules.md and python.md, flag any unjustified noqa/type:ignore/pylint-disable suppressions (confidence 80-90), and post signed inline comments including the rule rationale. Justified suppressions at a verified boundary with a guard and stated reason should not be flagged.",
+      "files": [],
+      "expectations": [
+        "Loads references/house-rules.md and references/python.md before analysis",
+        "Flags lint/type suppressions lacking both a runtime guard and a stated reason",
+        "Does not flag suppressions at a verified boundary that have a guard and a reason",
+        "Posts signed inline comments that include the rule rationale",
+        "Uses confidence scoring 80-90 for these findings"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Do a code review of MR !55 — it's a TypeScript frontend that calls a new backend endpoint.",
+      "expected_output": "The skill should load house-rules.md and typescript.md, flag unvalidated JSON.parse/response.json results and unvalidated shared state (confidence 80-90), and post signed inline comments. Internally-constructed data with known shape should not be flagged.",
+      "files": [],
+      "expectations": [
+        "Loads references/house-rules.md and references/typescript.md before analysis",
+        "Flags response.json()/JSON.parse results used without a zod schema parse",
+        "Flags unvalidated state objects passed to multiple functions",
+        "Does not flag internally-constructed data with known shape",
+        "Posts signed inline comments that include the rule rationale"
+      ]
     }
   ]
 }
