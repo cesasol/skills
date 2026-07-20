@@ -4,9 +4,6 @@ description: >
   Review GitLab merge requests by analyzing diffs and posting signed review comments.
   Use this skill whenever the user asks to review an MR, review a merge request, check code
   on a GitLab PR, do a code review, or wants feedback on changes in a GitLab project.
-  Also trigger when the user says "review my changes", "check this MR", "look at the diff",
-  "code review", or asks for feedback before merging. Posts comments signed with the
-  invoking tool and model name for transparency.
 ---
 
 # GitLab MR Review
@@ -45,11 +42,11 @@ Every review comment must end with a signature block:
 ### 1. Identify the Target MR
 
 ```bash
-# Current branch's MR
-glab mr view -F json
+# Current branch's MR with comments
+glab mr view -c -F json | jq '{title, description, state, source_branch, target_branch, labels, Discussions}'
 
 # By MR number
-glab mr view 123 -F json
+glab mr view -c 123 -F json | jq '{title, description, state, source_branch, target_branch, labels, Discussions}'
 
 # List open MRs to find one
 glab mr list -F json --per-page 10

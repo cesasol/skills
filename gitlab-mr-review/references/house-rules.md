@@ -5,7 +5,7 @@ show the concrete directives and patterns for each rule.
 
 These rules use the same confidence scoring as the `code` aspect:
 
-- 80-90: Important — should fix (both house rules default here)
+- 80-90: Important — should fix (house rules default here unless specified otherwise)
 - 91-100: Critical — escalate when a suppression hides a real error path or an unvalidated boundary handles untrusted input
 
 When posting a comment for a house-rule violation, include the rule's one-line rationale so the MR author understands the *why*, not just the *what*.
@@ -55,6 +55,51 @@ Severity: 80-90. Escalate to 91-100 if the boundary handles untrusted/user input
 
 Rationale: a type annotation on an unvalidated payload is a hope, not a guarantee. The schema parse is the actual contract; without it, every downstream function inherits a silent assumption that
 breaks at runtime, far from the source.
+
+## Rule 3 — Keep comments minimal; refactor workarounds instead of explaining them
+
+Comments should be brief and explain intent that cannot be made clear in the code itself. Long explanatory comments that document a workaround are a red flag: reject the change and require a refactor
+that removes the workaround or makes the design self-explanatory. Decorative comments are acceptable only when needed to distinguish sections of a script or similar file. File-header comments follow
+separate size limits.
+
+Flag:
+
+- Multi-paragraph or unusually long comments explaining why confusing code must remain
+- Comments that document fragile ordering, hidden coupling, special cases, or compensating behavior instead of removing them
+- Workaround comments that ask future maintainers to preserve non-obvious behavior
+- Decorative section comments that are unnecessary, 70 or more characters wide, or three or more lines tall
+- File-header comments wider than 100 characters, longer than 40 lines, or wrapped in decorative opening or closing lines
+- File-header documentation that exceeds those limits instead of being extracted to a separate text file
+
+Do NOT flag:
+
+- Short comments explaining non-obvious business intent, external constraints, or safety invariants
+- API documentation that describes a public contract
+- Decorative comments required to distinguish sections of a script or similar file when they are less than 70 characters wide and less than three lines tall
+- File-header comments no more than 100 characters wide and 40 lines long, without decorative opening or closing lines
+- Longer file-level documentation extracted to a separate text file and referenced by a concise file header
+- Temporary workarounds with a tracked removal issue and a clear, near-term expiry condition
+
+### Markdown formatting
+
+Markdown-formatted comments and extracted documentation must follow the target repository's effective rumdl configuration. Check `.rumdl.toml`, `rumdl.toml`, and `[tool.rumdl]` in `pyproject.toml`; do
+not impose this repository's full profile on another project.
+
+If the target repository has no rumdl configuration, enforce only this minimal fallback:
+
+- `MD013` — limit lines to 200 characters, reflow prose, check code blocks and headings, and exclude tables
+- `MD029` — number ordered-list items sequentially
+- `MD033` — allow only `<br>`, `<details>`, and `<summary>` inline HTML elements
+- `MD060` — format table cells consistently
+
+For diagrams in Markdown, prefer fenced Mermaid diagrams over ASCII art. Flag new or modified ASCII diagrams when Mermaid can express the same information clearly. Allow ASCII only when the target
+renderer does not support Mermaid or the exact monospaced text layout is itself significant.
+
+Treat Markdown-formatting violations as severity 80-90. Do not reject for formatting alone unless the comment also violates the workaround or size constraints above.
+
+Severity: 91-100. Reject and require refactoring before merge unless the temporary-workaround exception applies.
+
+Rationale: comments cannot make a fragile workaround safe; refactoring the design removes the hidden constraint instead of transferring its risk to future maintainers.
 
 ## Extending the house rules
 
