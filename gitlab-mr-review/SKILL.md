@@ -1,7 +1,7 @@
 ---
 name: gitlab-mr-review
 description: >
-  Review GitLab merge requests by analyzing diffs and posting signed review comments.
+  Review GitLab merge requests in isolated git worktrees and post signed review comments.
   Use this skill whenever the user asks to review an MR, review a merge request, check code
   on a GitLab PR, do a code review, or wants feedback on changes in a GitLab project.
 ---
@@ -52,17 +52,54 @@ glab mr view -c 123 -F json | jq '{title, description, state, source_branch, tar
 glab mr list -F json --per-page 10
 ```
 
-### 2. Fetch the Diff
+### 2. Prepare an Isolated MR Worktree
+
+Use `glab` only to read MR metadata and post comments. Fetch the MR's Git refs with `git`, then
+review the source tree from a detached temporary worktree. **Do not use `glab mr diff`, the MR
+changes API, `glab mr checkout`, or switch/reset the user's current worktree.**
 
 ```bash
-# Full diff for analysis
-glab mr diff <mr-number> --color=never > /tmp/mr-diff.txt
-
-# Also get MR metadata for context
+# Save metadata and extract the refs to review.
 glab mr view <mr-number> -F json > /tmp/mr-meta.json
+MR_IID=$(jq -r '.iid' /tmp/mr-meta.json)
+TARGET_BRANCH=$(jq -r '.target_branch' /tmp/mr-meta.json)
+
+# Use the remote linked to the GitLab project. Override when it is not named origin.
+ROOT=$(git rev-parse --show-toplevel)
+REMOTE=${GITLAB_REMOTE:-origin}
+RUN_ID="${MR_IID}-$$"
+MR_HEAD_REF="refs/gitlab-mr-review/${RUN_ID}/head"
+TARGET_REF="refs/gitlab-mr-review/${RUN_ID}/target"
+WORKTREE_DIR="${TMPDIR:-/tmp}/gitlab-mr-review-${RUN_ID}"
+
+# Fetch private temporary refs without altering local branches or remote-tracking branches.
+git -C "$ROOT" fetch --no-tags "$REMOTE" \
+  "+refs/merge-requests/${MR_IID}/head:${MR_HEAD_REF}" \
+  "+refs/heads/${TARGET_BRANCH}:${TARGET_REF}"
+
+# Materialize the exact MR head and calculate the comparison base locally.
+git -C "$ROOT" worktree add --detach "$WORKTREE_DIR" "$MR_HEAD_REF"
+BASE_SHA=$(git -C "$ROOT" merge-base "$TARGET_REF" "$MR_HEAD_REF")
 ```
 
-Read the diff file rather than piping — large diffs need careful analysis.
+Record `ROOT`, `WORKTREE_DIR`, `MR_HEAD_REF`, `TARGET_REF`, and `BASE_SHA`; they are needed throughout
+the review and for cleanup. If another process is reviewing the same MR, use a distinct `RUN_ID`.
+
+Inspect changes with local Git commands, always from the temporary worktree:
+
+```bash
+# Establish scope first.
+git -C "$WORKTREE_DIR" diff --stat "$BASE_SHA"..HEAD
+git -C "$WORKTREE_DIR" diff --name-status "$BASE_SHA"..HEAD
+git -C "$WORKTREE_DIR" diff --check "$BASE_SHA"..HEAD
+
+# Then inspect each relevant patch and its complete surrounding source.
+git -C "$WORKTREE_DIR" diff "$BASE_SHA"..HEAD -- path/to/file.ts
+```
+
+Run all reads, searches, builds, and tests with `WORKTREE_DIR` as the working directory. This makes
+the full MR source available for call-site tracing and test execution without disturbing the user's
+checkout. Review only changes between `BASE_SHA` and `HEAD`, while using unchanged files for context.
 
 ### 3. Load Review References
 
@@ -76,7 +113,9 @@ Enforce the house rules on every review regardless of the requested aspect.
 
 ### 4. Analyze the Changes
 
-Review the diff against the requested review focus (see below). Focus on changed code, not untouched files.
+Review the local `BASE_SHA..HEAD` changes against the requested focus (see below). Use the complete files
+and repository in `WORKTREE_DIR` to verify call sites, invariants, project conventions, and tests. Findings
+must still be caused by the MR; do not report pre-existing issues in untouched code.
 
 ### 5. Post Review Comments
 
@@ -160,6 +199,21 @@ glab api "projects/:id/merge_requests/<mr-number>/notes" \
   --field "body=@/tmp/review-summary.md" \
   --output json
 ```
+
+### 7. Clean Up the Worktree
+
+The review is read-only. After all comments are posted—or after any failure occurring after worktree
+creation—remove only the temporary worktree and refs created for this review:
+
+```bash
+git -C "$ROOT" worktree remove --force "$WORKTREE_DIR"
+git -C "$ROOT" update-ref -d "$MR_HEAD_REF"
+git -C "$ROOT" update-ref -d "$TARGET_REF"
+git -C "$ROOT" worktree prune
+```
+
+Never delete or reset the user's existing branches or worktrees. Use `--force` only for the temporary
+review worktree created above.
 
 ## House Rules (always enforced)
 
@@ -255,20 +309,23 @@ Preserve all functionality — only improve clarity.
 | "Full review before merge" | `code`, `tests`, `errors` |
 | "Comprehensive review" | all aspects |
 
-## Handling Large Diffs
+## Handling Large Changes
 
-For diffs over ~500 lines, spawn subagents to parallelize the review:
+For changes over ~500 lines, spawn subagents to parallelize the review:
 
-1. **Identify file groups.** Split the changed files into logical clusters by domain (e.g., auth, API routes, models, tests).
-2. **Spawn one subagent per group.** Each subagent reviews its assigned files independently, posting `--file`/`--line` comments for code-specific findings.
-3. **Aggregate cross-cutting findings.** After all subagents finish, review their output for patterns that span groups and post a single `- [ ]` task-list summary note.
-4. **If any subagent finds a critical issue, flag it immediately** — don't wait for all subagents to finish.
+1. **Identify file groups locally.** Use `git -C "$WORKTREE_DIR" diff --name-only "$BASE_SHA"..HEAD`, then split files into logical clusters by domain (e.g., auth, API routes, models, tests).
+2. **Share the worktree and base.** Give every subagent the absolute `WORKTREE_DIR`, `BASE_SHA`, MR number, and its assigned files. Subagents must not fetch the GitLab diff or create another checkout.
+3. **Review assigned files.** Each subagent inspects its local patches plus relevant complete files and posts `--file`/`--line` comments for code-specific findings.
+4. **Aggregate cross-cutting findings.** After all subagents finish, review their output for patterns that span groups and post a single `- [ ]` task-list summary note.
+5. **If any subagent finds a critical issue, flag it immediately** — don't wait for all subagents to finish.
 
 Subagents should be given clear, focused prompts:
 
 ```text
-Review only {file-group} in MR !{mr-number}. Post atomic inline comments
-using `glab mr note create <mr-number> --file <path> --line <N> -m "..."`.
+Review only {file-group} in MR !{mr-number}. The MR is already materialized at
+{worktree-dir}; compare {base-sha}..HEAD locally and inspect full files there.
+Do not fetch or checkout anything. Post atomic inline comments using
+`glab mr note create <mr-number> --file <path> --line <N> -m "..."`.
 Report cross-cutting concerns back for the aggregate summary.
 ```
 
@@ -289,4 +346,13 @@ If `glab` commands fail:
 - Verify the MR exists: `glab mr list -F json`
 - For API errors, check the HTTP status and response body
 
-If the diff is empty or the MR is already merged, inform the user and stop.
+If Git/worktree setup fails:
+
+- Confirm `REMOTE` points to the target GitLab project: `git remote -v`
+- Verify `TARGET_BRANCH` exists on that remote
+- Verify the target project exposes `refs/merge-requests/<iid>/head`
+- Remove any temporary worktree and refs already created before stopping
+- Do not fall back to `glab mr diff` or the MR changes API
+
+If `git diff --quiet "$BASE_SHA"..HEAD` reports no changes or the MR is already merged, inform the
+user, clean up the temporary worktree/refs, and stop.

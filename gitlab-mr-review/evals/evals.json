@@ -4,23 +4,30 @@
     {
       "id": 1,
       "prompt": "Can you review MR !42 in my project? I want to make sure there aren't any bugs before I merge it.",
-      "expected_output": "The skill should fetch MR !42's diff and metadata, analyze the changes for bugs and issues, and post a signed review comment to the MR.",
+      "expected_output": "The skill should fetch MR !42's metadata, materialize its head in an isolated git worktree, analyze the local changes for bugs and issues, and post a signed review comment to the MR.",
       "files": [],
       "expectations": [
         "Uses glab mr view to fetch MR metadata",
-        "Uses glab mr diff to get the changes",
+        "Fetches the MR head and target branch as temporary Git refs",
+        "Creates a detached temporary git worktree without switching the user's checkout",
+        "Uses a local merge-base and git diff to identify the MR changes",
+        "Does not use glab mr diff or the MR changes API",
         "Posts review comments using glab api with body=@file pattern",
         "Every comment ends with a signature block containing tool and model name",
-        "Provides a summary note at the end"
+        "Provides a summary note at the end",
+        "Removes the temporary worktree and refs after the review"
       ]
     },
     {
       "id": 2,
       "prompt": "Check the test coverage on MR !17 — I added a new auth module and want to know if the tests are thorough enough.",
-      "expected_output": "The skill should focus on test coverage analysis for the auth module changes, identifying gaps and rating their importance.",
+      "expected_output": "The skill should materialize MR !17 in a temporary worktree and focus on test coverage analysis for the auth module changes, identifying gaps and rating their importance.",
       "files": [],
       "expectations": [
-        "Uses glab mr diff to get the changes",
+        "Creates an isolated worktree at the fetched MR head",
+        "Uses local git diff output to scope the changed auth code and tests",
+        "Runs repository inspection or tests from the temporary worktree",
+        "Does not use glab mr diff or the MR changes API",
         "Focuses review on test-related aspects (tests aspect)",
         "Identifies critical test gaps and rates them",
         "Posts signed review comments",
@@ -65,6 +72,21 @@
         "Flags unvalidated state objects passed to multiple functions",
         "Does not flag internally-constructed data with known shape",
         "Posts signed inline comments that include the rule rationale"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Review MR !73, but I have uncommitted work in my current checkout, so don't disturb it.",
+      "expected_output": "The skill should preserve the user's current checkout, fetch MR !73 into private temporary refs, review it from a detached temporary worktree, and clean up only the resources it created.",
+      "files": [],
+      "expectations": [
+        "Does not checkout, reset, stash, or modify the user's current worktree",
+        "Fetches refs/merge-requests/73/head and the target branch into private temporary refs",
+        "Creates a detached temporary worktree at the MR head",
+        "Computes the comparison base locally with git merge-base",
+        "Reads files and runs checks from the temporary worktree",
+        "Does not use glab mr diff or the MR changes API",
+        "Removes only the temporary worktree and refs created for the review"
       ]
     }
   ]
