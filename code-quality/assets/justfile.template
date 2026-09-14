@@ -1,0 +1,63 @@
+# Project commands. `just ci` is the single entry point for CI, hooks, and agents.
+# Keep every recipe non-interactive and safe to repeat.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+# List available recipes.
+default:
+    @just --list
+
+# ── verification ─────────────────────────────────────────────────────────────
+
+# Everything a merge must satisfy. CI calls exactly this.
+ci: fmt-check lint typecheck test
+
+# Formatters, autofixing. Run before committing.
+fmt:
+    uv run ruff format .
+    pnpm exec prettier --write .
+
+# Formatting verification. Never rewrites files.
+fmt-check:
+    uv run ruff format --check .
+    pnpm exec prettier --check .
+
+# Linters. Warnings are errors.
+lint:
+    uv run ruff check .
+    pnpm exec oxlint --max-warnings 0
+
+# Type checkers.
+typecheck:
+    uv run ty check
+    pnpm exec tsc --noEmit
+
+# Test suites, with coverage.
+test:
+    uv run --no-sync pytest --cov --cov-report=term
+    pnpm exec vitest run --coverage
+
+# ── environment ──────────────────────────────────────────────────────────────
+
+# Install dependencies exactly as locked, then install the git hooks.
+setup:
+    uv sync --frozen --all-packages --all-groups
+    pnpm install --frozen-lockfile
+    uvx prek install
+
+# Run every hook across the whole tree, as CI does.
+hooks:
+    uvx prek run --all-files
+
+# Refresh hook revisions, then verify the suite still passes.
+hooks-update:
+    uvx prek auto-update
+    uvx prek run --all-files
+
+# Report the quality-baseline gaps of this repository.
+audit:
+    bash scripts/audit.sh .
+
+# Format this justfile, when the installed just supports it.
+fmt-just:
+    just --fmt

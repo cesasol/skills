@@ -1,0 +1,59 @@
+# Quality-first GitHub Actions workflow — .github/workflows/ci.yml
+# Make the `quality` job a required status check in branch protection;
+# otherwise the pipeline reports but does not block.
+
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # gitleaks scans history
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      # Delete when the repository has no JS.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --all-packages --all-groups
+          pnpm install --frozen-lockfile
+
+      # Every hook, whole tree: formatters, linters, gitleaks, hygiene.
+      - uses: j178/prek-action@v3
+        with:
+          extra_args: --all-files
+
+      - name: Types and tests
+        run: uvx rust-just typecheck test
+
+  # Delete when the repository has no container builds.
+  containers:
+    runs-on: ubuntu-latest
+    if: hashFiles('**/Dockerfile', '**/Containerfile') != ''
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hadolint/hadolint-action@v3.3.0
+        with:
+          dockerfile: Dockerfile

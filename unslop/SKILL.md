@@ -96,7 +96,5 @@ Removing patterns is half the job. Sterile, voiceless writing is just as obvious
 You may use sub-agents for this section
 
 32. **Verify claims**: Any and all claims should be grounded to a source of information. Verify before acting.
-33. **Sources**: If claiming something about a framework, look for the upstream documentation failing that attempt to search for the source code.
-
-    When failing to find information ask help for the user to point you in the right direction.
+33. **Sources**: If claiming something about a framework, look for the upstream documentation failing that attempt to search for the source code. When failing to find information ask help for the user to point you in the right direction.
 34. **Dubious quality sources**: Avoid or at least flag when finding information from forums, news articles, opinions, social media posts or youtube videos.

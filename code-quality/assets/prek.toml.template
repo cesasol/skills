@@ -1,0 +1,103 @@
+# Canonical git-hook configuration for this repository (prek).
+# One config at the root; do not add per-package hook configs.
+# See https://prek.j178.dev — refresh pins with `prek auto-update`.
+#:schema https://www.schemastore.org/prek.json
+
+# Keep generated trees and vendored content out of every hook.
+exclude = { glob = ["**/.venv/**", "**/node_modules/**", "**/dist/**", "**/*.generated.*"] }
+
+# ── hygiene: Rust-native builtins, no environment setup ──────────────────────
+[[repos]]
+repo = "builtin"
+hooks = [
+  { id = "trailing-whitespace", args = ["--markdown-linebreak-ext=md"] },
+  { id = "end-of-file-fixer" },
+  { id = "mixed-line-ending", args = ["--fix=lf"] },
+  { id = "check-yaml" },
+  { id = "check-json" },
+  { id = "check-toml" },
+  { id = "check-merge-conflict" },
+  { id = "check-case-conflict" },
+  { id = "check-shebang-scripts-are-executable" },
+  { id = "check-executables-have-shebangs" },
+  { id = "check-added-large-files", args = ["--maxkb=1024"] },
+  { id = "detect-private-key" },
+  { id = "no-commit-to-branch" }, # defaults to main; CI sets SKIP=no-commit-to-branch
+]
+
+# ── secrets: required in every repository ────────────────────────────────────
+[[repos]]
+repo = "https://github.com/gitleaks/gitleaks"
+rev = "v8.30.1"
+hooks = [{ id = "gitleaks" }]
+
+# ── docs ─────────────────────────────────────────────────────────────────────
+[[repos]]
+repo = "https://github.com/rvben/rumdl-pre-commit"
+rev = "v0.2.73"
+hooks = [
+  { id = "rumdl" },
+  { id = "rumdl-fmt" },
+]
+
+# ── python: delete if the repository has no Python ───────────────────────────
+[[repos]]
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.16.7"
+hooks = [
+  { id = "ruff-check", args = ["--fix"] },
+  { id = "ruff-format" },
+]
+
+# ── typescript / javascript: delete if the repository has no JS ──────────────
+[[repos]]
+repo = "https://github.com/oxc-project/mirrors-oxlint"
+rev = "v1.82.0"
+hooks = [{ id = "oxlint", args = ["--max-warnings", "0"] }]
+
+# ── go: delete if the repository has no Go ───────────────────────────────────
+[[repos]]
+repo = "https://github.com/golangci/golangci-lint"
+rev = "v2.13.2"
+hooks = [
+  { id = "golangci-lint-fmt" },
+  { id = "golangci-lint" },
+]
+
+# ── shell: delete if the repository has no shell scripts ─────────────────────
+[[repos]]
+repo = "https://github.com/koalaman/shellcheck-precommit"
+rev = "v0.11.0"
+hooks = [{ id = "shellcheck" }]
+
+[[repos]]
+repo = "https://github.com/scop/pre-commit-shfmt"
+rev = "v3.14.1-1"
+hooks = [{ id = "shfmt", args = ["-w", "-s"] }]
+
+# ── containers: delete if the repository builds no images ────────────────────
+[[repos]]
+repo = "https://github.com/hadolint/hadolint"
+rev = "v2.15.1"
+hooks = [{ id = "hadolint-docker", files = "(Containerfile|Dockerfile)[^/]*$" }]
+
+# ── github actions: delete if the repository has no workflows ────────────────
+[[repos]]
+repo = "https://github.com/rhysd/actionlint"
+rev = "v1.7.12"
+hooks = [{ id = "actionlint" }]
+
+# ── spelling ─────────────────────────────────────────────────────────────────
+[[repos]]
+repo = "https://github.com/crate-ci/typos"
+rev = "v1.50.1"
+hooks = [{ id = "typos" }]
+
+# ── project recipes: whole-program checks that need the real environment ─────
+# Keep a local hook only when it finishes in a second or two. Anything slower
+# belongs in `just ci` and the pipeline.
+[[repos]]
+repo = "local"
+hooks = [
+  # { id = "typecheck", name = "type check", entry = "just typecheck", language = "system", pass_filenames = false },
+]

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "pedantic": "off",
+    "perf": "warn",
+    "style": "warn"
+  },
+  "rules": {
+    "no-console": "error",
+    "no-debugger": "error",
+    "eqeqeq": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "import/no-cycle": "error",
+    "promise/no-return-wrap": "error",
+    "unicorn/no-array-for-each": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.spec.ts", "tests/**"],
+      "rules": {
+        "no-console": "off",
+        "typescript/no-explicit-any": "warn"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "dist",
+    "build",
+    "coverage",
+    ".nuxt",
+    ".next",
+    "**/*.generated.ts"
+  ]
+}

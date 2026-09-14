@@ -1,0 +1,33 @@
+# ty — Astral's Python type checker. Pin the version like any dependency.
+# Docs: https://docs.astral.sh/ty/
+
+[environment]
+python-version = "3.14"
+
+[terminal]
+# A warning nobody has to fix becomes a warning nobody reads.
+error-on-warning = true
+
+[src]
+respect-ignore-files = true
+
+[rules]
+# Raise a rule to "error" as the codebase converges; never lower one silently.
+possibly-unbound-attribute = "error"
+unused-ignore-comment = "warn"
+
+[analysis]
+# A blanket `# type: ignore` must not hide a real error. Fix the type instead.
+respect-type-ignore-comments = false
+
+# ── documented exceptions ────────────────────────────────────────────────────
+# Every override states the reason and stays as narrow as possible.
+
+# Tests construct settings objects without arguments because fixtures inject the
+# environment at runtime; production startup still validates every field.
+[[overrides]]
+include = ["**/tests/**"]
+
+[overrides.rules]
+missing-argument = "ignore"
+unresolved-attribute = "ignore"

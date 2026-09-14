@@ -1,0 +1,86 @@
+# Quality-first GitLab CI pipeline.
+# The quality stage is blocking: no allow_failure, no manual gates.
+# Delete the jobs whose stacks this repository does not use.
+
+stages:
+  - quality
+  - test
+
+default:
+  image: ghcr.io/astral-sh/uv:python3.14-bookworm-slim
+  interruptible: true
+
+variables:
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+  UV_LINK_MODE: copy
+
+# Run on merge requests, tags, and branches; skip the branch pipeline while an MR is open.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
+.uv-cache:
+  cache:
+    key:
+      files: [uv.lock]
+    paths: [.venv, .uv-cache]
+    policy: pull
+
+.uv-setup:
+  extends: .uv-cache
+  before_script:
+    - uv sync --frozen --all-packages --all-groups
+
+# ── quality ──────────────────────────────────────────────────────────────────
+
+# One job runs every hook — formatters, linters, gitleaks, hygiene — across the
+# whole tree. SKIP=no-commit-to-branch: that hook fails by design on main.
+quality:hooks:
+  stage: quality
+  variables:
+    SKIP: no-commit-to-branch
+  script:
+    - uvx prek run --all-files
+
+quality:types:
+  extends: .uv-setup
+  stage: quality
+  script:
+    - uv run --no-sync ty check
+
+# The security templates default to a `test` stage; repin them here.
+sast:
+  stage: quality
+
+secret_detection:
+  stage: quality
+
+# ── test ─────────────────────────────────────────────────────────────────────
+
+test:
+  extends: .uv-setup
+  stage: test
+  coverage: '/^TOTAL\s+.*\s+(\d+(?:\.\d+)?)%$/'
+  script:
+    - >
+      uv run --no-sync pytest
+      --cov
+      --cov-report=term
+      --cov-report=xml:coverage.xml
+      --junitxml=report.xml
+  artifacts:
+    when: always
+    expire_in: 1 week
+    reports:
+      junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
