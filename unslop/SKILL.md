@@ -1,6 +1,6 @@
 ---
 name: unslop
-description: Use this skill when drafting or editing prose to remove AI-writing patterns and add a natural human voice. Read first and apply to all written communication.
+description: Use this skill when drafting or editing prose to remove AI-writing patterns and add a natural human voice. Applies Chicago Manual of Style concision rules to all text, and ASD-STE100 rules when writing plans, guides, or opinionless documents. Read first and apply to all written communication.
 ---
 
 # Unslop
@@ -9,14 +9,15 @@ Edit text to remove AI patterns and add human voice.
 
 ## Process
 
-1. Scan for the patterns below.
-2. Rewrite. Preserve meaning, match intended tone.
-3. Add soul (see next section).
-4. Self-audit: "What makes this obviously AI generated?" Fix remaining tells.
+1. Identify the document type. Plans, guides, and opinionless documents (runbooks, status reports, references) follow ASD-STE100 and skip the soul step. Everything else gets soul.
+2. Scan for the patterns below.
+3. Rewrite. Preserve meaning, match intended tone. Cut before you rephrase: the shortest correct sentence wins.
+4. Add soul (see next section), unless the document type skips it.
+5. Self-audit: "What makes this obviously AI generated?" Fix remaining tells. Read the result aloud; any sentence you trip over gets split or cut.
 
 ## Adding soul
 
-Removing patterns is half the job. Sterile, voiceless writing is just as obvious.
+Removing patterns is half the job. Sterile, voiceless writing is just as obvious. Skip this section entirely for plans, guides, and opinionless documents: there, personality is the tell.
 
 - **Vary rhythm.** Short sentences. Then longer ones that take their time. Mix it up.
 - **Acknowledge complexity.** "Impressive but also kind of unsettling" beats "impressive."
@@ -96,5 +97,34 @@ Removing patterns is half the job. Sterile, voiceless writing is just as obvious
 You may use sub-agents for this section
 
 32. **Verify claims**: Any and all claims should be grounded to a source of information. Verify before acting.
-33. **Sources**: If claiming something about a framework, look for the upstream documentation failing that attempt to search for the source code. When failing to find information ask help for the user to point you in the right direction.
+33. **Sources**: If claiming something about a framework, look for the upstream documentation failing that attempt to search for the source code. When failing to find information ask help for the user
+    to point you in the right direction.
 34. **Dubious quality sources**: Avoid or at least flag when finding information from forums, news articles, opinions, social media posts or youtube videos.
+
+### Chicago Manual of Style subset
+
+Apply these regardless of document type. They exist to cut words and prevent misreads, not to decorate.
+
+35. **Prefer verbs over nominalizations.** "make an adjustment to" becomes "adjust". "give consideration to" becomes "consider". "perform an analysis of" becomes "analyze". "is in violation of"
+    becomes "violates". The noun form always costs more words than the verb.
+36. **Delete redundant pairs and modifiers.** "each and every", "first and foremost", "full and complete", "completely finished", "advance planning". Keep one word.
+37. **"That" for restrictive clauses, "which" for nonrestrictive.** "The job that failed" picks out one job. "The job, which failed, ran at night" adds a detail and takes commas. Mixing them
+    forces the reader to guess which you meant.
+38. **Serial comma.** "build, test, and deploy". It costs one character and removes ambiguity when list items contain "and" or "or".
+39. **Numbers.** Spell out one through one hundred in prose. Use numerals for measurements, versions, percentages, and anything with a unit. Never open a sentence with a numeral; rewrite or
+    spell it out.
+
+### ASD-STE100 for plans, guides, and opinionless documents
+
+When writing plans, guides, runbooks, or any document that states facts without opinion, apply ASD-STE100 (Simplified Technical English) writing rules. The goal is text that cannot be
+misread by a tired reader or a non-native speaker.
+
+40. **One word, one meaning.** Pick a term and use it everywhere in the document. Never swap "delete" for "remove" or "job" for "task" mid-document.
+41. **Short sentences.** Instructions: 20 words maximum. Descriptions: 25 words maximum. One instruction per sentence.
+42. **Imperative for procedures.** "Run the tests." Not "You should run the tests" or "The tests should be run".
+43. **Active voice with a named actor.** "The script deletes the cache." If you cannot name the actor, the sentence is hiding information.
+44. **No opinion, no hedging.** Drop "it seems", "probably", "we believe", "obviously". State the fact, or state that it is unknown.
+45. **Keep articles and connective words.** Write "the server" and "a restart", and use "and", "but", and "so" to show how sentences relate. Telegraphic style saves characters and loses
+    readers.
+
+The full spec is a controlled vocabulary; apply its spirit, not its dictionary. See [references/ste100.md](references/ste100.md) for the condensed rule set.
