@@ -1,4 +1,4 @@
-# Data: JSON, YAML, TOML, XML, HTML, and Tables
+# Data: JSON, YAML, TOML, XML, HTML, Tables, and Documents
 
 One filter language, jq, covers most of this work once the input has been transcoded to JSON. The complication is that
 two unrelated programs are both named `yq`.
@@ -80,6 +80,28 @@ mlr --icsv --opprint stats1 -a mean,max -f duration -g suite runs.csv
 
 Miller understands the quoting rules that `awk -F,` does not: embedded commas, quoted newlines, and headers. Reach for
 `awk` only for whitespace-delimited output that has no quoting.
+
+## batdoc: Office Documents, PDFs, and Scans
+
+```bash
+batdoc -m report.docx                     # docx as markdown: headings, tables, links
+batdoc -m financials.xlsx                 # one markdown table per sheet
+batdoc -m slides.pptx                     # per-slide headings, speaker notes appended
+batdoc -m paper.pdf                       # text layer, one `## Page N` heading per page
+batdoc --images report.docx > report.md   # embed docx/pptx/xlsx images as base64 data URIs
+batdoc -p legacy.doc > out.txt            # plain text only
+batdoc photo.png                          # image files are always OCR'd
+batdoc scanned.pdf                        # textless PDF pages are OCR'd automatically
+batdoc --ocr report.docx                  # also OCR images embedded in docx/pptx
+cat mystery.bin | batdoc -m -             # stdin works; format detected by magic bytes
+```
+
+Format is detected by file signature, not extension, so a misleading filename does not matter. When standard output is
+a terminal, batdoc syntax-highlights and pages like `bat`; piped, it emits plain text, and `-m` upgrades that to
+markdown — the right default for an agent, since headings and tables survive. OCR needs no flag for PDFs or image
+files; `--ocr` covers only images embedded in docx and pptx. OCR models (about 12 MB) download on first use, a network
+call that also writes to a cache directory; pre-seed `BATDOC_MODELS_DIR` for offline or package-managed installs.
+Fallbacks on hosts without batdoc: `pdftotext` for PDFs and `catdoc` for legacy `.doc`.
 
 ## Edge Cases and Mistakes
 

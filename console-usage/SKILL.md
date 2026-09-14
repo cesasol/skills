@@ -3,11 +3,11 @@ name: console-usage
 description: >
   Use when running shell commands: choosing which command-line tool to reach for, keeping every invocation
   non-interactive, and reading structured output instead of scraping text meant for human eyes. Prefers modern
-  replacements — eza, fd, rg, dust, jq, yq, htmlq, mlr, httpie, dog, uv, bun — over the POSIX defaults when they
-  are installed, and falls back to ls, find, grep, du, dig, and curl when they are not. Covers filesystem navigation
-  and search, diffs, disk metrics, data parsing, HTTP and DNS, git and process inspection, archives
-  and file transfer, Python through uv, Node.js through bun or pnpm, and querying the internet through gh, glab,
-  llms.txt, or firecrawl. It does not replace the harness's own read, edit, and search tools.
+  replacements — eza, fd, rg, dust, jq, yq, htmlq, mlr, httpie, doggo, batdoc, uv, bun — over the POSIX defaults when
+  they are installed, and falls back to ls, find, grep, du, dig, and curl when they are not. Covers filesystem
+  navigation and search, diffs, disk metrics, data parsing, document text extraction, HTTP and DNS, git and process
+  inspection, archives and file transfer, Python through uv, Node.js through bun or pnpm, and querying the internet
+  through gh, glab, llms.txt, or firecrawl. It does not replace the harness's own read, edit, and search tools.
 compatibility: Requires a POSIX shell. Every preferred tool is optional and has a named fallback. Commands must run without a pager, a prompt, or a full-screen interface.
 metadata:
   writing-style: Chicago Manual of Style
@@ -36,8 +36,9 @@ choice for reading and modifying files.
 | Query YAML, TOML, or XML | none                | yq family | `yq -r '.stages[]' .gitlab-ci.yml`             |
 | Query HTML               | none                | htmlq     | `htmlq -t 'h1'`                                |
 | Query CSV or TSV         | `awk -F,`           | mlr       | `mlr --icsv --ojson cat data.csv`              |
+| Extract document text    | `pdftotext`, catdoc | batdoc    | `batdoc -m report.docx`                        |
 | HTTP request             | `curl -fsSL`        | httpie    | `http --ignore-stdin --check-status GET URL`   |
-| DNS lookup               | `dig +short`        | dog       | `dog -1 example.com A`                         |
+| DNS lookup               | `dig +short`        | doggo     | `doggo example.com A --short`                 |
 | Socket list              | `netstat -tulpn`    | ss        | `ss -tulpn`                                    |
 | Run a Python script      | `python3 script.py` | uv        | `uv run script.py`                             |
 | Run a Python tool once   | `pipx run ruff`     | uvx       | `uvx ruff format`                              |
@@ -46,8 +47,9 @@ choice for reading and modifying files.
 | Search or scrape the web | none                | firecrawl | `firecrawl search 'query'`                     |
 
 Every flag above was checked against eza 0.23, fd 10.4, ripgrep 15.2, dust 1.2, jq 1.8, yq 4.1, htmlq 0.4,
-Miller 6.21, HTTPie 3.2, dog 0.1, uv 0.12, bun 1.4, pnpm 11, gh 2, and glab 1.117. When a flag is rejected, the
-installed version differs from the one documented here; read the tool's own help rather than guessing a synonym.
+Miller 6.21, HTTPie 3.2, doggo 1.4, batdoc 1.5, uv 0.12, bun 1.4, pnpm 11, gh 2, and glab 1.117. When a flag is
+rejected, the installed version differs from the one documented here; read the tool's own help rather than guessing a
+synonym.
 
 ## Probe Once, Substitute Silently
 
@@ -98,13 +100,13 @@ data behind alignment. Ask for the structured form instead, then parse it with j
 | -------- | -------------------- | ----------------------------------------------------------------------- |
 | rg       | `--json`             | `rg --json 'TODO' \| jq -r 'select(.type=="match") \| .data.path.text'` |
 | dust     | `-j`                 | `dust -j \| jq -r '.name'`                                              |
-| dog      | `-J`                 | `dog -J example.com A \| jq -r '.responses[].answers[].data'`           |
+| doggo    | `-J`                 | `doggo example.com A -J \| jq -r '.responses[].answers[].address'`     |
 | httpie   | body only when piped | `http --ignore-stdin GET URL \| jq .`                                   |
 | gh, glab | `--jq`, `-F json`    | `gh api /user --jq .login`                                              |
 | git      | `--porcelain`, `-z`  | `git --no-pager status --porcelain`                                     |
 | Miller   | `--ojson`            | `mlr --icsv --ojson head -n 3 data.csv`                                 |
 
-When a tool has no structured mode, prefer its narrowest human mode — `dog -1`, `git log --format=%H`, `eza -1` — over
+When a tool has no structured mode, prefer its narrowest human mode — `doggo --short`, `git log --format=%H`, `eza -1` — over
 parsing a table that exists for readability.
 
 ## Ask the Tool, Not Your Memory
@@ -118,8 +120,8 @@ over recollection whenever a command will touch the network, delete files, or wr
 | Domain                                     | Read for                                                             |
 | ------------------------------------------ | -------------------------------------------------------------------- |
 | [Filesystem](references/filesystem.md)     | eza, fd, rg, and dust: listing, search, diffing, and disk accounting |
-| [Data](references/data.md)                 | jq, the two rival yq programs, xq, tomlq, htmlq, and Miller          |
-| [Network](references/network.md)           | HTTPie, curl, dog, resolver order, and socket inspection             |
+| [Data](references/data.md)                 | jq, the two rival yq programs, xq, tomlq, htmlq, Miller, and batdoc  |
+| [Network](references/network.md)           | HTTPie, curl, doggo, resolver order, and socket inspection           |
 | [Python](references/python.md)             | uv, uvx, virtual environments, and PEP 723 single-file scripts       |
 | [Node.js](references/node.md)              | bun, bunx, pnpm dlx, lockfiles, and the npx fallback                 |
 | [Web research](references/web-research.md) | gh, glab, `llms.txt`, firecrawl, and source quality                  |
@@ -182,8 +184,8 @@ the same either way.
 - **`yq` behaves unlike the documented flags.** Two different programs are named `yq`. Run `yq --version`: output that
   names jq is the Python wrapper that takes jq filters, and output that names mikefarah is the Go tool with its own
   expression language. See [references/data.md](references/data.md) before writing either.
-- **A tool exists but is stale.** `dog` stopped at version 0.1.0; `pnpx` is a deprecated alias of `pnpm dlx`. Both
-  still work. Prefer the maintained form when it is installed, and do not fail the task over it.
+- **A tool exists but is stale.** `pnpx` is a deprecated alias of `pnpm dlx`. It still works. Prefer the maintained
+  form when it is installed, and do not fail the task over it.
 - **jq exits zero on an empty result.** A filter that matches nothing prints nothing and succeeds. Use `jq -e` when
   emptiness should fail the command.
 - **The output is escape codes, not text.** A tool detected a terminal that is not there, or a wrapper such as delta is

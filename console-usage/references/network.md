@@ -37,28 +37,27 @@ curl -fsS --max-time 10 -X POST -H 'Content-Type: application/json' -d '{"name":
 `-f` fails on HTTP errors, `-s` silences the progress meter, `-S` keeps error messages, and `-L` follows redirects.
 Never use a bare `curl URL` in a pipeline: it succeeds on an error page and floods the transcript with a progress bar.
 
-## dog: DNS
+## doggo: DNS
 
 ```bash
-dog example.com A                       # human-readable answer
-dog -1 example.com A                    # first result only, one line
-dog -J example.com A | jq -r '.responses[].answers[].data'
-dog example.com MX @1.1.1.1             # ask a specific resolver
-dog example.com A -T                    # force TCP
-dog example.com A -S                    # DNS over TLS
-dog example.com A -H                    # DNS over HTTPS
-dog --color=never --time example.com A  # no escape codes, report latency
+doggo example.com A                                 # human-readable answer
+doggo example.com A --short                         # answer data only, one line per record
+doggo example.com A -J | jq -r '.responses[].answers[].address'
+doggo example.com MX @1.1.1.1                       # ask a specific resolver
+doggo example.com A @tcp://1.1.1.1                  # force TCP
+doggo example.com A @tls://1.1.1.1                  # DNS over TLS
+doggo example.com A @https://dns.google/dns-query   # DNS over HTTPS
+doggo example.com A --color=false --time            # no escape codes, report latency
 ```
 
-dog queries DNS directly, so it never consults `/etc/hosts`, `nsswitch.conf`, or a container's resolver overrides. When
-the question is "what will this program actually connect to," ask the system resolver instead:
+doggo queries DNS directly, so it never consults `/etc/hosts`, `nsswitch.conf`, or a container's resolver overrides.
+When the question is "what will this program actually connect to," ask the system resolver instead:
 
 ```bash
 getent hosts example.com                # what the OS resolves, including /etc/hosts
 ```
 
-dog stopped at version 0.1.0 and is effectively unmaintained. It still works; `doggo` and `dig` are the maintained
-alternatives, and `dig +short example.com A` is the universal fallback.
+`dig +short example.com A` is the universal fallback.
 
 ## Sockets and Interfaces
 
@@ -85,7 +84,7 @@ iproute2.
   either a real problem or a decision for the user.
 - **Rate limiting.** Treat HTTP 429 and 403-with-a-reset-header as backoff signals: honor `Retry-After`, and prefer a
   forge CLI, which handles pagination and throttling itself. See [web-research.md](web-research.md).
-- **The name resolves in the shell but not in dog.** The entry lives in `/etc/hosts` or a local resolver. Confirm with
+- **The name resolves in the shell but not in doggo.** The entry lives in `/etc/hosts` or a local resolver. Confirm with
   `getent hosts`.
 - **Secrets in the transcript.** Pass tokens through environment variables (`Authorization:"Bearer $TOKEN"`), never as
   a literal on the command line, and avoid `-v` on authenticated calls, which echoes the header.
