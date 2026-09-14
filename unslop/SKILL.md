@@ -1,11 +1,20 @@
 ---
 name: unslop
-description: Use this skill when drafting or editing prose to remove AI-writing patterns and add a natural human voice. Applies Chicago Manual of Style concision rules to all text, and ASD-STE100 rules when writing plans, guides, or opinionless documents. Read first and apply to all written communication.
+description: Use this skill when drafting or editing prose to remove AI-writing patterns and add a natural human voice. Applies Chicago Manual of Style concision rules to all text, and ASD-STE100 rules when writing plans, guides, or opinionless documents. Also pressures the claims under the prose, so unverified statements are labeled instead of polished. Read first and apply to all written communication.
 ---
 
 # Unslop
 
 Edit text to remove AI patterns and add human voice.
+
+## Stance
+
+Edit for practical truth, not for polish.
+
+- Be direct, specific, and economical. Say who does what, with what result.
+- Prefer plain language over cleverness. A sentence that shows off the writer costs the reader.
+- Doubt the claims, not only the wording. A clean sentence can still assert something nobody checked.
+- The goal is clarity, not theatrical contempt. Blunt prose that sneers is just a different performance.
 
 ## Process
 
@@ -13,7 +22,8 @@ Edit text to remove AI patterns and add human voice.
 2. Scan for the patterns below.
 3. Rewrite. Preserve meaning, match intended tone. Cut before you rephrase: the shortest correct sentence wins.
 4. Add soul (see next section), unless the document type skips it.
-5. Self-audit: "What makes this obviously AI generated?" Fix remaining tells. Read the result aloud; any sentence you trip over gets split or cut.
+5. Self-audit twice. Ask "what makes this obviously AI generated?" and fix the remaining tells. Then ask "which sentence states something I did not verify?" and either source it, label it, or cut
+   it. Read the result aloud; any sentence you trip over gets split or cut.
 
 ## Adding soul
 
@@ -100,18 +110,23 @@ You may use sub-agents for this section
 33. **Sources**: If claiming something about a framework, look for the upstream documentation failing that attempt to search for the source code. When failing to find information ask help for the user
     to point you in the right direction.
 34. **Dubious quality sources**: Avoid or at least flag when finding information from forums, news articles, opinions, social media posts or youtube videos.
+    Popularity, seniority, and "everyone does it this way" are not evidence.
+35. **Label the status of each claim.** Mark an important claim as verified, plausible but unproven, or contradicted. Separate "unsupported" from "false": missing evidence is not proof that the
+    thing fails. When you cannot verify, keep the statement conditional and name the evidence that would settle it.
+36. **No tone-only rewrites.** Do not make weak thinking sound sharper. If the sentence rests on a claim that is wrong or unchecked, fix the claim, flag it, or cut it. Confident phrasing over an
+    unverified claim is the worst kind of slop, because it hides the gap instead of showing it.
 
 ### Chicago Manual of Style subset
 
 Apply these regardless of document type. They exist to cut words and prevent misreads, not to decorate.
 
-35. **Prefer verbs over nominalizations.** "make an adjustment to" becomes "adjust". "give consideration to" becomes "consider". "perform an analysis of" becomes "analyze". "is in violation of"
+37. **Prefer verbs over nominalizations.** "make an adjustment to" becomes "adjust". "give consideration to" becomes "consider". "perform an analysis of" becomes "analyze". "is in violation of"
     becomes "violates". The noun form always costs more words than the verb.
-36. **Delete redundant pairs and modifiers.** "each and every", "first and foremost", "full and complete", "completely finished", "advance planning". Keep one word.
-37. **"That" for restrictive clauses, "which" for nonrestrictive.** "The job that failed" picks out one job. "The job, which failed, ran at night" adds a detail and takes commas. Mixing them
+38. **Delete redundant pairs and modifiers.** "each and every", "first and foremost", "full and complete", "completely finished", "advance planning". Keep one word.
+39. **"That" for restrictive clauses, "which" for nonrestrictive.** "The job that failed" picks out one job. "The job, which failed, ran at night" adds a detail and takes commas. Mixing them
     forces the reader to guess which you meant.
-38. **Serial comma.** "build, test, and deploy". It costs one character and removes ambiguity when list items contain "and" or "or".
-39. **Numbers.** Spell out one through one hundred in prose. Use numerals for measurements, versions, percentages, and anything with a unit. Never open a sentence with a numeral; rewrite or
+40. **Serial comma.** "build, test, and deploy". It costs one character and removes ambiguity when list items contain "and" or "or".
+41. **Numbers.** Spell out one through one hundred in prose. Use numerals for measurements, versions, percentages, and anything with a unit. Never open a sentence with a numeral; rewrite or
     spell it out.
 
 ### ASD-STE100 for plans, guides, and opinionless documents
@@ -119,12 +134,13 @@ Apply these regardless of document type. They exist to cut words and prevent mis
 When writing plans, guides, runbooks, or any document that states facts without opinion, apply ASD-STE100 (Simplified Technical English) writing rules. The goal is text that cannot be
 misread by a tired reader or a non-native speaker.
 
-40. **One word, one meaning.** Pick a term and use it everywhere in the document. Never swap "delete" for "remove" or "job" for "task" mid-document.
-41. **Short sentences.** Instructions: 20 words maximum. Descriptions: 25 words maximum. One instruction per sentence.
-42. **Imperative for procedures.** "Run the tests." Not "You should run the tests" or "The tests should be run".
-43. **Active voice with a named actor.** "The script deletes the cache." If you cannot name the actor, the sentence is hiding information.
-44. **No opinion, no hedging.** Drop "it seems", "probably", "we believe", "obviously". State the fact, or state that it is unknown.
-45. **Keep articles and connective words.** Write "the server" and "a restart", and use "and", "but", and "so" to show how sentences relate. Telegraphic style saves characters and loses
+42. **One word, one meaning.** Pick a term and use it everywhere in the document. Never swap "delete" for "remove" or "job" for "task" mid-document.
+43. **Short sentences.** Instructions: 20 words maximum. Descriptions: 25 words maximum. One instruction per sentence.
+44. **Imperative for procedures.** "Run the tests." Not "You should run the tests" or "The tests should be run".
+45. **Active voice with a named actor.** "The script deletes the cache." If you cannot name the actor, the sentence is hiding information.
+46. **No opinion, no hedging.** Drop "it seems", "probably", "we believe", "obviously". State the fact, or state that it is unknown. Stating that something is unknown is not hedging, it is the
+    honest version of the sentence.
+47. **Keep articles and connective words.** Write "the server" and "a restart", and use "and", "but", and "so" to show how sentences relate. Telegraphic style saves characters and loses
     readers.
 
 The full spec is a controlled vocabulary; apply its spirit, not its dictionary. See [references/ste100.md](references/ste100.md) for the condensed rule set.
