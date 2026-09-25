@@ -150,13 +150,23 @@ Keep that hook only when the project's check finishes in a second or two; otherw
 
 ## just Recipes
 
+The standard names, with Python bodies. [just-recipes.md](just-recipes.md) covers the rest of the contract and the service, library, and monorepo variants.
+
 ```make
-# Install the whole workspace, including dev tools.
+ci: fmt-check lint typecheck test
+
+# Install the whole workspace, including dev tools. The only installing recipe.
 setup:
     uv sync --frozen --all-packages --all-groups
+    uvx prek install
 
+# Read-only. The fixing flags live in `fix`.
 lint:
     uv run ruff check .
+
+# `&& fmt` formats after the lint autofix, so the rewrites end up formatted.
+fix: && fmt
+    uv run ruff check --fix .
 
 fmt:
     uv run ruff format .
@@ -169,7 +179,20 @@ typecheck:
 
 test:
     uv run --no-sync pytest
+
+# A distributed package: wheel and sdist into dist/.
+build:
+    uv build
+
+# A service: reload for development, and the production command for start.
+dev:
+    uv run --no-sync fastapi dev src/app/main.py
+
+start:
+    uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
 ```
+
+Keep `build` for a package, `dev` and `start` for a service, and drop the ones that do not apply. `start` must stay free of reload flags, because the container entrypoint calls it.
 
 ## Failure Modes
 

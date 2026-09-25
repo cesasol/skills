@@ -8,13 +8,15 @@ run, across the whole tree, with no way to merge past a failure.
 | Property | Requirement |
 | --- | --- |
 | Trigger | Merge or pull requests, the default branch, and tags. |
-| Entry point | `uvx prek run --all-files`, then `just ci`. |
+| Entry point | `uvx prek run --all-files`, then `just ci`. Never a command the developer cannot run. |
 | Scope | Lint and secret scanning cover the whole repository; tests may be scoped by path. |
 | Failure | Blocking. No `allow_failure: true`, no `continue-on-error: true`, no manual quality jobs. |
 | Determinism | Pinned images, pinned tool versions, frozen lockfiles, cached but never regenerated dependencies. |
 | Duration | Fast enough that nobody asks to skip it. Split slow suites into parallel jobs instead of relaxing them. |
 
 ## GitLab CI
+
+The pipeline below is the minimum quality gate. For the rest of GitLab pipeline design, which is caching strategy, artifacts, child pipelines, environments, and `rules`, use the **gitlab-ci** skill.
 
 ```yaml
 stages: [quality, test]
@@ -41,20 +43,30 @@ quality:hooks:
   script:
     - uvx prek run --all-files
 
-quality:types:
-  stage: quality
+# Jobs call recipes. `just` is not in the image, and `uvx rust-just` fails
+# because the package's binary is named `just`, so uv needs --from.
+.just:
   image: ghcr.io/astral-sh/uv:python3.14-bookworm-slim
-  script:
+  variables:
+    JUST: uvx --from rust-just just
+  before_script:
     - uv sync --frozen --all-packages --all-groups
-    - uv run --no-sync ty check
 
+quality:checks:
+  extends: .just
+  stage: quality
+  script:
+    - $JUST fmt-check
+    - $JUST lint
+    - $JUST typecheck
+
+# The recipe writes coverage.xml and report.xml; the job only collects them.
 test:
+  extends: .just
   stage: test
-  image: ghcr.io/astral-sh/uv:python3.14-bookworm-slim
   coverage: '/^TOTAL\s+.*\s+(\d+(?:\.\d+)?)%$/'
   script:
-    - uv sync --frozen --all-packages --all-groups
-    - uv run --no-sync pytest --cov --cov-report=term --cov-report=xml:coverage.xml --junitxml=report.xml
+    - $JUST test
   artifacts:
     when: always
     reports:
@@ -72,6 +84,10 @@ secret_detection:
 
 GitLab specifics worth knowing:
 
+- A job whose script is anything other than a recipe call has already drifted from the developer's machine. The two exceptions are the hook suite, which prek runs directly, and artifact collection,
+  which is platform configuration rather than a command.
+- When `just ci` spans two toolchains that no single image carries, either build and pin one image with both, or split the pipeline by package and call each package's own justfile
+  (`just --justfile web/justfile lint`). Restating the package's commands in YAML is the wrong fix.
 - Security templates default to a `test` stage. Repin them, as above, when the pipeline names its stages differently.
 - `rules:changes` evaluates to true on tag pipelines and on the first pipeline of a new branch. Gate tag work on an explicit `$CI_COMMIT_TAG` pattern, never on `changes` alone.
 - In a monorepo, trigger one child pipeline per service with `strategy: depend`, so the parent's status — and therefore the merge request — reflects every child.
@@ -108,7 +124,7 @@ jobs:
         with:
           extra_args: --all-files
       - name: just ci
-        run: uvx rust-just ci
+        run: uvx --from rust-just just ci
 ```
 
 GitHub specifics worth knowing:
@@ -122,10 +138,12 @@ GitHub specifics worth knowing:
 
 The recurring failure is a pipeline that checks something the developer never runs, or the reverse. Prevent it structurally:
 
-1. Put every command in a `just` recipe.
-2. Let hooks and CI call those recipes rather than restating the commands.
+1. Put every command in a `just` recipe, using the standard names from [just-recipes.md](just-recipes.md).
+2. Let hooks and CI call those recipes rather than restating the commands. A job body longer than one recipe call is a recipe waiting to be written.
 3. Pin the same tool versions in both places: `prek.toml` revisions, lockfiles, and the CI image tag.
-4. When CI needs an extra step — full-tree scans, image builds, coverage upload — add it as a separate recipe, not as inline YAML.
+4. When CI needs an extra step, such as a full-tree scan, an image build, or a coverage upload, add it as a separate recipe, not as inline YAML.
+5. Split the pipeline by recipe, not by fragment: one job per `lint`, `typecheck`, `test`, and `build` when the wall clock demands parallelism. `just ci` stays complete for local use.
+6. A smoke test runs `just start` against the built artifact. That is the same command the deployment runs, which is the point.
 
 ## Failure Modes
 

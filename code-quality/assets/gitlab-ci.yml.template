@@ -39,6 +39,13 @@ include:
   before_script:
     - uv sync --frozen --all-packages --all-groups
 
+# `just` is not in the image, and `uvx rust-just` does not work: the package's
+# binary is named `just`, so uv needs --from. Verify any change to this line.
+.just:
+  extends: .uv-setup
+  variables:
+    JUST: uvx --from rust-just just
+
 # ── quality ──────────────────────────────────────────────────────────────────
 
 # One job runs every hook — formatters, linters, gitleaks, hygiene — across the
@@ -50,11 +57,15 @@ quality:hooks:
   script:
     - uvx prek run --all-files
 
-quality:types:
-  extends: .uv-setup
+# Every job below calls a recipe. Nothing restates the recipe's commands: that
+# divergence between CI and the developer is what the baseline exists to stop.
+quality:checks:
+  extends: .just
   stage: quality
   script:
-    - uv run --no-sync ty check
+    - $JUST fmt-check
+    - $JUST lint
+    - $JUST typecheck
 
 # The security templates default to a `test` stage; repin them here.
 sast:
@@ -65,17 +76,13 @@ secret_detection:
 
 # ── test ─────────────────────────────────────────────────────────────────────
 
+# `just test` writes coverage.xml and report.xml; the job only collects them.
 test:
-  extends: .uv-setup
+  extends: .just
   stage: test
   coverage: '/^TOTAL\s+.*\s+(\d+(?:\.\d+)?)%$/'
   script:
-    - >
-      uv run --no-sync pytest
-      --cov
-      --cov-report=term
-      --cov-report=xml:coverage.xml
-      --junitxml=report.xml
+    - $JUST test
   artifacts:
     when: always
     expire_in: 1 week
@@ -84,3 +91,33 @@ test:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+
+# ── polyglot repositories ────────────────────────────────────────────────────
+#
+# When `just ci` spans two toolchains, one job needs both of them. Pick one:
+#
+#   1. One job, one image carrying both. Preferred when the repository really is
+#      one deployable. Build that image yourself and pin it; installing Node into
+#      the uv image at job time is slow and unpinned.
+#
+#        quality:all:
+#          image: registry.example.com/ci/uv-node:3.14-22
+#          extends: .just
+#          stage: quality
+#          script: [$JUST ci]
+#
+#   2. One job per stack, each calling the recipe it can run. `just ci` stays the
+#      complete local gate; the pipeline splits it for images and parallelism.
+#
+#        quality:web:
+#          image: node:22-bookworm-slim
+#          stage: quality
+#          before_script:
+#            - corepack enable
+#            - pnpm install --frozen-lockfile
+#          script:
+#            - pnpm exec oxlint --max-warnings 0
+#
+# Option 2 restates commands in YAML, which rule 2 forbids. Give the package its
+# own justfile and call `just --justfile web/justfile lint` instead, so the
+# command still lives in a recipe.

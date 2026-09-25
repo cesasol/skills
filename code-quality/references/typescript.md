@@ -132,12 +132,22 @@ Type checking is whole-program work, so it must set `pass_filenames = false`. If
 
 ## just Recipes
 
+The standard names, with pnpm bodies. [just-recipes.md](just-recipes.md) covers the app, library, and monorepo variants.
+
 ```make
+# An app also gates on `build`: a type-clean project can still fail to bundle.
+ci: fmt-check lint typecheck test build
+
 setup:
     pnpm install --frozen-lockfile
+    uvx prek install
 
+# Read-only. `--fix` belongs in `fix`.
 lint:
     pnpm exec oxlint --max-warnings 0
+
+fix: && fmt
+    pnpm exec oxlint --fix
 
 fmt:
     pnpm exec prettier --write .
@@ -145,12 +155,26 @@ fmt:
 fmt-check:
     pnpm exec prettier --check .
 
+# vue-tsc for Vue, svelte-check for Svelte.
 typecheck:
     pnpm exec tsc --noEmit
 
 test:
     pnpm exec vitest run --coverage
+
+build:
+    pnpm run build
+
+# Dev server with HMR.
+dev:
+    pnpm run dev
+
+# Serve the build output the way the deployment does.
+start:
+    node .output/server/index.mjs
 ```
+
+The `package.json` scripts stay thin: `just` owns the workflow, and a script exists only where a tool or host platform demands one. Nuxt needs `nuxt prepare` in `setup`, not in `typecheck`.
 
 ## Failure Modes
 

@@ -2,6 +2,8 @@
 
 These checks apply to every repository regardless of its main language. They are cheap, they never need a project environment, and they catch the defects that language linters never see.
 
+Every snippet below is `prek.toml` syntax. For hook mechanics, stages, and migration from `.pre-commit-config.yaml`, use the **prek** skill; for Markdown rules, the **rumdl** skill.
+
 ## Secrets
 
 Secret scanning is the one check that must exist even in a repository with no code, because a leaked credential cannot be un-leaked.
@@ -34,12 +36,13 @@ Conventions that make shell reviewable:
 
 - Start every script with `#!/usr/bin/env bash` and `set -euo pipefail`.
 - Quote every expansion. ShellCheck's SC2086 is right essentially always.
-- Keep scripts in `scripts/`, make them executable, and call them from a `just` recipe rather than inlining logic in CI YAML.
+- Keep scripts in `scripts/`, make them executable, and call them from a `just` recipe rather than inlining logic in CI YAML. `shfmt -w -s` belongs in `just fix`, `shfmt -d` in `just fmt-check`.
 - `set -o pipefail` plus `grep -q` on a large stream produces a false negative, because the writer dies of SIGPIPE. Read from a file or use a here-string instead of a pipe.
 
 ## Markdown
 
-rumdl is the fast Markdown linter and formatter. One `rumdl.toml` at the root governs the repository, including documentation, prompts, and agent files.
+rumdl is the fast Markdown linter and formatter. One `rumdl.toml` at the root governs the repository, including documentation, prompts, and agent files. The **rumdl** skill covers the rules, the
+presets, and migration from markdownlint.
 
 ```toml
 #:schema https://raw.githubusercontent.com/rvben/rumdl/refs/heads/main/rumdl.schema.json
@@ -74,6 +77,16 @@ hooks = [
 ```
 
 Exclude agent working directories and vendored content: they contain transient text that should not define the repository's documentation style.
+
+In the justfile, `rumdl check` is the gate and `rumdl check --fix` is the repair. Never gate on `rumdl fmt`: it applies changes and exits zero, so it can only pass.
+
+```make
+lint:
+    uvx rumdl check .
+
+fix:
+    uvx rumdl check --fix .
+```
 
 ## YAML and Pipeline Config
 

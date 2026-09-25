@@ -241,6 +241,34 @@ justfile_path() {
 	return 1
 }
 
+# recipe_list JUSTFILE — every recipe name the justfile exposes, one per line.
+# `just --summary` is authoritative when the CLI is installed; the grep fallback
+# keeps the audit usable on a machine that has no just.
+recipe_list() {
+	local just="$1" summary
+	if command -v just >/dev/null 2>&1; then
+		if summary="$(just --justfile "${ROOT}/${just}" --working-directory "$ROOT" --summary 2>/dev/null)"; then
+			tr ' ' '\n' <<<"$summary"
+			return 0
+		fi
+	fi
+	grep -Eo '^[a-zA-Z_][a-zA-Z0-9_-]*([ \t][^:=]*)?:($|[^=])' "${ROOT}/${just}" 2>/dev/null |
+		sed -E 's/[ \t:].*$//' || true
+}
+
+# has_recipe NAMES NAME — NAME appears in the newline-separated recipe list.
+has_recipe() {
+	printf '%s\n' "$1" | grep -qx -- "$2"
+}
+
+# recipe_body JUSTFILE NAME — the recipe's dependencies and body, when just can
+# print them. Empty output means "unknown", never "clean".
+recipe_body() {
+	local just="$1" name="$2"
+	command -v just >/dev/null 2>&1 || return 0
+	just --justfile "${ROOT}/${just}" --working-directory "$ROOT" --show "$name" 2>/dev/null || true
+}
+
 contains_in_hooks() {
 	local config
 	config="$(hook_config || true)"
@@ -369,14 +397,11 @@ audit_universal() {
 		gap universal "secret scanning" "no gitleaks hook, because there is no hook config"
 	fi
 
+	# The recipe set itself is audited in audit_recipes, which runs after stack
+	# detection so it can judge the conditional recipes too.
 	just="$(justfile_path || true)"
 	if [ -n "$just" ]; then
 		ok universal "task runner" "$just"
-		if grep -Eq '^ci([ 	].*)?:' "${ROOT}/${just}"; then
-			ok universal "ci recipe" "just ci"
-		else
-			gap universal "ci recipe" "${just} has no \`ci\` recipe"
-		fi
 	else
 		gap universal "task runner" "no justfile"
 		gap universal "ci recipe" "no justfile, so \`just ci\` cannot exist"
@@ -680,6 +705,96 @@ audit_cross_cutting() {
 	fi
 }
 
+# ── just recipes ─────────────────────────────────────────────────────────────
+#
+# Recipe names are the contract every caller shares, so they are audited as
+# their own layer. Runs last, because the conditional recipes depend on which
+# stacks and artifacts the earlier passes detected.
+
+audit_recipes() {
+	local just names name body stack code=0 artifact=0 service=0
+	local before=${#STATUSES[@]}
+
+	just="$(justfile_path || true)"
+	# audit_universal already reported the missing justfile.
+	[ -n "$just" ] || return 0
+
+	names="$(recipe_list "$just")"
+	if [ -z "$names" ]; then
+		gap recipes "recipe set" "${just} exposes no recipes, or just cannot parse it"
+		return 0
+	fi
+
+	# Required in every repository, including a docs-only one.
+	for name in ci lint fix test setup hooks; do
+		if ! has_recipe "$names" "$name"; then
+			gap recipes "\`just ${name}\`" "${just} has no \`${name}\` recipe"
+		fi
+	done
+
+	for stack in ${STACKS[@]+"${STACKS[@]}"}; do
+		case "$stack" in
+		python | typescript | go | rust) code=1 ;;
+		esac
+		case "$stack" in
+		go | rust) artifact=1 ;;
+		containers) artifact=1 service=1 ;;
+		esac
+	done
+	if exists pyproject.toml && contains 'build-backend' pyproject.toml; then artifact=1; fi
+	if contains '"build" *:' package.json; then artifact=1; fi
+	if contains '"(dev|start)" *:' package.json; then service=1; fi
+	if contains 'fastapi|uvicorn|gunicorn|django|flask' pyproject.toml; then service=1; fi
+
+	# Conditional on what the repository actually has.
+	if [ "$code" -eq 1 ]; then
+		for name in fmt fmt-check; do
+			if ! has_recipe "$names" "$name"; then
+				warn recipes "\`just ${name}\`" "a formatter-bearing stack with no \`${name}\` recipe"
+			fi
+		done
+	fi
+	for stack in ${STACKS[@]+"${STACKS[@]}"}; do
+		case "$stack" in
+		python | typescript)
+			if ! has_recipe "$names" typecheck; then
+				warn recipes "\`just typecheck\`" "${stack} needs a type-check recipe separate from the compiler"
+			fi
+			break
+			;;
+		esac
+	done
+	if [ "$artifact" -eq 1 ] && ! has_recipe "$names" build; then
+		warn recipes "\`just build\`" "the repository ships an artifact but has no \`build\` recipe"
+	fi
+	if [ "$service" -eq 1 ]; then
+		if ! has_recipe "$names" start; then
+			warn recipes "\`just start\`" "a runnable service with no \`start\` recipe for the production command"
+		fi
+		if ! has_recipe "$names" dev; then
+			warn recipes "\`just dev\`" "a runnable service with no \`dev\` recipe for the local loop"
+		fi
+	fi
+
+	# A gate that repairs its own input cannot fail. Comments are stripped so a
+	# note about --fix does not read as a --fix invocation.
+	body="$(recipe_body "$just" lint | grep -v '^[[:space:]]*#' || true)"
+	if [ -n "$body" ] && printf '%s\n' "$body" | grep -Eq -- '(--fix|--write|--apply|--allow-dirty)'; then
+		gap recipes "\`just lint\`" "the lint recipe rewrites files; move the fixing flags to \`fix\`"
+	fi
+
+	# ci composes the gates, and fix, dev, and start are not gates. Only the
+	# recipe's own line carries its dependencies.
+	body="$(recipe_body "$just" ci | grep -E '^ci[ :]' || true)"
+	if [ -n "$body" ] && printf '%s\n' "$body" | grep -Eq -- '(^|[ (])(fix|dev|start)([ )]|$)'; then
+		gap recipes "\`just ci\`" "ci depends on fix, dev, or start; a gate must not write files or block"
+	fi
+
+	if [ "${#STATUSES[@]}" -eq "$before" ]; then
+		ok recipes "recipe set" "$(printf '%s\n' "$names" | tr '\n' ' ' | sed 's/  *$//')"
+	fi
+}
+
 # ── reporting ────────────────────────────────────────────────────────────────
 
 json_escape() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
@@ -747,6 +862,7 @@ main() {
 	audit_go
 	audit_rust
 	audit_cross_cutting
+	audit_recipes
 
 	OK_COUNT=0
 	GAP_COUNT=0

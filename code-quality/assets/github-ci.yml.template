@@ -46,7 +46,7 @@ jobs:
           extra_args: --all-files
 
       - name: Types and tests
-        run: uvx rust-just typecheck test
+        run: uvx --from rust-just just typecheck test
 
   # Delete when the repository has no container builds.
   containers:

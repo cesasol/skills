@@ -63,8 +63,15 @@ hooks = [
 The `golangci-lint` hook lints only what changed (`--new-from-rev HEAD`); the `golangci-lint-full` hook lints everything and belongs in CI.
 
 ```make
+# The compiler is the type checker, so `build` carries that duty in place of
+# a `typecheck` recipe.
+ci: fmt-check lint test build
+
 lint:
     golangci-lint run
+
+fix: && fmt
+    golangci-lint run --fix
 
 fmt:
     golangci-lint fmt
@@ -74,6 +81,20 @@ fmt-check:
 
 test:
     go test ./... -race -coverprofile=coverage.out
+
+build:
+    go build -trimpath -o bin/app ./cmd/app
+
+# Rebuild and restart on save. Requires watchexec.
+dev:
+    watchexec --restart --exts go -- go run ./cmd/app
+
+start: build
+    ./bin/app
+
+setup:
+    go mod download
+    uvx prek install
 ```
 
 ### Go Failure Modes
@@ -139,8 +160,13 @@ hooks = [
 ```
 
 ```make
+ci: fmt-check lint test build
+
 lint:
     cargo clippy --all-targets --all-features -- -D warnings
+
+fix: && fmt
+    cargo clippy --fix --allow-dirty --all-targets --all-features
 
 fmt:
     cargo fmt --all
@@ -148,9 +174,29 @@ fmt:
 fmt-check:
     cargo fmt --all -- --check
 
+# Cheaper than a full build when only the types matter.
+typecheck:
+    cargo check --all-targets --all-features
+
 test:
     cargo nextest run --all-features
+
+build:
+    cargo build --release --locked
+
+# Rebuild and rerun on save. Requires cargo-watch.
+dev:
+    cargo watch -x run
+
+start: build
+    ./target/release/app
+
+setup:
+    cargo fetch --locked
+    uvx prek install
 ```
+
+A library crate drops `start`. [just-recipes.md](just-recipes.md) has the full contract and the other repository types.
 
 ### Rust Failure Modes
 

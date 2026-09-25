@@ -1,5 +1,9 @@
 # Project commands. `just ci` is the single entry point for CI, hooks, and agents.
-# Keep every recipe non-interactive and safe to repeat.
+# Keep every recipe non-interactive and safe to repeat, except `dev` and `start`.
+#
+# The recipe names below are the contract. Keep the names, replace the bodies
+# with this repository's real commands, and delete any recipe the repository has
+# no work for. See references/just-recipes.md for the bodies per repository type.
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
@@ -8,9 +12,23 @@ default:
     @just --list
 
 # ── verification ─────────────────────────────────────────────────────────────
+#
+# `ci` composes the gates and implements nothing. Add `build` to it when the
+# artifact is what the repository ships. Only the last comment line above a
+# recipe reaches `just --list`, so keep each one to a single line.
 
 # Everything a merge must satisfy. CI calls exactly this.
 ci: fmt-check lint typecheck test
+
+# Linters, read-only. Warnings are errors. This recipe never rewrites a file.
+lint:
+    uv run ruff check .
+    pnpm exec oxlint --max-warnings 0
+
+# Every safe automatic repair. `&& fmt` formats after the body, never before.
+fix: && fmt
+    uv run ruff check --fix .
+    pnpm exec oxlint --fix
 
 # Formatters, autofixing. Run before committing.
 fmt:
@@ -22,12 +40,8 @@ fmt-check:
     uv run ruff format --check .
     pnpm exec prettier --check .
 
-# Linters. Warnings are errors.
-lint:
-    uv run ruff check .
-    pnpm exec oxlint --max-warnings 0
-
-# Type checkers.
+# Type checkers. Vue or Nuxt needs vue-tsc, Svelte needs svelte-check, and
+# either one must be a devDependency before `pnpm exec` can find it.
 typecheck:
     uv run ty check
     pnpm exec tsc --noEmit
@@ -37,9 +51,28 @@ test:
     uv run --no-sync pytest --cov --cov-report=term
     pnpm exec vitest run --coverage
 
+# ── artifacts and running ────────────────────────────────────────────────────
+#
+# Keep these three only when the repository has the thing they act on. A build
+# writes to an ignored path; `dev` and `start` are the only recipes allowed to
+# block, and nothing else may depend on them.
+
+# Produce the deployable artifact. Output goes to an ignored path.
+build:
+    uv build
+    pnpm run build
+
+# Local loop: reload on save, debug settings, localhost.
+dev:
+    uv run --no-sync fastapi dev src/app/main.py
+
+# The production command, unmodified. The container entrypoint runs it too.
+start:
+    uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+
 # ── environment ──────────────────────────────────────────────────────────────
 
-# Install dependencies exactly as locked, then install the git hooks.
+# Install locked dependencies and the git hooks. The only installing recipe.
 setup:
     uv sync --frozen --all-packages --all-groups
     pnpm install --frozen-lockfile

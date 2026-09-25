@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -28,16 +29,32 @@ hooks = [{ id = "gitleaks" }]
 """
 
 JUSTFILE = """
-ci: lint typecheck test
+ci: fmt-check lint typecheck test
 
 lint:
     uv run ruff check .
+
+fix: && fmt
+    uv run ruff check --fix .
+
+fmt:
+    uv run ruff format .
+
+fmt-check:
+    uv run ruff format --check .
 
 typecheck:
     uv run ty check src
 
 test:
     uv run pytest
+
+setup:
+    uv sync --frozen
+    uvx prek install
+
+hooks:
+    uvx prek run --all-files
 """
 
 PIPELINE = """
@@ -223,6 +240,112 @@ class AuditScriptTests(unittest.TestCase):
 
             self.assertEqual(run_audit(root).returncode, 0)
             self.assertEqual(run_audit(root, "--strict").returncode, 1)
+
+    def test_missing_standard_recipes_are_gaps(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "prek.toml", PREK)
+            write(root, "justfile", "ci: lint\n\nlint:\n    uv run ruff check .\n")
+            write(root, ".gitlab-ci.yml", PIPELINE)
+            write(root, "pyproject.toml", PYPROJECT)
+            write(root, "ty.toml", TY)
+            write(root, "uv.lock")
+            write(root, "src/app.py", "print('hi')\n")
+
+            result = run_audit(root, "--json")
+            payload = json.loads(result.stdout)
+            gaps = {
+                finding["check"]
+                for finding in payload["findings"]
+                if finding["area"] == "recipes" and finding["status"] == "gap"
+            }
+            self.assertEqual(
+                gaps, {"`just fix`", "`just test`", "`just setup`", "`just hooks`"}
+            )
+
+    def test_conditional_recipes_warn_for_a_service(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "prek.toml", PREK)
+            write(root, "justfile", JUSTFILE)
+            write(root, ".gitlab-ci.yml", PIPELINE)
+            write(
+                root,
+                "pyproject.toml",
+                PYPROJECT + '\ndependencies = ["fastapi", "uvicorn"]\n',
+            )
+            write(root, "ty.toml", TY)
+            write(root, "uv.lock")
+            write(root, "src/app.py", "print('hi')\n")
+
+            result = run_audit(root, "--json")
+            payload = json.loads(result.stdout)
+            warns = {
+                finding["check"]
+                for finding in payload["findings"]
+                if finding["area"] == "recipes" and finding["status"] == "warn"
+            }
+            self.assertEqual(warns, {"`just dev`", "`just start`"})
+
+    @unittest.skipUnless(shutil.which("just"), "just is not installed")
+    def test_lint_recipe_that_rewrites_files_is_a_gap(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "prek.toml", PREK)
+            write(
+                root,
+                "justfile",
+                JUSTFILE.replace(
+                    "lint:\n    uv run ruff check .",
+                    "lint:\n    uv run ruff check --fix .",
+                ),
+            )
+            write(root, ".gitlab-ci.yml", PIPELINE)
+            write(root, "pyproject.toml", PYPROJECT)
+            write(root, "ty.toml", TY)
+            write(root, "uv.lock")
+            write(root, "src/app.py", "print('hi')\n")
+
+            result = run_audit(root, "--json")
+            payload = json.loads(result.stdout)
+            details = [
+                finding["detail"]
+                for finding in payload["findings"]
+                if finding["check"] == "`just lint`"
+            ]
+            self.assertTrue(
+                any("rewrites files" in detail for detail in details), details
+            )
+
+    @unittest.skipUnless(shutil.which("just"), "just is not installed")
+    def test_ci_depending_on_fix_is_a_gap(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "prek.toml", PREK)
+            write(
+                root,
+                "justfile",
+                JUSTFILE.replace(
+                    "ci: fmt-check lint typecheck test",
+                    "ci: fmt-check lint fix typecheck test",
+                ),
+            )
+            write(root, ".gitlab-ci.yml", PIPELINE)
+            write(root, "pyproject.toml", PYPROJECT)
+            write(root, "ty.toml", TY)
+            write(root, "uv.lock")
+            write(root, "src/app.py", "print('hi')\n")
+
+            result = run_audit(root, "--json")
+            payload = json.loads(result.stdout)
+            details = [
+                finding["detail"]
+                for finding in payload["findings"]
+                if finding["check"] == "`just ci`"
+            ]
+            self.assertTrue(
+                any("must not write files" in detail for detail in details), details
+            )
 
     def test_usage_error_on_missing_directory(self) -> None:
         result = run_audit(Path("/nonexistent-path-for-audit-test"))
