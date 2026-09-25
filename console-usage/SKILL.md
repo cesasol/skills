@@ -38,7 +38,7 @@ choice for reading and modifying files.
 | Query CSV or TSV         | `awk -F,`           | mlr       | `mlr --icsv --ojson cat data.csv`              |
 | Extract document text    | `pdftotext`, catdoc | batdoc    | `batdoc -m report.docx`                        |
 | HTTP request             | `curl -fsSL`        | httpie    | `http --ignore-stdin --check-status GET URL`   |
-| DNS lookup               | `dig +short`        | doggo     | `doggo example.com A --short`                 |
+| DNS lookup               | `dig +short`        | doggo     | `doggo example.com A --short`                  |
 | Socket list              | `netstat -tulpn`    | ss        | `ss -tulpn`                                    |
 | Run a Python script      | `python3 script.py` | uv        | `uv run script.py`                             |
 | Run a Python tool once   | `pipx run ruff`     | uvx       | `uvx ruff format`                              |
@@ -100,7 +100,7 @@ data behind alignment. Ask for the structured form instead, then parse it with j
 | -------- | -------------------- | ----------------------------------------------------------------------- |
 | rg       | `--json`             | `rg --json 'TODO' \| jq -r 'select(.type=="match") \| .data.path.text'` |
 | dust     | `-j`                 | `dust -j \| jq -r '.name'`                                              |
-| doggo    | `-J`                 | `doggo example.com A -J \| jq -r '.responses[].answers[].address'`     |
+| doggo    | `-J`                 | `doggo example.com A -J \| jq -r '.responses[].answers[].address'`      |
 | httpie   | body only when piped | `http --ignore-stdin GET URL \| jq .`                                   |
 | gh, glab | `--jq`, `-F json`    | `gh api /user --jq .login`                                              |
 | git      | `--porcelain`, `-z`  | `git --no-pager status --porcelain`                                     |
