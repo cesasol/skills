@@ -162,7 +162,7 @@ When using prek, prefer rumdl's first-party hook repo and pair it with `.rumdl.t
 ```toml
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "v0.1.91"
+rev = "v0.3.0"
 hooks = [
   { id = "rumdl" },
   { id = "rumdl-fmt" },

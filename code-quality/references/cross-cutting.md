@@ -69,7 +69,7 @@ allowed_elements = ["br", "details", "summary"]
 ```toml
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "v0.2.73"
+rev = "v0.3.0"
 hooks = [
   { id = "rumdl" },
   { id = "rumdl-fmt" },

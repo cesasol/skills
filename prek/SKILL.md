@@ -143,7 +143,7 @@ For Markdown projects, use rumdl's hook repo and pair it with `.rumdl.toml`:
 ```toml
 [[repos]]
 repo = "https://github.com/rvben/rumdl-pre-commit"
-rev = "v0.1.91"
+rev = "v0.3.0"
 hooks = [
   { id = "rumdl" },
   { id = "rumdl-fmt" },
