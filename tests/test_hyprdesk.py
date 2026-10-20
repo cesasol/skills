@@ -73,11 +73,25 @@ class CharMappingTests(unittest.TestCase):
 
 class GeometryTests(unittest.TestCase):
     def test_scaled_monitor(self) -> None:
-        mon = {"x": 3000, "y": 0, "width": 3840, "height": 2160, "scale": 1.3333334, "transform": 0}
+        mon = {
+            "x": 3000,
+            "y": 0,
+            "width": 3840,
+            "height": 2160,
+            "scale": 1.3333334,
+            "transform": 0,
+        }
         self.assertEqual(hd.logical_rect(mon), (3000, 0, 2880, 1620))
 
     def test_rotated_monitor_swaps_axes(self) -> None:
-        mon = {"x": 1920, "y": 0, "width": 1920, "height": 1080, "scale": 1, "transform": 1}
+        mon = {
+            "x": 1920,
+            "y": 0,
+            "width": 1920,
+            "height": 1080,
+            "scale": 1,
+            "transform": 1,
+        }
         self.assertEqual(hd.logical_rect(mon), (1920, 0, 1080, 1920))
 
     def test_image_to_global_undoes_downscale(self) -> None:
@@ -97,12 +111,33 @@ class GeometryTests(unittest.TestCase):
 
 
 class MultiMonitorTests(unittest.TestCase):
-    PORTRAIT = {"name": "HDMI-A-3", "x": 1920, "y": 0, "width": 1920, "height": 1080,
-                "scale": 1, "transform": 1}
-    SCALED = {"name": "DP-3", "x": 3000, "y": 0, "width": 3840, "height": 2160,
-              "scale": 1.3333334, "transform": 0}
-    LEFT = {"name": "eDP-1", "x": -1920, "y": 300, "width": 1920, "height": 1080,
-            "scale": 1, "transform": 0}
+    PORTRAIT = {
+        "name": "HDMI-A-3",
+        "x": 1920,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "scale": 1,
+        "transform": 1,
+    }
+    SCALED = {
+        "name": "DP-3",
+        "x": 3000,
+        "y": 0,
+        "width": 3840,
+        "height": 2160,
+        "scale": 1.3333334,
+        "transform": 0,
+    }
+    LEFT = {
+        "name": "eDP-1",
+        "x": -1920,
+        "y": 300,
+        "width": 1920,
+        "height": 1080,
+        "scale": 1,
+        "transform": 0,
+    }
 
     def mons(self) -> list[dict[str, Any]]:
         return [self.PORTRAIT, self.SCALED, self.LEFT]
@@ -117,8 +152,11 @@ class MultiMonitorTests(unittest.TestCase):
             hd.require_on_screen(self.mons(), 5000, 1800)
 
     def test_agent_monitor_avoids_user_then_self_then_prefers_scale_1(self) -> None:
-        mons = [dict(self.PORTRAIT, focused=False), dict(self.SCALED, focused=True),
-                dict(self.LEFT, focused=False)]
+        mons = [
+            dict(self.PORTRAIT, focused=False),
+            dict(self.SCALED, focused=True),
+            dict(self.LEFT, focused=False),
+        ]
         pick = hd.pick_agent_monitor
         self.assertEqual(pick(mons, {"HDMI-A-3"}, "DP-3")["name"], "eDP-1")
         self.assertEqual(pick(mons[:2], {"HDMI-A-3"}, "DP-3")["name"], "HDMI-A-3")
@@ -126,13 +164,22 @@ class MultiMonitorTests(unittest.TestCase):
         self.assertEqual(pick(mons[:2], set(), None)["name"], "HDMI-A-3")
 
     def test_pinned_monitor_by_name_or_description(self) -> None:
-        mons = [dict(self.PORTRAIT, description="Dell Inc. DELL P2419H ABC"), self.SCALED]
-        rule = {"workspaceString": "special:agent", "enabled": True, "monitor": "HDMI-A-3"}
+        mons = [
+            dict(self.PORTRAIT, description="Dell Inc. DELL P2419H ABC"),
+            self.SCALED,
+        ]
+        rule = {
+            "workspaceString": "special:agent",
+            "enabled": True,
+            "monitor": "HDMI-A-3",
+        }
         self.assertEqual(hd.pinned_monitor([rule], mons), "HDMI-A-3")
         by_desc = dict(rule, monitor="desc:Dell Inc. DELL P2419H")
         self.assertEqual(hd.pinned_monitor([by_desc], mons), "HDMI-A-3")
         self.assertIsNone(hd.pinned_monitor([dict(rule, enabled=False)], mons))
-        self.assertIsNone(hd.pinned_monitor([dict(rule, workspaceString="special:social")], mons))
+        self.assertIsNone(
+            hd.pinned_monitor([dict(rule, workspaceString="special:social")], mons)
+        )
 
     def test_right_and_bottom_edges_are_exclusive(self) -> None:
         self.assertIsNone(hd.monitor_at(self.mons(), 5880, 10))
@@ -141,19 +188,27 @@ class MultiMonitorTests(unittest.TestCase):
 
 class PreflightTests(unittest.TestCase):
     def test_hyprland_session_detected(self) -> None:
-        env = {"XDG_CURRENT_DESKTOP": "Hyprland", "XDG_SESSION_TYPE": "wayland",
-               "XDG_BACKEND": "wayland", "HYPRLAND_INSTANCE_SIGNATURE": "abc"}
+        env = {
+            "XDG_CURRENT_DESKTOP": "Hyprland",
+            "XDG_SESSION_TYPE": "wayland",
+            "XDG_BACKEND": "wayland",
+            "HYPRLAND_INSTANCE_SIGNATURE": "abc",
+        }
         session = hd.detect_session(env)
         self.assertTrue(session["hyprland"])
         self.assertEqual(session["session_type"], "wayland")
 
     def test_other_desktop_keeps_full_label(self) -> None:
-        session = hd.detect_session({"XDG_CURRENT_DESKTOP": "ubuntu:GNOME", "XDG_SESSION_TYPE": "wayland"})
+        session = hd.detect_session(
+            {"XDG_CURRENT_DESKTOP": "ubuntu:GNOME", "XDG_SESSION_TYPE": "wayland"}
+        )
         self.assertFalse(session["hyprland"])
         self.assertEqual(session["desktop"], "ubuntu:GNOME")
 
     def test_session_type_falls_back_to_backend_then_display(self) -> None:
-        self.assertEqual(hd.detect_session({"XDG_BACKEND": "wayland"})["session_type"], "wayland")
+        self.assertEqual(
+            hd.detect_session({"XDG_BACKEND": "wayland"})["session_type"], "wayland"
+        )
         self.assertEqual(hd.detect_session({"DISPLAY": ":0"})["session_type"], "x11")
         self.assertIsNone(hd.detect_session({})["session_type"])
 
@@ -164,14 +219,18 @@ class PreflightTests(unittest.TestCase):
         self.assertIsNone(hd.package_manager("ID=gentoo\n"))
 
     def test_install_command_maps_and_dedupes(self) -> None:
-        self.assertEqual(hd.install_command("apt", ["grim", "tesseract", "tesseract-eng", "grim"]),
-                         "sudo apt install grim tesseract-ocr tesseract-ocr-eng")
+        self.assertEqual(
+            hd.install_command("apt", ["grim", "tesseract", "tesseract-eng", "grim"]),
+            "sudo apt install grim tesseract-ocr tesseract-ocr-eng",
+        )
         self.assertIsNone(hd.install_command("pacman", []))
         self.assertIn("grim", hd.install_command(None, ["grim"]) or "")
 
     def test_choose_instance_ignores_dead_and_rejects_ambiguity(self) -> None:
-        instances = [{"instance": "a", "pid": 10, "wl_socket": "wayland-1"},
-                     {"instance": "b", "pid": 20, "wl_socket": "wayland-2"}]
+        instances = [
+            {"instance": "a", "pid": 10, "wl_socket": "wayland-1"},
+            {"instance": "b", "pid": 20, "wl_socket": "wayland-2"},
+        ]
         self.assertEqual(hd.choose_instance(instances, {20})["instance"], "b")
         self.assertIsNone(hd.choose_instance(instances, set()))
         with self.assertRaises(hd.DeskError):
