@@ -1,0 +1,65 @@
+{
+  "skill_name": "video-prompt-crafter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm running Wan 2.2 locally in ComfyUI (the 14B text-to-video). Write me a prompt for a red fox trotting through fresh snow in a birch forest at sunrise, then it stops, looks at the camera, and leaps into a snowbank, and then the camera flies up above the trees to reveal a frozen lake.",
+      "expected_output": "Targets Wan 2.2 with `wan-2-2` blocks. Recognizes that four beats overload one 5-second clip and either trims to the strongest beats or splits into one prompt per clip, saying so in the description sentence. Each prompt is one continuous shot with no timestamps, no audio, and a named camera move. Each block has a `negative-prompt` block built on the official Chinese default, plus a Settings line such as `T2V-A14B, 1280×720, 81 frames at 16 fps`. Duration, fps, and ratio stay out of the prompt text.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Write a Gemini Omni prompt for a 2-person scene in a 1970s roadside diner: a tired waitress refills coffee for a trucker and they exchange a short joke. I want their dialogue and the diner ambience in the audio.",
+      "expected_output": "`gemini-omni` blocks. Each prompt states its length in the prompt (for example, 'The whole scene lasts 8 seconds.'), attaches each quoted line to a visible speaker with a colon, describes ambience by source, controls cuts explicitly (single continuous shot, or timecodes), and adds 'No subtitles.' The Settings line uses 16:9 or 9:16 only. No negative-prompt block.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Need a FLUX 3 Video prompt for a 15 second ad for a matte-black insulated water bottle called 'Kelvin'. Three different shots, ending on the bottle with the tagline 'Cold for 48 hours'.",
+      "expected_output": "`flux-3-video` blocks using `SHOT ONE:` / `HARD CUT.` syntax or the timecoded prompt schema, with three shots that contrast in scale. The music bed is named once, the tagline is quoted with its placement, and the prompts carry no '15-second', fps, or aspect ratio text. The Settings line reads like `15 s, 16:9, fhd`.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I have a still image of an old fisherman portrait (close-up, weathered face, yellow raincoat, harbor behind him). Animate it with Wan 3 — I want him to slowly smile and the wind to move his hair.",
+      "expected_output": "`wan-3` blocks written as image-to-video: they describe motion, camera (likely a fixed shot), and sound without re-describing the portrait. An Inputs line names the image as `first_frame`. The Settings line includes `ratio: adaptive` and `prompt_extend: false`. Negatives, if any, go on a final `Negative prompt list:` line, not in a separate block. The response says nothing about Wan 3 being unknown.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Convert this Veo prompt so it works on Wan 2.2: 'A cinematic tracking shot follows a cyclist racing through neon-lit Tokyo streets at night in the rain, reflections everywhere, she shouts \"Almost there!\", synthwave music swells, 8 seconds.'",
+      "expected_output": "`wan-2-2` blocks that keep the cyclist, rain, neon, and tracking camera, turn the shout into visible action, and drop the quoted line, music, and '8 seconds'. Each block has a `negative-prompt` block and a Settings line. The description sentence says the clip is silent and about 5 seconds long.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Make me a short vertical video of a barista doing latte art in a sunny café, for an Instagram Reel.",
+      "expected_output": "Infers FLUX 3 Video without asking (no model named, no inputs, not local). `flux-3-video` blocks with a named camera, specific light, and café sound by source. The Settings line uses 9:16. Vertical framing is not written as a ratio inside the prompt.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "I generated a clip of a violinist on a rooftop. Now I want the sky to turn into a thunderstorm but keep everything else.",
+      "expected_output": "Infers Gemini Omni without asking (editing an existing clip). `gemini-omni` blocks are short edit instructions ending with 'Keep everything else the same.', not full scene descriptions. Includes an Inputs line for the video and `task: edit` on the Settings line.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "I have three photos: my dog Biscuit (a corgi), a red kite, and a beach. I want a 25-second video of Biscuit chasing the kite on that beach, with happy barking.",
+      "expected_output": "Infers Wan 3.0 without asking (reference images that are not frames, and longer than 20 s). `wan-3` blocks cite the photos as Image 1, Image 2, Image 3 in upload order, with an Inputs line that matches. They use timestamped shots or explicit single-take wording, describe barking and beach ambience, and write 'No dialogue' or rely on the negative list. The Settings line reads `25 s` with `prompt_extend: false`.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Write a Kling 2.5 prompt for a samurai drawing his sword in a bamboo forest at dawn.",
+      "expected_output": "Writes for FLUX 3 Video, since Kling is not supported. Variation 1's description sentence starts with 'Written for FLUX 3 Video; Kling 2.5 is not supported.' No invented `kling` fence tag and no text outside the blocks.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Veo 4 prompt please: a time-lapse of a city skyline going from day to night, with lights turning on in sync with a slow electronic beat.",
+      "expected_output": "Treats 'Veo 4' as Gemini Omni (`gemini-omni` blocks) without a not-supported line. States the length in the prompt, asks for one continuous shot, describes the music and the sync, and uses 16:9 or 9:16 on the Settings line.",
+      "files": []
+    }
+  ]
+}

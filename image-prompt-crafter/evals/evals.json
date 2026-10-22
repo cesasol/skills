@@ -120,6 +120,42 @@
       "prompt": "In my local ComfyUI setup I have a photo of my living room and a product shot of a ceramic lamp. Write the prompt to put the lamp on the oak sideboard.",
       "expected_output": "Infers FLUX.2 Klein 4B without asking: a local workflow with input images, which Z-Image Turbo cannot edit. Blocks are tagged `flux-2-klein`, written as edit instructions that name image 1 (living room, base) and image 2 (lamp), match lighting, scale, and shadows, and end with what stays unchanged rather than Style/Mood. Each block has an image-order line and `Settings: fixed seed`.",
       "files": []
+    },
+    {
+      "id": 21,
+      "prompt": "Write a Krea 2 prompt for a portrait of a jazz singer on a smoky stage. I'm going to attach a 1970s album cover as a style reference.",
+      "expected_output": "Targets Krea 2 and reads references/krea.md. Blocks are tagged `krea-2`; each prompt is one paragraph describing subject, pose, stage, camera, and light, with no medium, palette, or texture words and no mention of the attached image. Each block has a `Settings:` line starting with the variant (e.g. Krea 2 Medium) and a style reference strength near 0.6, varied across variations. Ratios come from Krea 2's list (e.g. 4:5 or 2:3, never 3:4).",
+      "files": []
+    },
+    {
+      "id": 22,
+      "prompt": "Krea 3: I have a street photo of a model and a product shot of a white sneaker. Put the sneaker on her feet and keep the logo sharp.",
+      "expected_output": "Blocks are tagged `krea-3`. Each is an instruction that refers to image 1 (street photo, base) and image 2 (sneaker) by number and content, names the logo as what must not drift, and preserves the rest in one sentence rather than an exhaustive list. Image-order line present, `auto` ratio, no FLUX 3 fallback, no disclaimer inside the prompt.",
+      "files": []
+    },
+    {
+      "id": 23,
+      "prompt": "I run Krea 2 Turbo in ComfyUI on my own GPU. Make a prompt for a night market poster that says \"NIGHT MARKET\". Ultra wide banner.",
+      "expected_output": "Targets Krea 2 (not Z-Image Turbo) with `Settings: Krea 2 Turbo`. Prompts are full paragraphs that open with medium and finish, quote \"NIGHT MARKET\" with placement and type style, and phrase constraints positively. Recommends a wide ratio such as 21:9 (allowed locally) with no image_size or step/CFG guesses and no negative prompt.",
+      "files": []
+    },
+    {
+      "id": 24,
+      "prompt": "Using Krea 3, change only the mug in my photo to #C0392B.",
+      "expected_output": "Krea 3 local-change instructions led by the change, scoped with \"only\", using the hex code, and closing with one short preservation sentence. Each block carries `Settings: regional_edit`, `auto` ratio, and an image-order line.",
+      "files": []
+    },
+    {
+      "id": 25,
+      "prompt": "Make me a Krea 2 prompt that puts my dog from this photo onto a surfboard.",
+      "expected_output": "Recognizes an edit (the dog's identity must stay), which Krea 2 cannot do. Writes `krea-3` edit instructions referring to image 1, and variation 1's description line starts with \"Written for Krea 3; Krea 2 cannot edit images.\"",
+      "files": []
+    },
+    {
+      "id": 26,
+      "prompt": "Here's an album cover I love. Generate a new poster of a lighthouse that matches this look.",
+      "expected_output": "Infers Krea 2 without asking, since the image supplies only a look for new content. Prompts describe the lighthouse scene without style words, and each `Settings:` line names the variant and a style reference strength.",
+      "files": []
     }
   ]
 }

@@ -3,10 +3,11 @@ name: image-prompt-crafter
 description: >
   Use when the user wants to write, expand, refine, or convert a prompt for an AI image
   generation model, including FLUX 3 Image, FLUX 3 Image Klein, FLUX.2 Klein 4B,
-  Ideogram 4.0 and 4.5, and Z-Image Turbo, including local ComfyUI workflows; when they
-  need image-to-image edit instructions (edit this photo, restyle, put X into Y, combine reference images); or when
-  they describe a scene, poster, logo, or concept they want turned into an image, even if
-  they never say "prompt". Triggers include "prompt for image generation", "make this prompt
+  Ideogram 4.0 and 4.5, Krea 2 (Medium, Large, Turbo), Krea 3, and Z-Image Turbo, including
+  local ComfyUI workflows; when they need image-to-image edit instructions (edit this photo,
+  restyle, put X into Y, combine reference images) or want a look carried over from style
+  references or a moodboard; or when they describe a scene, poster, logo, or concept they
+  want turned into an image, even if they never say "prompt". Triggers include "prompt for image generation", "make this prompt
   better", "upsample this prompt", and "convert this prompt for [model]".
 ---
 
@@ -47,30 +48,37 @@ prompt rewriting or expansion feature.
 
 ## Choosing the Model
 
-Take the first rule that matches. Use FLUX 3 Image Klein only when the user names it or rule 5
-picks it, FLUX.2 Klein 4B only when the user names it or rule 2 picks it, and Ideogram 4.0
-only when the user names it. "Quoted text" means the exact words that must appear in the
-image, counted in characters across all of them.
+Take the first rule that matches. Use FLUX 3 Image Klein only when the user names it or rule 6
+picks it, FLUX.2 Klein 4B only when the user names it or rule 2 picks it, Krea 2 only when
+the user names it or rule 4 picks it, and Ideogram 4.0 and Krea 3 only when the user names
+them. "Quoted text" means the exact words that must appear in the image, counted in characters
+across all of them. A style reference lends only its look; an input image to edit has content
+that stays.
 
 1. The user names a supported model: use it. "FLUX.2 Klein" or "Klein 4B" means FLUX.2 Klein
-   4B. If they name a model not in the table below (FLUX.2 Dev, FLUX.1 Dev, FLUX.2 Klein 9B,
-   or any other), write for the model rule 2 would pick in a local workflow, otherwise FLUX 3
-   Image. Start variation 1's description line with
-   `Written for <model>; <named model> is not supported.`
+   4B. "Krea 2 Medium", "Large", or "Turbo" means Krea 2 with that variant. If they name a
+   model not in the table below (FLUX.2 Dev, FLUX.1 Dev, FLUX.2 Klein 9B, Krea 1, or any
+   other), write for the model rule 2 would pick in a local workflow, otherwise FLUX 3 Image.
+   If they name Krea 2 but supply images to edit, write for Krea 3, or FLUX.2 Klein 4B in a
+   local workflow. Start variation 1's description line (never the prompt) with
+   `Written for <model>; <named model> is not supported.`, or for a Krea 2 edit with
+   `Written for <model>; Krea 2 cannot edit images.`
 2. The context points to a local workflow (ComfyUI, Diffusers, "on my GPU", offline, their own
    hardware): **Z-Image Turbo**. When they supply or describe input images to edit, use
    **FLUX.2 Klein 4B** instead, because Z-Image Turbo cannot edit images.
 3. They want a JSON layout with an exact hex palette, or multi-turn edits of a design they
    are iterating on: **Ideogram 4.5**.
-4. They supply or describe input images (edit, restyle, combine references): **FLUX 3 Image**.
-5. The image must contain readable text (logos, signs, posters, covers, typography, diagrams,
+4. They want a new image whose look comes from style references or a moodboard ("match this
+   look", "use this as a style reference"): **Krea 2**.
+5. They supply or describe input images to edit (edit, restyle, combine references): **FLUX 3 Image**.
+6. The image must contain readable text (logos, signs, posters, covers, typography, diagrams,
    infographics, multi-panel layouts) or elements need exact placement:
    - Quick drafts with 100 characters of quoted text or fewer: **Z-Image Turbo**.
    - Quick drafts with more than 100 characters of quoted text: **FLUX 3 Image Klein**.
    - Everything else: **FLUX 3 Image**.
-6. They want speed: quick drafts, many variations, fast iteration, a lightweight model. Also
+7. They want speed: quick drafts, many variations, fast iteration, a lightweight model. Also
    stylized or conceptual art: **Z-Image Turbo**.
-7. Anything else (photographic, cinematic, product, editorial, or complex scenes):
+8. Anything else (photographic, cinematic, product, editorial, or complex scenes):
    **FLUX 3 Image**.
 
 | Model | Fence tag | Reference | Prompt length | Notes |
@@ -80,6 +88,8 @@ image, counted in characters across all of them.
 | FLUX.2 Klein 4B | `flux-2-klein` | `flux-2-klein.md` | A full paragraph | Local edits with up to 4 refs; fixed seed; ends with Style/Mood |
 | Ideogram 4.0 | `ideogram-4` | `ideogram.md` | Full prose or JSON | Open weights need JSON; exact-case text, hex, boxes |
 | Ideogram 4.5 | `ideogram-4-5` | `ideogram.md` | Up to 10K chars or JSON | Precise multi-turn edits, masks, up to 4 references |
+| Krea 2 | `krea-2` | `krea.md` | One full paragraph | Text-to-image only; weighted style refs, moodboards, LoRAs; Turbo runs locally |
+| Krea 3 | `krea-3` | `krea.md` | Short instructions or captions | Hosted; fast edits with up to 8 refs; native 2K; regional edits |
 | Z-Image Turbo | `z-image-turbo` | `z-image-turbo.md` | 80-250 words | Fast; first local choice; no editing; 3-5 core concepts |
 
 ## Output Format
@@ -89,8 +99,9 @@ The response contains only variation blocks. One block is, in order:
 1. A fenced code block holding the prompt, tagged with the model's fence tag from the table.
 2. `Recommended aspect ratio: <ratio>` (`auto` for edits that keep image 1's frame).
 3. For edits: `Image order: image 1 = <role> (base), image 2 = <role>`.
-4. Only if the result depends on a setting other than aspect ratio (quality tier, edit
-   precision, custom size, fixed seed, LoRA): `Settings: <setting>`.
+4. Only if the result depends on a setting other than aspect ratio (model variant, quality
+   tier, edit precision, custom size, fixed seed, LoRA, reference strength, thinking mode):
+   `Settings: <setting>`.
 5. One sentence saying how this variation differs. For Refine, say what changed from the
    user's prompt and why it fixes the problem.
 
@@ -128,7 +139,7 @@ headers, no bold labels, and no text before the first block or after the last.
   with one short clarification question instead of prompts.
 - Unsafe, copyrighted-character, or brand-heavy wording: keep the visual intent with generic
   descriptive language.
-- Text with no model named: rule 5 picks the model by draft vs final and quoted-text length.
+- Text with no model named: rule 6 picks the model by draft vs final and quoted-text length.
   Keep quoted text short unless the user supplies long verbatim copy.
 - An edit described but no image attached: write the instruction for the images they
   described and give the image order.
@@ -146,5 +157,11 @@ headers, no bold labels, and no text before the first block or after the last.
   boxes.
 - **To FLUX.2 Klein 4B**: Expand to a full descriptive paragraph; Klein receives only what you
   write. Turn box rows into positional wording. End with `Style: [style]. Mood: [mood].`
+- **To Krea 2**: Write one full paragraph that names the medium and finish, with material and
+  texture words. Turn box rows into positional wording. With a style reference, keep only the
+  content and move the look to the reference. An edit prompt cannot convert; use Krea 3.
+- **To Krea 3**: Write edits as one instruction led by the change, or by what stays when the
+  subject moves into a new scene. Shrink preserve lists to one sentence naming what matters.
+  Refer to inputs as "image 1" plus what they show; turn edit box rows into positional wording.
 - **To Z-Image Turbo**: Condense to 80-250 words around the 3-5 most important visual
   concepts.
