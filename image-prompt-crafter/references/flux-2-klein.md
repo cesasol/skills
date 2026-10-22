@@ -1,15 +1,16 @@
-# Flux Family Prompting Guide
+# FLUX.2 Klein 4B Prompting Guide
 
-Applies to: **FLUX.1 Dev**, **FLUX.2 Dev**, **FLUX.2 Klein**
-
-For **FLUX 3 Image** and **FLUX 3 Image Klein**, read `flux-3.md` instead.
+Applies to: **FLUX.2 Klein 4B** only, the local option. For **FLUX 3 Image** and **FLUX 3 Image
+Klein**, read `flux-3.md` instead.
 
 ## Overview
 
-The Flux family from Black Forest Labs uses flow matching and natural language understanding. All variants excel at prompt adherence, visual quality, and text rendering. They share core prompting
-behavior with key differences noted below.
+FLUX.2 Klein 4B is Black Forest Labs' smallest open-weight model: Apache 2.0 and available in
+ComfyUI and Diffusers. It does text-to-image and image
+editing with up to 4 reference images, often in under a second. It has no prompt rewriting, so what
+you write is exactly what the model receives.
 
-## Shared Principles (All Flux Models)
+## Prompting Principles
 
 ### Natural Language is King
 
@@ -40,7 +41,10 @@ Front-load the most important information. Word order signals priority.
 | Medium | 30-80 | Most scenes and everyday prompting |
 | Long | 80-300+ | Complex multi-subject scenes or very directed outputs |
 
-Flux.2 supports prompts up to 32K tokens. Start short and add only what changes the image.
+For Klein, write the long tier: one full paragraph, typically 80-200 words. BFL documents no
+length cap. Short prompts produce generic results.
+
+Size is set with `width` and `height`, so any aspect ratio can be recommended.
 
 ### Text in Images
 
@@ -140,85 +144,19 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 5. Add atmosphere: "...colorful vintage cars, flash photography, dark sky"
 6. Change medium: "...watercolor illustration style"
 
-## Model-Specific Differences
+## Klein 4B Specifics
 
-### FLUX.1 Dev
-
-- 12 billion parameters
-- Open-weight, guidance-distilled
-- Natural language oriented
-- Built-in prompt upsampling (short prompts get expanded)
-- No negative prompts
-
-**Best practices:**
-
-- Write clear, descriptive natural language
-- Short prompts work well due to upsampling
-- Reference specific cameras, lenses, film stocks for photorealism
-
-### FLUX.2 Dev
-
-- Up to 32K token prompts
-- Built-in prompt upsampling (short prompts get expanded)
-- Excellent typography
-- HEX color codes supported: `"in color #FF5733"`
-- JSON structured prompts supported for production workflows
-- No negative prompts
-
-**Best practices:**
-
-- Same as FLUX.1 Dev but with much longer prompt capacity
-- Use HEX codes for brand-precise colors
-- Can use JSON format for complex production workflows
-- Multi-reference compositing with up to 8 images: refer to "image 1", "image 2", and say
-  which element comes from which image
-
-**JSON structured prompts** — use for automation, consistent structure, or complex multi-subject
-scenes; use prose for quick exploration. Send the JSON as a string in `prompt`:
-
-```json
-{
-  "scene": "overall scene description",
-  "subjects": [
-    {"description": "detailed subject", "position": "where in frame", "action": "what they're doing"}
-  ],
-  "style": "artistic style",
-  "color_palette": ["#hex1", "#hex2", "#hex3"],
-  "lighting": "lighting description",
-  "mood": "emotional tone",
-  "background": "background details",
-  "composition": "framing and layout",
-  "camera": {"angle": "camera angle", "lens": "lens type", "depth_of_field": "focus behavior"}
-}
-```
-
-Iterate by changing one field at a time, such as adding a second subject or recoloring one element.
-
-### FLUX.2 Klein
-
-- 4 billion parameters
-- Sub-second generation
-- **NO prompt upsampling** — what you write is exactly what the model receives
-- Must write detailed, descriptive prompts for best results
-- Supports image editing with single and multi-reference inputs
-- Add `Style: [style]. Mood: [mood].` at the end for consistent aesthetics
-
-**Best practices:**
-
-- **Write detailed prose** — short prompts will produce generic results
-- Use natural language emphasis instead of weight syntax: "prominently featuring", "with particular attention to", "especially detailed"
-- Lighting descriptions have the highest single impact
-- For editing: "The subject from the first image wearing the jacket from the second image, photographed in the environment from the third image"
-- Keep prompts under 100 words to avoid confusion
-- Use the seed parameter to maintain consistency when testing variations
-
-### FLUX.1 Kontext (Editing)
-
-- Specify what should CHANGE — the input image provides all other context
-- Use quotation marks for text editing: `Replace 'joy' with 'BFL'`
-- Be explicit about preservation: "while maintaining the same facial features and hairstyle"
-- Prefer specific verbs: "change the clothes" over "transform the person"
-- For multiple changes, add as many explicit details as possible
+- **Write one detailed paragraph.** BFL: "describe scenes like a novelist". Cover subject, setting,
+  light source and direction, camera, and palette, then end with `Style: [style]. Mood: [mood].`
+  The Style/Mood ending is for text-to-image only; edit instructions end with what must stay
+  unchanged.
+- **Use natural-language emphasis**, not weight syntax: "prominently featuring", "with particular
+  attention to", "especially detailed".
+- **Hex colors work**: "the logo text 'ACME' in color #FF5733".
+- **Editing** takes up to 4 reference images. Give each image a role in the instruction: "The subject from image 1 wearing the jacket from image 2, photographed in the environment
+  from image 3." Name what must stay unchanged.
+- **Seed is supported.** Add `Settings: fixed seed` to every Klein block, so the variations
+  differ only by prompt.
 
 ## Photorealistic Style Reference
 

@@ -3,19 +3,17 @@
 Applies to: **FLUX 3 Image** and **FLUX 3 Image Klein**, for text-to-image and image-to-image (editing,
 restyling, multi-reference compositing). FLUX 3 Video and FLUX 3 Action are out of scope.
 
-Do not confuse **FLUX 3 Image Klein** (5.6B, FLUX 3 generation) with **FLUX.2 Klein** (4B, see `flux-family.md`).
+Do not confuse **FLUX 3 Image Klein** (5.6B, FLUX 3 generation) with **FLUX.2 Klein 4B** (see `flux-2-klein.md`).
 
 ## What Changed From Earlier Flux
 
-- **The prompt carries everything.** There is no `negative_prompt`, `guidance`, `seed`, `prompt_upsampling`,
+- **The prompt carries everything.** There is no `negative_prompt`, `guidance`, `seed`,
   `mode`, mask, or strength field. Bounding boxes, when used, go at the end of the prompt string.
 - **One endpoint for generation and editing.** Send only `prompt` for text-to-image. Add 1-10 images in
   `images` and the prompt becomes an instruction for what to do with them.
-- **Short prompts are expanded automatically.** FLUX 3 Image rewrites a short prompt into a detailed caption
-  before generating. Write more only for details the user wants to control: positions, light, text.
+- **Write the full caption.** Specify positions, light, text, and every detail the user wants to control.
 - **FLUX 3 Image Klein** has the same features (text-to-image, editing, multi-reference, boxes) and is
-  trained on full captions from its own prompt upsampler. The API and reference CLI run the upsampler by
-  default. If the user runs Klein locally without it (plain Diffusers), write a full detailed caption.
+  trained on full detailed captions. Always write a full detailed caption for it.
 - **No seed.** Two runs of the same prompt differ. Compare several results before deciding a change failed.
 - **Aspect ratio** is a separate field: `21:9`, `2:1`, `16:9`, `3:2`, `7:5`, `4:3`, `5:4`, `1:1`, `4:5`,
   `3:4`, `5:7`, `2:3`, `9:16`, `1:2`, `9:21`, or `auto`. `auto` follows image 1, and with no images it
@@ -38,7 +36,7 @@ FLUX 3 launch captions follow this order. Use it as a guide, not a formula; skip
 **Only describe what is visible.** Drop "beautiful", "iconic", "masterpiece". Every phrase should name
 something you could point to in the frame.
 
-Short prompt, which works on its own:
+Short caption, minimal control:
 
 ```text
 Four men in dark suits cross a sunlit rooftop, a busy avenue far below.
@@ -116,7 +114,7 @@ the supplied visible copy", "invent all visual forms").
 ### Structured Prompts
 
 FLUX 3 documents two structures: prose captions and **caption plus box rows**. The JSON scene schema
-(`scene`, `subjects`, `style`, `lighting`, `camera`) is documented for FLUX.2 (see `flux-family.md`). When
+(`scene`, `subjects`, `style`, `lighting`, `camera`) belongs to FLUX.2 and is not a FLUX 3 format. When
 converting a FLUX.2 JSON prompt, flatten it into a medium-first caption. Turn its subjects into box rows
 only when exact positions matter.
 

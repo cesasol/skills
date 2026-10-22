@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "I want to generate an image of a cyberpunk street market at night for FLUX.2 Klein. Can you write me a good prompt? I want neon signs, rain, and a food vendor as the main subject.",
-      "expected_output": "A detailed, natural-language prompt optimized for FLUX.2 Klein with no aspect ratio/resolution specs inside the prompt text, strong lighting description, specific subject details, the Style/Mood annotation at the end, and a separate recommended aspect ratio for each variation.",
+      "expected_output": "A FLUX.2 Klein prompt per variation written as one full descriptive paragraph (roughly 80-200 words) in a `flux-2-klein` fenced block, with no aspect ratio/resolution specs inside the prompt text, strong lighting description, specific subject details, the Style/Mood annotation at the end, and a separate recommended aspect ratio for each variation.",
       "files": []
     },
     {
@@ -47,6 +47,78 @@
       "id": 8,
       "prompt": "I need to crank out a bunch of quick drafts of a lighthouse on a stormy cliff to explore moods. Write the prompts.",
       "expected_output": "Infers Z-Image Turbo without asking because the user wants fast iteration. Each variation is 80-250 words built around 3-5 core concepts, explores a different mood, uses positive phrasing with no negative prompts, and keeps aspect ratio out of the prompt text with a separate recommended ratio per variation.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Write an Ideogram 4.5 prompt for a café chalkboard menu with the title \"Morning Menu\" and three items with prices. The letter case must match exactly.",
+      "expected_output": "Targets Ideogram 4.5 and reads references/ideogram.md. Each variation leads with the deliverable, gives each text line its own sentence with position, size, and color, quotes text in exact case, ends with \"No other text.\", never mentions model-side prompt rewriting or expansion, and keeps the aspect ratio on a separate line.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "I run Ideogram 4 open weights locally. Make a prompt for a minimalist concert poster with the headline \"ECHOES\" at the top and a moon in the center.",
+      "expected_output": "Outputs valid Ideogram 4 JSON captions (not plain text) with high_level_description, style_description using art_style in the correct key order, uppercase hex color_palette, and compositional_deconstruction with background before elements; text element for \"ECHOES\" with bbox in [y_min, x_min, y_max, x_max] 0-1000 order.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "I need to crank out a bunch of quick drafts for a coffee shop logo that says 'BEAN THERE'.",
+      "expected_output": "Infers Z-Image Turbo without asking: quick drafts whose quoted text (\"BEAN THERE\") is 100 characters or fewer. Each block is tagged `z-image-turbo`, is 80-250 words, quotes \"BEAN THERE\" with placement and type style, and carries no 768sq Settings line. No text before the first block or after the last.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Here's my FLUX 3 Image prompt: 'Cinematic photograph of a woman in a green raincoat standing under a streetlamp on a foggy cobblestone street at night. The lamp casts a pool of warm light around her, the street fades into blue fog behind her, shot on a 50mm lens with shallow depth of field.' The results come out too dark and her face is lost in shadow. Fix it.",
+      "expected_output": "Refine task. Variation 1 keeps the user's untouched sentences word for word and adds or changes only the lighting on her face; the other variations each try a different lighting fix. Each description line says what changed from the user's prompt and why it fixes the dark face.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "Z-Image Turbo prompt for a panoramic mountain ridge at sunset. I want it ultra wide, it's for a desktop banner.",
+      "expected_output": "Z-Image Turbo prompts of 80-250 words in `z-image-turbo` blocks. Recommends a wide ratio such as 21:9 and, because it has no preset, adds a `Settings:` line with a custom image_size. No closing notes, no mention of prompt expansion, and no ratio inside the prompt text.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "I'm using the Z-Image Turbo LoRA endpoint with a watercolor LoRA loaded. Keep it short: a heron standing in a misty pond.",
+      "expected_output": "Short Z-Image Turbo prompts that honor the user's length request over the 80-250 word range. A `Settings:` line notes the LoRA and that its trigger word goes at the start of the prompt. Never mentions enable_prompt_expansion or any model-side prompt expansion.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "Give me prompts for both FLUX 3 Image and Ideogram 4.5: a neon ramen shop sign that reads 'RAMEN YA' on a rainy street at night.",
+      "expected_output": "All `flux-3-image` blocks come before all `ideogram-4-5` blocks, with no headers between them. Ideogram variations are all natural language (no JSON, since no exact placement, palette, or open weights were requested), give the sign text its own sentence, and end with \"No other text.\"",
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "A red fox curled up asleep in fresh snow under pine trees at dawn.",
+      "expected_output": "Infers FLUX 3 Image without asking (general photographic scene, no model named). Blocks are tagged `flux-3-image`, captions open with the medium and style, describe only visible elements with no quality filler, and each variation has a separate recommended aspect ratio. Never mentions FLUX.1 Dev.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "I run ComfyUI on my RTX 4070. Write a prompt for a lighthouse keeper reading by lamplight in a storm.",
+      "expected_output": "Infers Z-Image Turbo without asking: a local ComfyUI workflow with no input images. Blocks are tagged `z-image-turbo`, each 80-250 words around 3-5 core concepts with specific lighting, positive phrasing, and no `image_size` Settings line (width and height are set in the local workflow). Never mentions GPU memory or prompt expansion.",
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "Quick drafts please: a farmers market flyer titled 'GREEN VALLEY MARKET' with the line 'Every Saturday 8am to 1pm at Riverside Park. Fresh produce, local honey, live music and free parking for all visitors.'",
+      "expected_output": "Infers FLUX 3 Image Klein without asking: the user wants drafts and the quoted copy totals more than 100 characters. Blocks are tagged `flux-3-image-klein`, write full captions, quote the title and supporting copy exactly with placement and type style, and carry no 768sq Settings line.",
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "Write a FLUX.2 Dev prompt for a samurai in a bamboo forest at dawn.",
+      "expected_output": "Writes for FLUX 3 Image (`flux-3-image` blocks), since FLUX.2 Dev is not supported. Variation 1's description line starts with \"Written for FLUX 3 Image; FLUX.2 Dev is not supported.\" No invented `flux-2-dev` fence tag and no text outside the blocks.",
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "In my local ComfyUI setup I have a photo of my living room and a product shot of a ceramic lamp. Write the prompt to put the lamp on the oak sideboard.",
+      "expected_output": "Infers FLUX.2 Klein 4B without asking: a local workflow with input images, which Z-Image Turbo cannot edit. Blocks are tagged `flux-2-klein`, written as edit instructions that name image 1 (living room, base) and image 2 (lamp), match lighting, scale, and shadows, and end with what stays unchanged rather than Style/Mood. Each block has an image-order line and `Settings: fixed seed`.",
       "files": []
     }
   ]

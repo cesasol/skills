@@ -15,7 +15,8 @@ does **not** use classifier-free guidance at inference, which means **negative p
 
 ## Prompt Structure
 
-Effective prompts follow a hierarchical structure with six key categories:
+Effective prompts follow a hierarchical structure with five key categories. Generation
+parameters (steps, size, seed) are API fields, never prompt text.
 
 | Component | Purpose | Example |
 | ----------- | --------- | --------- |
@@ -23,7 +24,6 @@ Effective prompts follow a hierarchical structure with six key categories:
 | Environmental Context | Establishes setting | "Victorian garden at morning, dappled sunlight" |
 | Visual Style | Guides aesthetic treatment | "Shot on Leica M6 with Kodak Portra 400 film grain" |
 | Composition | Controls framing and focus | "Ultra-wide landscape, rule of thirds" |
-| Technical Parameters | Optimizes generation | `num_inference_steps: 8`, `acceleration: "high"` |
 | Quality/Detail | Finishing touches | "sharp focus", "crystal-clear detail" |
 
 ## Subject Specification
@@ -110,7 +110,21 @@ Filled example:
 | `image_size` | string | See below | `landscape_4_3` | Choose based on output requirements |
 | `acceleration` | string | `none`, `regular`, `high` | `none` | `high` for sub-second generation |
 
-**Image size options**: `square_hd`, `square`, `portrait_4_3`, `portrait_16_9`, `landscape_4_3`, `landscape_16_9`
+**Image size options**: presets `square_hd`, `square`, `portrait_4_3`, `portrait_16_9`, `landscape_4_3`,
+`landscape_16_9`, or a custom `{"width": 1344, "height": 576}` object for any other ratio.
+
+| Recommended ratio | `image_size` |
+| ----------------- | ------------ |
+| `1:1` | `square_hd` |
+| `4:3` / `3:4` | `landscape_4_3` / `portrait_4_3` |
+| `16:9` / `9:16` | `landscape_16_9` / `portrait_16_9` |
+| Anything else (`21:9`, `3:2`, `2:3`, `4:5`) | custom width and height |
+
+Any ratio works, so recommend the one the composition needs. When it has no preset, add
+`Settings: custom image_size, e.g. 1344x576` under the aspect ratio line.
+
+Running locally (ComfyUI, Diffusers), width and height are set directly in the workflow, so
+recommend the ratio only and skip the `image_size` Settings line.
 
 ## LoRA Customization
 
@@ -120,4 +134,6 @@ The LoRA version supports up to 3 LoRAs simultaneously. Scale parameter:
 - **0.7-1.0**: Moderate to strong influence (recommended starting point)
 - **1.0+**: Very strong influence, may overpower base model
 
-**Prompt expansion feature**: The LoRA endpoint supports `enable_prompt_expansion`, which enhances shorter prompts. Most beneficial for prompts under 50 words.
+When the user names a LoRA, write the prompt in that LoRA's style and put its trigger word
+first if they give one. If they give no trigger word, add `Settings: LoRA <name>, scale 0.7-1.0;
+add its trigger word at the start of the prompt`.

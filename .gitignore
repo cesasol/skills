@@ -24,3 +24,4 @@ nupkg/
 .idea
 .claude/agents/
 /dist
+.firecrawl/

@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ideogram-caption.schema.json",
+  "title": "Ideogram 4 JSON caption",
+  "description": "Structured caption for Ideogram 4.0 (required for open weights) and accepted by Ideogram 4.5. Source: https://github.com/ideogram-oss/ideogram4/blob/main/docs/prompting.md. JSON Schema cannot enforce key order; keep the order listed in each 'x-key-order'.",
+  "type": "object",
+  "x-key-order": ["high_level_description", "style_description", "compositional_deconstruction"],
+  "required": ["compositional_deconstruction"],
+  "additionalProperties": false,
+  "properties": {
+    "high_level_description": {
+      "type": "string",
+      "description": "One or two sentences summarizing the whole image. Optional but strongly recommended."
+    },
+    "style_description": {
+      "description": "Exactly one of 'photo' or 'art_style'.",
+      "oneOf": [
+        {
+          "title": "Photo style",
+          "type": "object",
+          "x-key-order": ["aesthetics", "lighting", "photo", "medium", "color_palette"],
+          "required": ["aesthetics", "lighting", "photo", "medium"],
+          "additionalProperties": false,
+          "properties": {
+            "aesthetics": { "$ref": "#/$defs/aesthetics" },
+            "lighting": { "$ref": "#/$defs/lighting" },
+            "photo": {
+              "type": "string",
+              "description": "Camera and lens details, e.g. '35mm, f/1.4, bokeh'."
+            },
+            "medium": { "const": "photograph" },
+            "color_palette": { "$ref": "#/$defs/palette16" }
+          }
+        },
+        {
+          "title": "Non-photo style",
+          "type": "object",
+          "x-key-order": ["aesthetics", "lighting", "medium", "art_style", "color_palette"],
+          "required": ["aesthetics", "lighting", "medium", "art_style"],
+          "additionalProperties": false,
+          "properties": {
+            "aesthetics": { "$ref": "#/$defs/aesthetics" },
+            "lighting": { "$ref": "#/$defs/lighting" },
+            "medium": {
+              "type": "string",
+              "not": { "const": "photograph" },
+              "description": "e.g. 'illustration', '3d_render', 'painting', 'graphic_design'."
+            },
+            "art_style": {
+              "type": "string",
+              "description": "e.g. 'flat vector illustration, bold outlines'."
+            },
+            "color_palette": { "$ref": "#/$defs/palette16" }
+          }
+        }
+      ]
+    },
+    "compositional_deconstruction": {
+      "type": "object",
+      "x-key-order": ["background", "elements"],
+      "required": ["background", "elements"],
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "type": "string",
+          "description": "Background and environment description."
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "title": "Object element",
+                "type": "object",
+                "x-key-order": ["type", "bbox", "desc", "color_palette"],
+                "required": ["type", "desc"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": { "const": "obj" },
+                  "bbox": { "$ref": "#/$defs/bbox" },
+                  "desc": { "type": "string" },
+                  "color_palette": { "$ref": "#/$defs/palette5" }
+                }
+              },
+              {
+                "title": "Text element",
+                "type": "object",
+                "x-key-order": ["type", "bbox", "text", "desc", "color_palette"],
+                "required": ["type", "text", "desc"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": { "const": "text" },
+                  "bbox": { "$ref": "#/$defs/bbox" },
+                  "text": {
+                    "type": "string",
+                    "description": "Literal text to render, exact case. Use \\n for line breaks."
+                  },
+                  "desc": { "type": "string" },
+                  "color_palette": { "$ref": "#/$defs/palette5" }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "aesthetics": {
+      "type": "string",
+      "description": "Aesthetic keywords, e.g. 'moody, cinematic, desaturated'."
+    },
+    "lighting": {
+      "type": "string",
+      "description": "e.g. 'golden hour, rim light, dramatic shadows'."
+    },
+    "hex": {
+      "type": "string",
+      "pattern": "^#[0-9A-F]{6}$",
+      "description": "Uppercase #RRGGBB only."
+    },
+    "palette16": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hex" },
+      "minItems": 1,
+      "maxItems": 16
+    },
+    "palette5": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hex" },
+      "minItems": 1,
+      "maxItems": 5
+    },
+    "bbox": {
+      "type": "array",
+      "description": "[y_min, x_min, y_max, x_max], normalized 0-1000, origin top-left.",
+      "items": { "type": "integer", "minimum": 0, "maximum": 1000 },
+      "minItems": 4,
+      "maxItems": 4
+    }
+  }
+}
