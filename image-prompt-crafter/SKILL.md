@@ -4,7 +4,7 @@ description: >
   Craft, upsample, and refine text prompts for AI image generation models.
   Use this skill whenever the user wants to create, improve, expand, or translate
   prompts for text-to-image models including Flux (FLUX 3 Image, FLUX 3 Image Klein,
-  FLUX.1 Dev, FLUX.2 Dev, FLUX.2 Klein), Z-Image Turbo, or Ernie Image, or write
+  FLUX.1 Dev, FLUX.2 Dev, FLUX.2 Klein) or Z-Image Turbo, or write
   image-to-image edit instructions for input images (edit, restyle, combine references).
   Triggers on phrases like "prompt for image generation",
   "make this prompt better", "upsample this prompt", "refine my prompt", "convert this
@@ -17,7 +17,7 @@ description: >
 
 Craft, upsample, and refine text prompts for AI image generation and image-to-image editing.
 This skill covers FLUX 3 Image and FLUX 3 Image Klein, earlier Flux models (FLUX.1 Dev,
-FLUX.2 Dev, FLUX.2 Klein), Z-Image Turbo, and Ernie Image.
+FLUX.2 Dev, FLUX.2 Klein), and Z-Image Turbo.
 
 ## Workflow
 
@@ -30,28 +30,27 @@ When the user asks you to craft, upsample, refine, or convert a prompt:
 
    Model inference guidelines:
    - Choose **FLUX 3 Image** whenever the user supplies or refers to input images (edit,
-     restyle, put X into Y, combine references), when elements need exact placement, or for
-     text-heavy designs with long verbatim copy such as infographics and editorial spreads.
+     restyle, put X into Y, combine references), for readable text, typography, posters,
+     graphic or multi-panel layouts, diagrams, and infographics, or when elements need exact
+     placement.
+   - Choose **Z-Image Turbo** whenever the user implies speed: fast iteration, quick drafts,
+     many variations, or a lightweight/local model. Also choose it for stylized/conceptual
+     images and bilingual English/Chinese prompts. Keep prompts to 80-250 words with 3-5
+     core concepts.
    - Choose **FLUX 3 Image Klein** only when the user asks for it or for open weights with
      FLUX 3 features; write full captions if they run it without its prompt upsampler.
-   - Choose **Ernie Image** for prompts with short readable text, posters, graphic layouts,
-     multi-panel layouts, diagrams, typography, or bilingual/Chinese-language needs.
    - Choose **FLUX.2 Dev** for complex, highly detailed scenes, precise color direction,
      long natural-language prompts, product/editorial work, or when maximum prompt
      control is useful.
-   - Choose **FLUX.2 Klein** for local/lightweight workflows only when the user implies
-     speed, smaller model use, or very literal prompt following; make the prompt detailed.
+   - Choose **FLUX.2 Klein** only when the user names it; make the prompt detailed.
    - Choose **FLUX.1 Dev** for general high-quality photographic or cinematic images when
      no FLUX.2-specific benefit is needed.
-   - Choose **Z-Image Turbo** for fast iteration, stylized/conceptual images, bilingual
-     English/Chinese prompts, or concise 80-250 word prompts with 3-5 core concepts.
 
 2. **Read the relevant reference file(s)** from `references/`:
    - `common-prompting.md` — always read this first
    - `flux-3.md` — for FLUX 3 Image and FLUX 3 Image Klein, including image editing
    - `flux-family.md` — for FLUX.1 Dev, FLUX.2 Dev, FLUX.2 Klein
    - `z-image-turbo.md` — for Z-Image Turbo
-   - `ernie.md` — for Ernie Image
 
 3. **Determine the task type**:
    - **Craft from scratch**: user describes a concept or scene in plain language
@@ -151,8 +150,8 @@ Rules for the output:
   clarification question when the conflict changes the core intent.
 - If the user provides unsafe, copyrighted-character, or brand-heavy wording, preserve
   the visual intent using generic descriptive language.
-- If the requested image includes text, keep the quoted text short and choose Ernie Image
-  when no model was specified. For long verbatim copy, choose FLUX 3 Image.
+- If the requested image includes text and no model was specified, choose FLUX 3 Image.
+  Keep quoted text short unless the user supplies long verbatim copy.
 - If the user describes an edit but no image is attached, write the instruction assuming the
   images they described, and state the expected image order.
 - Do not invent bounding-box coordinates for existing images. Use positional wording unless
@@ -167,8 +166,7 @@ Rules for the output:
 | FLUX.1 Dev | Medium-Long | Built-in | Excellent | 12B params, natural language |
 | FLUX.2 Dev | Medium-Long | Built-in | Excellent | Up to 32K tokens, HEX colors |
 | FLUX.2 Klein | Must be detailed | None | Excellent | 4B params, what-you-write-is-what-you-get |
-| Z-Image Turbo | 80-250 words | None | Good bilingual | No negative prompts, 3-5 concepts max |
-| Ernie Image | Short-Medium | Built-in Enhancer | Best-in-class | Layout instructions, multi-panel, bilingual |
+| Z-Image Turbo | 80-250 words | None | Good bilingual | Fast option, no negative prompts, 3-5 concepts max |
 
 ## Cross-Model Conversion Tips
 
@@ -183,9 +181,3 @@ When converting a prompt from one model to another:
 
 - **To Z-Image Turbo**: Condense to 80-250 words. Prioritize the 3-5 most important visual
   concepts. Remove redundant detail.
-
-- **To Ernie Image**: Shorten if under 50 words (Enhancer will expand). Keep text-in-image
-  elements in quotes. Add explicit layout terms if relevant.
-
-- **From Ernie to others**: Expand the enhanced description manually since other models
-  lack the built-in enhancer.
