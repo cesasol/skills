@@ -2,6 +2,8 @@
 
 Applies to: **FLUX.1 Dev**, **FLUX.2 Dev**, **FLUX.2 Klein**
 
+For **FLUX 3 Image** and **FLUX 3 Image Klein**, read `flux-3.md` instead.
+
 ## Overview
 
 The Flux family from Black Forest Labs uses flow matching and natural language understanding. All variants excel at prompt adherence, visual quality, and text rendering. They share core prompting
@@ -55,6 +57,7 @@ Flux has excellent text rendering. Use this three-step approach:
 - Describe color and effects: "red neon letters", "gold serif lettering"
 - Use hex codes for brand-precise colors: `"The logo text 'ACME' in color #FF5733"`
 - Keep text short — long strings are harder to render
+- Give each text element a size role: "large headline", "medium subheading", "small body copy"
 - Specify font character: serif = traditional/formal, sans-serif = modern, script = elegant
 
 ### Typography Styles
@@ -167,6 +170,29 @@ Build prompts incrementally. Start simple, observe, then add one element at a ti
 - Same as FLUX.1 Dev but with much longer prompt capacity
 - Use HEX codes for brand-precise colors
 - Can use JSON format for complex production workflows
+- Multi-reference compositing with up to 8 images: refer to "image 1", "image 2", and say
+  which element comes from which image
+
+**JSON structured prompts** — use for automation, consistent structure, or complex multi-subject
+scenes; use prose for quick exploration. Send the JSON as a string in `prompt`:
+
+```json
+{
+  "scene": "overall scene description",
+  "subjects": [
+    {"description": "detailed subject", "position": "where in frame", "action": "what they're doing"}
+  ],
+  "style": "artistic style",
+  "color_palette": ["#hex1", "#hex2", "#hex3"],
+  "lighting": "lighting description",
+  "mood": "emotional tone",
+  "background": "background details",
+  "composition": "framing and layout",
+  "camera": {"angle": "camera angle", "lens": "lens type", "depth_of_field": "focus behavior"}
+}
+```
+
+Iterate by changing one field at a time, such as adding a second subject or recoloring one element.
 
 ### FLUX.2 Klein
 

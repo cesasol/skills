@@ -24,6 +24,24 @@
       "prompt": "Make me a prompt for a vintage travel poster that says 'VISIT KYOTO' for Ernie Image. I want it to look like a 1920s Japanese woodblock print with cherry blossoms and a pagoda.",
       "expected_output": "A prompt with the text 'VISIT KYOTO' in quotation marks, described placement and font style, 1920s Japanese woodblock print style reference, cherry blossoms and pagoda elements. No aspect ratio or resolution specs inside the prompt text. Include a separate recommended aspect ratio for each variation.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Write a FLUX 3 Image prompt for a minimalist jazz festival poster titled 'NIGHT SHIFT' with the line 'Riverside Stage / 14 June / 20:00'. Midnight blue and brass gold.",
+      "expected_output": "FLUX 3 Image prompts that open with the medium and style, quote 'NIGHT SHIFT' and the supporting copy exactly, describe text placement, size role, and type style, and may use the labeled design brief format. Constraints are phrased positively and the prompts use no quality filler words such as 'masterpiece'. No aspect ratio inside the prompt text; a separate recommended portrait ratio such as 2:3 or 3:4 for each variation.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "I have a photo of my living room and a product shot of a ceramic lamp. Write the prompt to put the lamp on the oak sideboard in my living room photo.",
+      "expected_output": "Infers FLUX 3 Image without asking. Each variation is an edit instruction, not a scene description: it refers to the inputs as image 1 (living room, base) and image 2 (lamp), places the lamp on the sideboard, asks it to match the room's lighting, scale, and shadows, and names elements that must stay unchanged. Includes an image-order line and recommends 'auto' aspect ratio. Invents no bounding-box coordinates.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Edit this street photo for FLUX 3: there are two cars, make only the white one on the right red, and take the trash can out.",
+      "expected_output": "FLUX 3 Image edit instructions that pick out the white car on the right so only one car matches, give the new color precisely (a hex code or a specific red), state the trash can removal as an instruction, and list what must stay unchanged (the other car, the street). No negative prompt phrasing beyond the removal instruction. Recommends 'auto' aspect ratio and includes an image-order line.",
+      "files": []
     }
   ]
 }
